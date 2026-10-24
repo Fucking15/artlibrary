@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technique-kb.org/schema/sources.schema.json",
+  "title": "Technique KB — source registry",
+  "description": "Every claim points here. The grade on this record is what a reader sees next to an answer, so grades must be assigned by the cited source's own nature, not by how much we like the claim.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "sources"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "updated": { "type": "string", "format": "date" },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "grade", "kind", "citation", "lang"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "grade": { "$ref": "common.schema.json#/$defs/sourceGrade" },
+          "kind": { "$ref": "common.schema.json#/$defs/sourceKind" },
+          "citation": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["title", "year"],
+            "properties": {
+              "authors": { "type": "array", "items": { "type": "string", "maxLength": 120 } },
+              "title": { "type": "string", "minLength": 2, "maxLength": 300 },
+              "container": { "type": "string", "maxLength": 200, "description": "Journal, series, exhibition venue or website name." },
+              "publisher": { "type": "string", "maxLength": 120 },
+              "place": { "type": "string", "maxLength": 80 },
+              "year": { "$ref": "common.schema.json#/$defs/year" },
+              "pages": { "type": "string", "maxLength": 40 },
+              "edition": { "type": "string", "maxLength": 80 }
+            }
+          },
+          "url": { "type": "string", "pattern": "^https://", "maxLength": 500 },
+          "accessed": { "type": "string", "format": "date" },
+          "lang": { "$ref": "common.schema.json#/$defs/lang" },
+          "rights": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "license": { "type": "string", "maxLength": 80 },
+              "quotation_basis_zh": {
+                "type": "string",
+                "maxLength": 300,
+                "description": "Why this repository may quote from it (short quotation for scholarship, open licence, public domain ...)."
+              }
+            }
+          },
+          "verified_by": { "$ref": "common.schema.json#/$defs/signedBy" },
+          "notes_zh": { "type": "string", "maxLength": 600 }
+        }
+      }
+    }
+  }
+}

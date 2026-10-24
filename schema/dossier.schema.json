@@ -1,0 +1,249 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technique-kb.org/schema/dossier.schema.json",
+  "title": "Technique KB — period dossier",
+  "description": "One dossier per artist-period. Its whole purpose is to make blank areas impossible: all six dimensions and all five composition fields are structurally required, each with at least one sourced claim.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "dossier_id",
+    "artist",
+    "period",
+    "lineage",
+    "comparison",
+    "material",
+    "composition",
+    "subject_matter",
+    "works",
+    "meta"
+  ],
+  "properties": {
+    "$schema": { "type": "string" },
+    "dossier_id": { "$ref": "common.schema.json#/$defs/id" },
+    "artist": { "$ref": "common.schema.json#/$defs/id" },
+
+    "period": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "label", "start_year", "end_year", "basis_zh", "claims"],
+      "properties": {
+        "id": { "$ref": "common.schema.json#/$defs/id" },
+        "label": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["zh", "en"],
+          "properties": {
+            "zh": { "type": "string", "minLength": 2, "maxLength": 60 },
+            "en": { "type": "string", "minLength": 2, "maxLength": 80 }
+          }
+        },
+        "start_year": { "$ref": "common.schema.json#/$defs/year" },
+        "end_year": { "$ref": "common.schema.json#/$defs/year" },
+        "basis_zh": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 600,
+          "description": "Why the period is cut here and not elsewhere. A periodization without a stated basis is an opinion."
+        },
+        "anchors": {
+          "type": "array",
+          "description": "Dated events that pin the period (moves, exhibitions, arrests, deaths, commissions).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["year", "event_zh", "evidence"],
+            "properties": {
+              "year": { "$ref": "common.schema.json#/$defs/year" },
+              "month_day": { "type": "string", "pattern": "^[0-9]{2}-[0-9]{2}$" },
+              "event_zh": { "type": "string", "minLength": 4, "maxLength": 200 },
+              "evidence": { "$ref": "common.schema.json#/$defs/evidenceList" }
+            }
+          }
+        },
+        "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
+      }
+    },
+
+    "lineage": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Where this period's technique came from: teacher, peer, group, movement, reproduction, or the artist's own prior period.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "relation", "counterpart", "transmitted_elements", "summary_zh", "claims"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "relation": { "$ref": "common.schema.json#/$defs/relation" },
+          "counterpart": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label_zh", "type"],
+            "properties": {
+              "label_zh": { "type": "string", "minLength": 2, "maxLength": 80 },
+              "type": { "enum": ["artist", "group", "movement", "institution", "object", "self_prior_period"] },
+              "registry_ref": { "$ref": "common.schema.json#/$defs/id" },
+              "external_authority": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["scheme", "value"],
+                "properties": {
+                  "scheme": { "enum": ["ULAN", "Wikidata", "GND", "VIAF"] },
+                  "value": { "type": "string", "minLength": 2, "maxLength": 40 }
+                }
+              }
+            }
+          },
+          "window": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from_year"],
+            "properties": {
+              "from_year": { "$ref": "common.schema.json#/$defs/year" },
+              "to_year": { "$ref": "common.schema.json#/$defs/year" }
+            }
+          },
+          "transmitted_elements": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "common.schema.json#/$defs/axis" },
+            "description": "Which parts of the craft actually passed over. 'Influenced by Klimt' with no element named is exactly the vague sentence this repository exists to replace."
+          },
+          "summary_zh": { "type": "string", "minLength": 6, "maxLength": 500 },
+          "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
+        }
+      }
+    },
+
+    "comparison": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The dimension with no ready-made data: what a contemporary (or the artist's own previous period) was doing on one axis, and what he did differently.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "counterpart", "axis", "their_practice_zh", "his_difference_zh", "claims"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "counterpart": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["label_zh", "type"],
+            "properties": {
+              "label_zh": { "type": "string", "minLength": 2, "maxLength": 80 },
+              "type": { "enum": ["artist", "group", "movement", "self_prior_period"] },
+              "registry_ref": { "$ref": "common.schema.json#/$defs/id" },
+              "external_authority": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["scheme", "value"],
+                "properties": {
+                  "scheme": { "enum": ["ULAN", "Wikidata", "GND", "VIAF"] },
+                  "value": { "type": "string", "minLength": 2, "maxLength": 40 }
+                }
+              }
+            }
+          },
+          "axis": { "$ref": "common.schema.json#/$defs/axis" },
+          "their_practice_zh": { "type": "string", "minLength": 6, "maxLength": 400 },
+          "his_difference_zh": { "type": "string", "minLength": 6, "maxLength": 400 },
+          "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
+        }
+      }
+    },
+
+    "material": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["supports", "mediums", "claims"],
+      "properties": {
+        "supports": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "common.schema.json#/$defs/support" } },
+        "mediums": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "common.schema.json#/$defs/medium" } },
+        "ground_zh": { "type": "string", "maxLength": 300, "description": "Preparation of the support, if documented." },
+        "process_zh": { "type": "string", "maxLength": 600, "description": "Order of operations: what goes down first, what is left as bare support." },
+        "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
+      }
+    },
+
+    "composition": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "All five fields are required. A dossier with an empty field is exactly the blank area this project is meant to close.",
+      "required": ["structure_proportion", "color", "framing", "light_shadow", "brushwork"],
+      "properties": {
+        "structure_proportion": { "$ref": "#/$defs/fieldBlock" },
+        "color": { "$ref": "#/$defs/fieldBlock" },
+        "framing": { "$ref": "#/$defs/fieldBlock" },
+        "light_shadow": { "$ref": "#/$defs/fieldBlock" },
+        "brushwork": { "$ref": "#/$defs/fieldBlock" }
+      }
+    },
+
+    "subject_matter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["motifs", "claims"],
+      "properties": {
+        "motifs": { "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "common.schema.json#/$defs/motif" } },
+        "rationale_zh": { "type": "string", "maxLength": 500, "description": "Why these motifs and not others in this period." },
+        "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
+      }
+    },
+
+    "works": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/id" },
+      "description": "Works used as visual evidence in this dossier. Resolved against the work registry; copies are rejected."
+    },
+
+    "open_questions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["question_zh", "why_open_zh"],
+        "properties": {
+          "question_zh": { "type": "string", "minLength": 6, "maxLength": 300 },
+          "why_open_zh": { "type": "string", "minLength": 6, "maxLength": 400 },
+          "needs": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/sourceGrade" } }
+        }
+      },
+      "description": "Known blanks, stated out loud. The Q&A layer answers these with 'evidence insufficient' rather than improvising."
+    },
+
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["status", "version", "created", "updated"],
+      "properties": {
+        "status": { "enum": ["draft", "review", "signed"] },
+        "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+        "created": { "type": "string", "format": "date" },
+        "updated": { "type": "string", "format": "date" },
+        "signed_by": { "type": "array", "items": { "$ref": "common.schema.json#/$defs/signedBy" } },
+        "example": { "type": "boolean", "description": "True when the dossier exists to demonstrate structure and its citations are not yet verified." },
+        "notes_zh": { "type": "string", "maxLength": 600 }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "status": { "const": "signed" } }, "required": ["status"] },
+          "then": { "required": ["signed_by"] }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "fieldBlock": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["summary_zh", "claims"],
+      "properties": {
+        "summary_zh": { "type": "string", "minLength": 6, "maxLength": 600 },
+        "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
+      }
+    }
+  }
+}

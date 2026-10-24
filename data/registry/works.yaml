@@ -1,0 +1,63 @@
+$schema: "../schema/works.schema.json"
+version: 0.1.0
+updated: "2026-10-25"
+# 说明：本文件只登记作品与 IIIF 指针，不存任何图像字节。
+# 示例记录的材质/馆藏信息待核验，详见各条 notes_zh。
+
+works:
+  - id: work.schiele.1912.die-eremiten
+    artist: schiele
+    title:
+      zh: 隐士（双重自画像）
+      en: The Hermits (Double Self-Portrait)
+      de: Die Eremiten
+    year:
+      from: 1912
+    support: canvas
+    mediums: [oil]
+    collection:
+      institution: Leopold Museum
+      city: Vienna
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 示例记录。材质、尺寸与馆藏编号待核验；IIIF manifest 尚未登记。
+
+  - id: work.schiele.1912.laternenbluete-selbstbildnis
+    artist: schiele
+    title:
+      zh: 带中国灯笼花的自画像
+      en: Self-Portrait with Chinese Lantern Plant
+      de: Selbstbildnis mit chinesischem Laternenblüten
+    year:
+      from: 1912
+    support: canvas
+    mediums: [oil]
+    collection:
+      institution: Leopold Museum
+      city: Vienna
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 示例记录。构造为半身、正面、双手举起的对称构图，是此期"取景收缩"的典型样本。
+
+  - id: work.schiele.1914.tote-mutter
+    artist: schiele
+    title:
+      zh: 死去的母亲
+      en: Dead Mother
+      de: Tote Mutter
+    year:
+      from: 1914
+    support: canvas
+    mediums: [oil]
+    collection:
+      institution: Leopold Museum
+      city: Vienna
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 示例记录。此期结束处的关键作品，母子构图规模重新出现。

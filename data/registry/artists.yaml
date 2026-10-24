@@ -1,0 +1,43 @@
+$schema: "../schema/artists.schema.json"
+version: 0.1.0
+updated: "2026-10-25"
+artists:
+  - id: schiele
+    names:
+      zh: 埃贡·席勒
+      en: Egon Schiele
+      de: Egon Schiele
+      birth_name: Egon Leo Adolf Ludwig Schiele
+    birth_year: 1890
+    death_year: 1918
+    birth_place_zh: 下奥地利图尔恩
+    death_place_zh: 维也纳
+    nationality: [Austria]
+    roles: [painter, draughtsman, printmaker]
+    authorities:
+      wikidata: Q44032
+    notes_zh: 本库第一个纵深对象。死亡证明记载为西班牙流感，与其妻艾迪特相隔三日去世。
+
+  - id: klimt
+    names:
+      zh: 古斯塔夫·克林姆
+      en: Gustav Klimt
+    birth_year: 1862
+    death_year: 1918
+    nationality: [Austria]
+    roles: [painter]
+    authorities:
+      wikidata: Q34661
+    notes_zh: 对照层人物。席勒 1907 年结识，1911-14 期的影响已退到材料与用色层面。
+
+  - id: kokoschka
+    names:
+      zh: 奥斯卡·柯克施卡
+      en: Oskar Kokoschka
+    birth_year: 1886
+    death_year: 1980
+    nationality: [Austria, United Kingdom]
+    roles: [painter, draughtsman]
+    authorities:
+      wikidata: Q154260
+    notes_zh: 对照层人物。与席勒同期、同城、同被视作奥地利表现主义代表。

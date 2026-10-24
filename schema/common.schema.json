@@ -1,0 +1,193 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technique-kb.org/schema/common.schema.json",
+  "title": "Technique KB — shared definitions",
+  "description": "Enumerations and reusable structures shared by all record types. Schema layer strings are English; authored content is Chinese (field names ending in _zh).",
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,79}$",
+      "description": "Stable, human-readable, low-case identifier. Dots separate namespaces, e.g. schiele, schiele.1911-1914, work.schiele.1912.laternenbluete-selbstbildnis."
+    },
+    "year": { "type": "integer", "minimum": 1450, "maximum": 2100 },
+    "lang": { "enum": ["zh", "en", "de", "fr", "it", "other"] },
+    "sourceGrade": {
+      "enum": ["A", "B", "C"],
+      "description": "A = scholarly (catalogue raisonne, monograph, peer-reviewed article, museum research document). B = institutional (museum object page, official collection database, archive record). C = secondary (exhibition microsite, press article, interview, documentary)."
+    },
+    "sourceKind": {
+      "enum": [
+        "catalogue_raisonne",
+        "monograph",
+        "exhibition_catalogue",
+        "journal_article",
+        "conference_paper",
+        "dissertation",
+        "museum_object_page",
+        "museum_research_document",
+        "archive_record",
+        "database_record",
+        "exhibition_page",
+        "press_article",
+        "interview",
+        "documentary",
+        "other"
+      ]
+    },
+    "dimension": {
+      "enum": ["period", "lineage", "comparison", "material", "composition", "subject_matter"],
+      "description": "The six dimensions every period dossier must cover. See docs/schema.zh.md."
+    },
+    "compositionField": {
+      "enum": ["structure_proportion", "color", "framing", "light_shadow", "brushwork"],
+      "description": "structure_proportion = 结构与比例; color = 颜色; framing = 取景; light_shadow = 明暗光影; brushwork = 画面技法与笔法."
+    },
+    "axis": {
+      "enum": [
+        "structure_proportion",
+        "color",
+        "framing",
+        "light_shadow",
+        "brushwork",
+        "material",
+        "subject_matter",
+        "lineage"
+      ],
+      "description": "Comparison axes include the five composition fields plus material, subject matter and lineage."
+    },
+    "support": { "enum": ["paper", "cardboard", "canvas", "wood_panel", "copper", "other"] },
+    "medium": {
+      "enum": [
+        "graphite",
+        "pencil",
+        "charcoal",
+        "crayon",
+        "chalk",
+        "watercolor",
+        "gouache",
+        "tempera",
+        "oil",
+        "etching",
+        "lithograph",
+        "drypoint",
+        "mixed_media",
+        "other"
+      ]
+    },
+    "motif": {
+      "enum": [
+        "self_portrait",
+        "portrait",
+        "double_portrait",
+        "nude",
+        "figure_study",
+        "landscape",
+        "cityscape",
+        "interior",
+        "still_life",
+        "allegory",
+        "religious",
+        "animal",
+        "other"
+      ]
+    },
+    "relation": {
+      "enum": [
+        "teacher_mentor",
+        "peer",
+        "group_membership",
+        "movement",
+        "institution",
+        "print_reproduction",
+        "collection_visit",
+        "self_prior_period",
+        "other"
+      ]
+    },
+    "claimStatus": { "enum": ["draft", "verified", "signed", "deprecated"] },
+    "confidence": { "enum": ["high", "medium", "low"] },
+
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source", "locator", "quote"],
+      "properties": {
+        "source": { "$ref": "#/$defs/id", "description": "Must resolve to an entry in data/registry/sources.yaml." },
+        "locator": {
+          "type": "string",
+          "minLength": 2,
+          "maxLength": 160,
+          "description": "Where in the source: page, plate, catalogue number, chapter, section heading. Never leave this vague enough to be uncheckable."
+        },
+        "quote": {
+          "type": "string",
+          "minLength": 8,
+          "maxLength": 900,
+          "description": "Verbatim supporting passage. If the source text is not quoted, write what is shown (e.g. a plate caption) rather than a paraphrase."
+        },
+        "quote_lang": { "$ref": "#/$defs/lang" },
+        "translation_zh": { "type": "string", "maxLength": 900, "description": "Chinese rendering of the quote when quote_lang is not zh." }
+      }
+    },
+    "evidenceList": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/evidence" } },
+
+    "iiifRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["work", "region"],
+      "properties": {
+        "work": { "$ref": "#/$defs/id", "description": "Must resolve to data/registry/works.yaml." },
+        "canvas": { "type": "string", "maxLength": 200, "description": "Canvas id inside the work's IIIF manifest; omit when the manifest has a single canvas." },
+        "region": {
+          "type": "string",
+          "pattern": "^(full|pct:[0-9]{1,3}(\\.[0-9]+)?,[0-9]{1,3}(\\.[0-9]+)?,[0-9]{1,3}(\\.[0-9]+)?,[0-9]{1,3}(\\.[0-9]+)?|[0-9]+,[0-9]+,[0-9]+,[0-9]+)$",
+          "description": "IIIF region: 'full', 'pct:x,y,w,h' or 'x,y,w,h' in image pixels. This is how a claim points at the exact stroke it is talking about."
+        },
+        "note_zh": { "type": "string", "maxLength": 400, "description": "What to look at in this region." }
+      }
+    },
+
+    "signedBy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["reviewer", "date"],
+      "properties": {
+        "reviewer": { "type": "string", "minLength": 2, "maxLength": 80 },
+        "role": { "enum": ["author", "editor", "guest_expert", "translator"] },
+        "date": { "type": "string", "format": "date" },
+        "note_zh": { "type": "string", "maxLength": 300 }
+      }
+    },
+
+    "claim": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The atomic unit of the knowledge base: one falsifiable sentence plus its evidence. Questions are answered by retrieving claims, never by free generation.",
+      "required": ["statement_zh", "evidence", "status"],
+      "properties": {
+        "statement_zh": {
+          "type": "string",
+          "minLength": 6,
+          "maxLength": 160,
+          "description": "One sentence, falsifiable, no hedging filler. If it needs two sentences it is two claims."
+        },
+        "evidence": { "$ref": "#/$defs/evidenceList" },
+        "iiif_evidence": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/iiifRef" },
+          "description": "Optional visual proof: the region of a work that shows the claim."
+        },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "status": { "$ref": "#/$defs/claimStatus" },
+        "signed_by": { "$ref": "#/$defs/signedBy" },
+        "note_zh": { "type": "string", "maxLength": 500, "description": "Disagreements, limits of the claim, or what it does not cover." }
+      },
+      "allOf": [
+        {
+          "if": { "required": ["status"], "properties": { "status": { "const": "signed" } } },
+          "then": { "required": ["signed_by", "confidence"] }
+        }
+      ]
+    }
+  }
+}

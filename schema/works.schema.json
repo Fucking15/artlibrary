@@ -1,0 +1,103 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technique-kb.org/schema/works.schema.json",
+  "title": "Technique KB — work registry",
+  "description": "Works are referenced by claims and carry the IIIF pointer. No image bytes are ever stored in this repository.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "works"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "updated": { "type": "string", "format": "date" },
+    "works": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "artist", "title", "year", "support", "mediums", "attribution", "public_domain"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "artist": { "$ref": "common.schema.json#/$defs/id", "description": "Must resolve to an entry in the artist registry." },
+          "title": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["zh", "en"],
+            "properties": {
+              "zh": { "type": "string", "minLength": 1, "maxLength": 160 },
+              "en": { "type": "string", "minLength": 1, "maxLength": 200 },
+              "de": { "type": "string", "maxLength": 200 }
+            }
+          },
+          "year": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["from"],
+            "properties": {
+              "from": { "$ref": "common.schema.json#/$defs/year" },
+              "to": { "$ref": "common.schema.json#/$defs/year" },
+              "circa": { "type": "boolean", "default": false }
+            }
+          },
+          "support": { "$ref": "common.schema.json#/$defs/support" },
+          "mediums": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": { "$ref": "common.schema.json#/$defs/medium" }
+          },
+          "dimensions_cm": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["height", "width"],
+            "properties": {
+              "height": { "type": "number", "minimum": 1 },
+              "width": { "type": "number", "minimum": 1 }
+            }
+          },
+          "collection": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["institution"],
+            "properties": {
+              "institution": { "type": "string", "minLength": 2, "maxLength": 160 },
+              "city": { "type": "string", "maxLength": 80 },
+              "inventory_no": { "type": "string", "maxLength": 60 }
+            }
+          },
+          "attribution": {
+            "enum": ["autograph", "attributed", "workshop_or_copy", "doubtful"],
+            "description": "Copies and 'after Schiele' objects never become evidence for a technique claim; they are flagged here and rejected by the validator."
+          },
+          "public_domain": {
+            "type": "boolean",
+            "description": "True only when the underlying work is out of copyright in the relevant jurisdictions. Photographic rights in the museum's surrogate are a separate matter and are never claimed here."
+          },
+          "iiif": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["status"],
+            "properties": {
+              "status": { "enum": ["pending", "resolved", "not_available"] },
+              "manifest": {
+                "type": "string",
+                "pattern": "^https://",
+                "maxLength": 500,
+                "description": "Institution IIIF Presentation manifest URL. Required when status = resolved."
+              },
+              "canvas": { "type": "string", "maxLength": 200 }
+            },
+            "allOf": [
+              {
+                "if": { "properties": { "status": { "const": "resolved" } }, "required": ["status"] },
+                "then": { "required": ["manifest"] }
+              }
+            ]
+          },
+          "notes_zh": { "type": "string", "maxLength": 600 }
+        }
+      }
+    }
+  }
+}

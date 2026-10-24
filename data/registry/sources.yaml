@@ -1,0 +1,75 @@
+$schema: "../schema/sources.schema.json"
+version: 0.1.0
+updated: "2026-10-25"
+# 分级规则（详见 README.md）：
+#   A 学术：catalogue raisonné / 专著 / 同行评审论文 / 馆方研究文档
+#   B 机构：馆藏对象页、官方藏品数据库、档案记录
+#   C 次级：展览专题页、媒体报道、访谈、纪录片
+#
+# 注意：以下示例条目的页码、章节等 locator 均为占位写法，尚未逐条核验。
+# 任何 claim 在 status 变为 signed 之前，必须把 locator 换成可复查的准确位置。
+
+sources:
+  - id: src.kallir.1990
+    grade: A
+    kind: catalogue_raisonne
+    citation:
+      authors: [Jane Kallir]
+      title: "Egon Schiele: The Complete Works"
+      publisher: Harry N. Abrams
+      place: New York
+      year: 1990
+    lang: en
+    rights:
+      quotation_basis_zh: 学术性短引，用于标注具体论断来源。
+    notes_zh: 席勒作品全集目录（catalogue raisonné）的第一版，是所有分期与作品信息的基础参照。
+
+  - id: src.leopold.schiele
+    grade: B
+    kind: museum_object_page
+    citation:
+      title: Egon Schiele — collection holdings
+      container: Leopold Museum
+      year: 2026
+    url: https://www.leopoldmuseum.org/
+    accessed: "2026-10-25"
+    lang: de
+    rights:
+      quotation_basis_zh: 引用馆方公开的对象说明文字，逐条标注。
+    notes_zh: 全球最大的席勒收藏。URL 待核验到具体对象页；示例中仅作机构级来源使用。
+
+  - id: src.albertina.schiele
+    grade: B
+    kind: museum_research_document
+    citation:
+      title: Egon Schiele — graphic works, online collection
+      container: Albertina
+      year: 2026
+    url: https://www.albertina.at/
+    accessed: "2026-10-25"
+    lang: de
+    notes_zh: 席勒纸上作品的收藏与研究重镇，是"笔法"一维最可靠的机构来源。
+
+  - id: src.neuegalerie.graff.2026
+    grade: C
+    kind: exhibition_page
+    citation:
+      title: "Egon Schiele: Portrait of Dr. Erwin von Graff"
+      container: Neue Galerie New York
+      year: 2026
+    url: https://www.neuegalerie.org/exhibitions
+    accessed: "2026-10-25"
+    lang: en
+    notes_zh: 展览专题页，用于佐证 von Graff 诊所见闻与母题来源；按规则只能作 C 级旁证。
+
+  - id: src.schielemuseum.rivals.2026
+    grade: C
+    kind: exhibition_page
+    citation:
+      title: "Egon Schiele und Oskar Kokoschka. Rivalen"
+      container: Egon Schiele Museum, Tulln
+      year: 2026
+    url: https://www.schielemuseum.at/en/your-visit/exhibition
+    accessed: "2026-10-25"
+    lang: de
+    notes_zh: 用于同期对比关系的旁证；对比维度的 A 级来源仍需补图录。

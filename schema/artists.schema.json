@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://technique-kb.org/schema/artists.schema.json",
+  "title": "Technique KB — artist registry",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "artists"],
+  "properties": {
+    "$schema": { "type": "string" },
+    "version": { "type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$" },
+    "updated": { "type": "string", "format": "date" },
+    "artists": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "names", "birth_year", "death_year"],
+        "properties": {
+          "id": { "$ref": "common.schema.json#/$defs/id" },
+          "names": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["zh", "en"],
+            "properties": {
+              "zh": { "type": "string", "minLength": 1, "maxLength": 80 },
+              "en": { "type": "string", "minLength": 1, "maxLength": 120 },
+              "de": { "type": "string", "maxLength": 120 },
+              "birth_name": { "type": "string", "maxLength": 160 }
+            }
+          },
+          "birth_year": { "$ref": "common.schema.json#/$defs/year" },
+          "death_year": { "$ref": "common.schema.json#/$defs/year" },
+          "birth_place_zh": { "type": "string", "maxLength": 80 },
+          "death_place_zh": { "type": "string", "maxLength": 80 },
+          "nationality": { "type": "array", "items": { "type": "string", "maxLength": 40 } },
+          "roles": {
+            "type": "array",
+            "items": { "enum": ["painter", "draughtsman", "printmaker", "sculptor", "designer", "other"] }
+          },
+          "authorities": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "ulan": { "type": "string", "maxLength": 40 },
+              "wikidata": { "type": "string", "pattern": "^Q[0-9]+$" },
+              "gnd": { "type": "string", "maxLength": 40 },
+              "viaf": { "type": "string", "maxLength": 40 }
+            }
+          },
+          "notes_zh": { "type": "string", "maxLength": 600 }
+        }
+      }
+    }
+  }
+}
