@@ -10,9 +10,8 @@ permissions:
   pages: write
   id-token: write
 
-concurrency:
-  group: pages
-  cancel-in-progress: true
+# No concurrency group on purpose: a run that hangs before Pages exists (or during a Pages
+# incident) would otherwise hold the lock and queue every later deploy behind it forever.
 
 jobs:
   build:
