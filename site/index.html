@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>技法图谱 · technique-kb</title>
+<meta name="description" content="开源的画家技法知识库：六维分期、分级来源、每条结论可追溯。" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">technique-kb · 开源 / open source</p>
+  <h1>画家技法图谱<span class="h1-sub">Technique Atlas</span></h1>
+  <p class="lede">
+    每一句话都是一条 <em>claim</em>：可证伪、带分级来源、挂在六个维度之下。
+    空的维度不是编辑选择，是校验错误。
+  </p>
+  <div id="banner" class="banner" hidden></div>
+</header>
+
+<section class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search">
+      <input id="q" type="search" placeholder="搜习惯用语：线条 / 留白 / 取景 / 克林姆 / 笔触…" autocomplete="off" aria-label="检索条目" />
+      <span class="search-hint" id="qhint">本地检索，未接 LLM</span>
+    </div>
+    <nav id="tabs" class="tabs" aria-label="视图"></nav>
+  </div>
+</section>
+
+<main id="view" aria-live="polite">
+  <p class="loading">正在载入索引…</p>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <h3>这是什么</h3>
+      <p>一个「画家技法」的结构化事实库。数据在 YAML 里，每次推送由 GitHub Actions 校验并生成这个站点。</p>
+    </div>
+    <div>
+      <h3>怎么读一条结论</h3>
+      <ul>
+        <li><span class="chip grade-A">A</span> 学术：catalogue raisonné、论文</li>
+        <li><span class="chip grade-B">B</span> 机构：馆藏官网、档案</li>
+        <li><span class="chip grade-C">C</span> 次级：展览页、媒体</li>
+        <li>全是 C 级证据的结论，置信度必须为低</li>
+      </ul>
+    </div>
+    <div>
+      <h3>链接</h3>
+      <ul>
+        <li><a href="https://github.com/Fucking15/artlibrary">源码与数据</a></li>
+        <li><a href="https://github.com/Fucking15/artlibrary/blob/main/docs/schema.zh.md">字段说明</a></li>
+        <li><a href="https://github.com/Fucking15/artlibrary/blob/main/schema/dossier.schema.json">Schema</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="colophon">代码 MIT · 数据许可待定 · 图像不落库，只存 IIIF 指针</p>
+</footer>
+
+<script src="./app.js"></script>
+</body>
+</html>
