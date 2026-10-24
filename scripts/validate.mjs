@@ -25,7 +25,10 @@ const DATA_DIR = path.join(ROOT, 'data');
 
 const STRICT = process.argv.includes('--strict');
 const STATS_ONLY = process.argv.includes('--stats-only');
+// Local date, not UTC: a signer in UTC+8 signing "today" must not look like the future
+// on a UTC runner. A day of slack absorbs that skew without letting 2099 through.
 const TODAY = new Date(Date.now() - new Date().getTimezoneOffset() * 60_000).toISOString().slice(0, 10);
+const SKEW_SLACK_DATE = new Date(Date.parse(TODAY) + 86_400_000).toISOString().slice(0, 10);
 
 const DIMENSIONS = ['period', 'lineage', 'comparison', 'material', 'composition', 'subject_matter'];
 const COMPOSITION_FIELDS = ['structure_proportion', 'color', 'framing', 'light_shadow', 'brushwork'];
@@ -239,7 +242,7 @@ for (const { file, doc } of dossiers) {
       if (!isExample && signer.startsWith('example-')) {
         err(where, `${dim}/${field}: example-* signature in a real dossier`);
       }
-      if (claim.signed_by?.date && claim.signed_by.date > TODAY) {
+      if (claim.signed_by?.date && claim.signed_by.date > SKEW_SLACK_DATE) {
         err(where, `${dim}/${field}: signature dated in the future (${claim.signed_by.date})`);
       }
       if ((claim.evidence ?? []).length < 2) {
