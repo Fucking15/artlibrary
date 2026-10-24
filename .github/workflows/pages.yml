@@ -36,10 +36,22 @@ jobs:
       - name: Build site payload
         run: npm run build:site
 
-      # enablement lets the workflow turn on Pages itself (public repositories, admin token)
+      # Pages has to be switched on once by someone with admin rights on the repository:
+      # Settings -> Pages -> Build and deployment -> Source: GitHub Actions.
+      # Failing fast with that sentence beats hanging on configure-pages for ten minutes.
+      - name: Check that Pages is enabled
+        run: |
+          code=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages")
+          echo "GET /pages -> $code"
+          if [ "$code" != "200" ]; then
+            echo "::error::GitHub Pages is not enabled for this repository. A repository admin must open Settings → Pages → Build and deployment → Source: GitHub Actions, then re-run this workflow."
+            exit 1
+          fi
+
       - uses: actions/configure-pages@v5
-        with:
-          enablement: true
 
       - uses: actions/upload-pages-artifact@v3
         with:
