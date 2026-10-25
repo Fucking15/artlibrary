@@ -117,6 +117,33 @@ for (const [schemaFile, key, dir] of [
   }
 }
 
+/* ------------------------------------------------------- source class rules */
+/**
+ * A/B/C are the original three grades: class must equal grade.
+ * D is a book: grade A or B, but the kind must actually be a publication.
+ * E is a comment thread: always grade C, always carries the url it was quoted from,
+ *    and never allowed to support a signed claim.
+ */
+const CLASS_KINDS = {
+  D: new Set(['book', 'book_chapter', 'edited_volume', 'exhibition_catalogue', 'monograph', 'catalogue_raisonne']),
+  E: new Set(['social_comment', 'forum_thread', 'user_review']),
+};
+for (const source of registry.sources.values()) {
+  const where = `data/registry/sources.yaml#${source.id}`;
+  if (source.class === 'E') {
+    if (source.grade !== 'C') err(where, 'class E (comment thread) must be grade "C"');
+    if (!CLASS_KINDS.E.has(source.kind)) {
+      err(where, `class E cannot use kind "${source.kind}" (expected social_comment / forum_thread / user_review)`);
+    }
+    if (!source.url) err(where, 'class E must carry the url it was quoted from');
+  } else if (source.class === 'D') {
+    if (!['A', 'B'].includes(source.grade)) err(where, 'class D (book) must be grade "A" or "B"');
+    if (!CLASS_KINDS.D.has(source.kind)) err(where, `class D cannot use kind "${source.kind}"`);
+  } else if (source.class) {
+    if (source.class !== source.grade) err(where, `class ${source.class} must equal grade (got grade ${source.grade})`);
+  }
+}
+
 /* ---------------------------------------------------------------- dossiers */
 
 const dossiers = [];
@@ -245,6 +272,9 @@ for (const { file, doc } of dossiers) {
         continue;
       }
       grades.push(source.grade);
+      if (source.class === 'E' && claim.status === 'signed') {
+        err(where, `${dim}/${field}: a signed claim may not rest on a class-E comment (${ev.source})`);
+      }
       if ((ev.locator ?? '').includes('待核验')) {
         flag(`${dim}/${field}: locator still unverified → ${ev.locator}`);
       }

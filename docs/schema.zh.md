@@ -143,6 +143,22 @@ registry（共享）           dossier（一期一份）
 
 等级由**来源本身的性质**决定，不由"这条结论我多喜欢"决定。展览页再权威也还是 C。
 
+### 4b. 来源类别 class（A–E）
+
+`class` 是"这条来源从哪条管道来"，`grade` 是"它有多硬"。两者不是一回事：
+
+| class | 含义 | grade 约束 | 人工审核 |
+|---|---|---|---|
+| A | 学术 | 必须等于 grade（A） | 不用 |
+| B | 机构 | 必须等于 grade（B） | 不用 |
+| C | 次级 | 必须等于 grade（C） | 需要 |
+| D | 书籍（书 / 章节 / 文集） | 只能是 A 或 B | 需要 |
+| E | 评论区（社交平台、论坛、书评） | 只能是 C | 需要，且永远不能进 signed claim |
+
+- D 的 `kind` 只能是 `book` / `book_chapter` / `edited_volume` / `exhibition_catalogue` / `monograph` / `catalogue_raisonne`。
+- E 的 `kind` 只能是 `social_comment` / `forum_thread` / `user_review`，并且必须带 `url`——评论删了就无处可查，必须留链接。
+- 爬虫抓回来的候选先躺在 `data/inbox/`，AI 判过 T/S 之后才可能被写成 sources.yaml 条目；E 类必须经 `/examine` 人工放行。
+
 写进 sources.yaml 时同时填 `rights.quotation_basis_zh`：说明为什么可以引用（学术性短引、开放许可、公有领域）。
 
 ---

@@ -13,7 +13,11 @@
     "lang": { "enum": ["zh", "en", "de", "fr", "it", "other"] },
     "sourceGrade": {
       "enum": ["A", "B", "C"],
-      "description": "A = scholarly (catalogue raisonne, monograph, peer-reviewed article, museum research document). B = institutional (museum object page, official collection database, archive record). C = secondary (exhibition microsite, press article, interview, documentary)."
+      "description": "A = scholarly (catalogue raisonne, monograph, peer-reviewed article, museum research document). B = institutional (museum object page, official collection database, archive record). C = secondary (exhibition microsite, press article, interview, documentary, any user-generated text)."
+    },
+    "sourceClass": {
+      "enum": ["A", "B", "C", "D", "E"],
+      "description": "Which pipeline the source comes from. A scholarly / B institutional / C secondary are the original three and their class must equal their grade. D is a book (grade A or B). E is a comment thread on a social platform (always grade C, always needs a human reviewer before it can support a signed claim)."
     },
     "sourceKind": {
       "enum": [
@@ -31,6 +35,12 @@
         "press_article",
         "interview",
         "documentary",
+        "book",
+        "book_chapter",
+        "edited_volume",
+        "social_comment",
+        "forum_thread",
+        "user_review",
         "other"
       ]
     },

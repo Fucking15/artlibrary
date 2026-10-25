@@ -139,6 +139,42 @@ const cases = [
       fs.writeFileSync(file, yaml.dump(doc));
     },
   },
+  {
+    name: 'a class-D book may not be grade C',
+    expect: /class D \(book\) must be grade "A" or "B"/,
+    mutate(dir) {
+      const file = path.join(dir, 'data/registry/sources.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      const source = doc.sources.find((s) => s.id === 'src.leopold.schiele');
+      source.class = 'D';
+      source.kind = 'book';
+      source.grade = 'C';
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
+  {
+    name: 'a class-E comment may not support a signed claim',
+    expect: /signed claim may not rest on a class-E comment/,
+    mutate(dir) {
+      const sourcesFile = path.join(dir, 'data/registry/sources.yaml');
+      const sources = yaml.load(fs.readFileSync(sourcesFile, 'utf8'));
+      sources.sources.push({
+        id: 'src.example.thread',
+        grade: 'C',
+        class: 'E',
+        kind: 'social_comment',
+        citation: { title: 'example thread', year: 2026 },
+        url: 'https://example.com/thread',
+        lang: 'zh',
+      });
+      fs.writeFileSync(sourcesFile, yaml.dump(sources));
+
+      const file = path.join(dir, 'data/dossiers/schiele/1911-1914.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      doc.material.claims[0].evidence[0].source = 'src.example.thread';
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
 ];
 
 /* --- baseline: the shipped dataset must pass -------------------------------------------- */

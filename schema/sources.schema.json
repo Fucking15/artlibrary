@@ -16,10 +16,11 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "grade", "kind", "citation", "lang"],
+        "required": ["id", "grade", "class", "kind", "citation", "lang"],
         "properties": {
           "id": { "$ref": "common.schema.json#/$defs/id" },
           "grade": { "$ref": "common.schema.json#/$defs/sourceGrade" },
+          "class": { "$ref": "common.schema.json#/$defs/sourceClass" },
           "kind": { "$ref": "common.schema.json#/$defs/sourceKind" },
           "citation": {
             "type": "object",
