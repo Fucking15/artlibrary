@@ -21,15 +21,39 @@ const FIELD_LABELS = {
 const STATUS_LABELS = { draft: '草稿', verified: '已核来源', signed: '已签字', deprecated: '已废弃' };
 const CONF_LABELS = { high: '高', medium: '中', low: '低' };
 
+const MEDIA_LABELS = {
+  oil: '油画',
+  oil_on_panel: '木板油画',
+  watercolor: '水彩',
+  colored_on_paper: '纸上彩色',
+  drawing_on_paper: '纸上素描',
+  print: '版画',
+  period_level: '时期级',
+};
+
 const qs = (sel, root = document) => root.querySelector(sel);
 const esc = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 let DATA = null;
 let TAB = 'overview';
+const selectedMedia = new Set(); // empty = 全部画种
 const view = qs('#view');
 const tabs = qs('#tabs');
+const mediaBar = qs('#media');
 const input = qs('#q');
+
+/* ------------------------------------------------------------------ helpers */
+
+const mediumChip = (key) =>
+  `<span class="chip medium${key === 'period_level' ? ' is-period-level' : ''}">${esc(MEDIA_LABELS[key] ?? key)}</span>`;
+
+/** A claim is visible when no filter is active, or when it speaks for a selected 画种. */
+const visible = (claim) => {
+  if (selectedMedia.size === 0) return true;
+  if (claim.medium.includes('period_level')) return true; // periodization is above 画种
+  return claim.medium.some((medium) => selectedMedia.has(medium));
+};
 
 /* ------------------------------------------------------------------ helpers */
 
@@ -37,6 +61,8 @@ function claimCard(claim, dimKey) {
   const grade = claim.grades.includes('C') && claim.grades.length === 1 ? 'C' : claim.grades[0] ?? '';
   const chips = [
     dimKey ? `<span class="chip">${esc(DIM_LABELS[dimKey]?.zh ?? dimKey)}</span>` : '',
+    claim.medium.map(mediumChip).join(''),
+    claim.not_applicable ? '<span class="chip warn">不适用</span>' : '',
     claim.grades.map((g) => `<span class="chip grade-${esc(g)}">${esc(g)} 级</span>`).join(''),
     `<span class="chip status-${esc(claim.status)}">${esc(STATUS_LABELS[claim.status] ?? claim.status)}</span>`,
     claim.confidence ? `<span class="chip conf-${esc(claim.confidence)}">置信 ${esc(CONF_LABELS[claim.confidence] ?? claim.confidence)}</span>` : '',
@@ -68,6 +94,19 @@ function claimCard(claim, dimKey) {
         .join('')
     : '';
 
+  if (claim.not_applicable) {
+    return `
+    <article class="claim is-na">
+      <span class="na-label">不适用 · not applicable</span>
+      <p class="statement">${esc(claim.reason_zh)}</p>
+      <div class="chips">${chips}</div>
+      <details class="evidence">
+        <summary>证据 ${claim.evidence.length} 条 · ${claim.evidence.map((e) => e.grade).join('')}</summary>
+        <ol>${evidence}</ol>
+      </details>
+    </article>`;
+  }
+
   return `
     <article class="claim" data-grade="${esc(grade)}">
       <p class="statement">${esc(claim.statement_zh)}</p>
@@ -82,7 +121,11 @@ function claimCard(claim, dimKey) {
 }
 
 function claimList(list, dimKey) {
-  return `<div class="claims">${list.map((claim) => claimCard(claim, dimKey)).join('')}</div>`;
+  const shown = list.filter(visible);
+  if (!shown.length) {
+    return `<p class="filter-note">当前画种筛选下，这一项没有可显示的结论。</p>`;
+  }
+  return `<div class="claims">${shown.map((claim) => claimCard(claim, dimKey)).join('')}</div>`;
 }
 
 function entryBlock(headline, pair, body) {
@@ -118,7 +161,30 @@ function renderTabs() {
 }
 
 function countClaims(dim) {
-  return DATA.dossiers.reduce((total, dossier) => total + flatten(dossier, dim).length, 0);
+  return DATA.dossiers.reduce((total, dossier) => total + flatten(dossier, dim).filter(visible).length, 0);
+}
+
+function renderMediaBar() {
+  const counts = {};
+  for (const dossier of DATA.dossiers) {
+    for (const [medium, n] of Object.entries(dossier.media.counts ?? {})) {
+      counts[medium] = (counts[medium] ?? 0) + n;
+    }
+  }
+  const order = ['oil', 'oil_on_panel', 'watercolor', 'colored_on_paper', 'drawing_on_paper', 'print'];
+  const items = order.filter((medium) => counts[medium]);
+  const allPressed = selectedMedia.size === 0;
+
+  mediaBar.innerHTML =
+    `<button data-media="__all" aria-pressed="${allPressed}">全部</button>` +
+    items
+      .map(
+        (medium) =>
+          `<button data-media="${esc(medium)}" aria-pressed="${selectedMedia.has(medium)}">${esc(
+            MEDIA_LABELS[medium] ?? medium,
+          )} <span class="n">${counts[medium]}</span></button>`,
+      )
+      .join('');
 }
 
 function flatten(dossier, dim) {
@@ -151,7 +217,7 @@ function renderOverview() {
 
       const cells = DATA.dims
         .map((dim) => {
-          const n = flatten(dossier, dim).length;
+          const n = flatten(dossier, dim).filter(visible).length;
           return `<div class="dim-cell" data-goto="${dim}">
             <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
             <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>
@@ -160,19 +226,25 @@ function renderOverview() {
         })
         .join('');
 
+      const mediaLine = (dossier.media.declared ?? [])
+        .map((medium) => mediumChip(medium))
+        .join(' ');
+
       return `
       <section class="artist-card">
         <h2>${esc(dossier.artist.zh)}</h2>
         <p class="romanised">${esc(dossier.artist.en)} · ${esc(dossier.artistMeta.birth)}–${esc(dossier.artistMeta.death)}</p>
         <p class="period-line"><b>${esc(dossier.period.start_year)}–${esc(dossier.period.end_year)}</b> ${esc(dossier.period.label.zh)}
           <br />${esc(dossier.period.basis_zh)}</p>
+        <div class="chips" style="margin-top:14px">${mediaLine}</div>
       </section>
 
       <div class="stat-row">
         <div class="stat"><span class="num">${s.claims}</span><span class="lbl">claims</span></div>
+        <div class="stat"><span class="num">${dossier.media.declared.length}</span><span class="lbl">画种</span></div>
         <div class="stat"><span class="num">${s.signed}</span><span class="lbl">已签字</span></div>
         <div class="stat"><span class="num">${s.grades.A ?? 0}</span><span class="lbl">A 级证据</span></div>
-        <div class="stat"><span class="num">${s.grades.B ?? 0}</span><span class="lbl">B 级证据</span></div>
+        <div class="stat"><span class="num">${s.notApplicable ?? 0}</span><span class="lbl">不适用</span></div>
         <div class="stat"><span class="num">${s.unverifiedLocators}</span><span class="lbl">出处待核验</span></div>
       </div>
 
@@ -297,9 +369,11 @@ function searchableClaims() {
 function renderSearch(query) {
   const needle = query.trim().toLowerCase();
   const rows = searchableClaims()
+    .filter((row) => visible(row.claim))
     .map((row) => {
       const haystack = [
         row.claim.statement_zh,
+        row.claim.reason_zh,
         row.claim.note_zh,
         ...row.claim.evidence.map((e) => `${e.quote} ${e.translation_zh ?? ''} ${e.citation} ${e.locator}`),
       ]
@@ -352,6 +426,22 @@ tabs.addEventListener('click', (event) => {
   window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
+mediaBar.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-media]');
+  if (!button) return;
+  const key = button.dataset.media;
+  if (key === '__all') {
+    selectedMedia.clear();
+  } else if (selectedMedia.has(key)) {
+    selectedMedia.delete(key);
+  } else {
+    selectedMedia.add(key);
+  }
+  renderMediaBar();
+  renderTabs();
+  render();
+});
+
 view.addEventListener('click', (event) => {
   const cell = event.target.closest('[data-goto]');
   if (!cell) return;
@@ -393,6 +483,7 @@ fetch('./data/index.json')
     }
 
     renderTabs();
+    renderMediaBar();
 
     const fromHash = location.hash.replace('#', '');
     if (fromHash && isTab(fromHash)) {

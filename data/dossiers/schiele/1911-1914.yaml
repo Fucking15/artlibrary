@@ -2,6 +2,9 @@ $schema: "../../../schema/dossier.schema.json"
 dossier_id: schiele.1911-1914
 artist: schiele
 
+# 本期的画种边界：只声明这三类。水彩、木板油画、版画未纳入本期。
+media_covered: [oil, colored_on_paper, drawing_on_paper]
+
 period:
   id: schiele.1911-1914
   label:
@@ -31,7 +34,8 @@ period:
           quote_lang: de
           translation_zh: "1912 年 4 月，席勒在新伦巴赫被捕并关押 24 天。"
   claims:
-    - statement_zh: 此期分期以取景距离的收缩为准，而非以年份或展览活动为准。
+    - medium: [period_level]
+      statement_zh: 此期分期以取景距离的收缩为准，而非以年份或展览活动为准。
       evidence:
         - source: src.kallir.1990
           locator: "cat. raisonné, introduction（待核验）"
@@ -40,7 +44,8 @@ period:
           translation_zh: "新伦巴赫时期标志着从展览尺度的全身像转向近距离观看的身体。"
       confidence: medium
       status: draft
-    - statement_zh: 1912 年的牢狱经历没有改变他的题材，但压缩了画面的叙述容量。
+    - medium: [period_level]
+      statement_zh: 1912 年的牢狱经历改变了画面容量，但没有构成分期断点。
       evidence:
         - source: src.kallir.1990
           locator: "cat. raisonné, s.v. 1912（待核验）"
@@ -64,7 +69,8 @@ lineage:
     transmitted_elements: [color, structure_proportion]
     summary_zh: 到 1911 年，克林姆留下的主要不是题材，而是平面切割的构图习惯与低饱和的装饰性配色；金箔式的表面处理已被弃用。
     claims:
-      - statement_zh: 克林姆的影响在此期收缩到"平面切割 + 低饱和用色"，不再是构图母题。
+      - medium: [oil, colored_on_paper]
+        statement_zh: 克林姆的影响在此期收缩到"平面切割 + 低饱和用色"，不再是构图母题。
         evidence:
           - source: src.kallir.1990
             locator: "cat. raisonné, introduction（待核验）"
@@ -73,7 +79,8 @@ lineage:
             translation_zh: "到 1911 年，克林姆的示范留存在席勒的平面式构图切割里，而不在题材上。"
         confidence: medium
         status: draft
-      - statement_zh: 他明确放弃了克林姆式的装饰表面，把装饰性从画面表面移到了姿态上。
+      - medium: [oil, colored_on_paper]
+        statement_zh: 他明确放弃了克林姆式的装饰表面，把装饰性从画面表面移到了姿态上。
         evidence:
           - source: src.leopold.schiele
             locator: "collection note on the 1912 self-portraits（待核验）"
@@ -91,16 +98,27 @@ lineage:
     window:
       from_year: 1909
       to_year: 1911
-    transmitted_elements: [brushwork]
-    summary_zh: 与前一期真正连续的是"一笔定形"的用线习惯；断裂的是用色与画面密度。
+    transmitted_elements: [brushwork, color]
+    summary_zh: 与前一期真正连续的是用线习惯；断裂的是色彩策略与画面密度。
     claims:
-      - statement_zh: 用线方式与前一期连续，色彩策略则完全改写。
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 用线方式与前一期连续，一笔定形的习惯没有中断。
         evidence:
           - source: src.albertina.schiele
             locator: "graphic works, 1909–1912 comparative entry（待核验）"
             quote: "Die Kontur bleibt von 1909 bis 1912 nahezu unverändert, während die Farbigkeit radikal reduziert wird."
             quote_lang: de
             translation_zh: "1909 至 1912 年间轮廓线几乎未变，而色彩被大幅削减。"
+        confidence: medium
+        status: draft
+      - medium: [oil, colored_on_paper]
+        statement_zh: 色彩策略与前一期断裂，色域被压到三四色。
+        evidence:
+          - source: src.kallir.1990
+            locator: "cat. raisonné, introduction（待核验）"
+            quote: "The palette of 1911–1914 is narrowed to flesh, ochre, black and white."
+            quote_lang: en
+            translation_zh: "1911 至 1914 年的色域被压缩到肉色、赭、黑与白。"
         confidence: medium
         status: draft
 
@@ -114,7 +132,8 @@ comparison:
     their_practice_zh: 柯克施卡用宽笔、厚涂与可见的涂抹速度制造动势，笔触本身承担情绪。
     his_difference_zh: 席勒用干硬轮廓线定形，再用薄色填到边界内侧；动势被压进姿态与关节角度，不放任在笔触里。
     claims:
-      - statement_zh: 同时期两人处理动势的位置不同：柯克施卡在笔触，席勒在身体姿态。
+      - medium: [oil]
+        statement_zh: 同时期两人处理动势的位置不同：柯克施卡在笔触，席勒在身体姿态。
         evidence:
           - source: src.schielemuseum.rivals.2026
             locator: "exhibition text, section Rivalität（待核验）"
@@ -139,7 +158,8 @@ comparison:
     their_practice_zh: 克林姆用画框内外的连续纹样把人物包进装饰场，取景服从于整体图案。
     his_difference_zh: 席勒把取景当切割工具：人物被画幅边缘截断（头、手、脚出画），留白直接当空白场使用。
     claims:
-      - statement_zh: 取景从"装饰场的容器"变成"切割身体的工具"。
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 取景从"装饰场的容器"变成"切割身体的工具"。
         evidence:
           - source: src.leopold.schiele
             locator: "collection note, framing（待核验）"
@@ -149,15 +169,16 @@ comparison:
         confidence: medium
         status: draft
 
-  - id: cmp.schiele.prior-period.color
+  - id: cmp.schiele.prior-period.color-paper
     counterpart:
       label_zh: 分离派时期（1909–1911）
       type: self_prior_period
     axis: color
-    their_practice_zh: 前期以色块并置与平面分割取得画面张力，色域较宽。
-    his_difference_zh: 此期色域压缩到肉色、赭、黑、白三四色，大面积留出未涂的底材。
+    their_practice_zh: 前期纸上作品以色块并置取得张力，底材基本画满。
+    his_difference_zh: 此期纸上作品大面积留出未涂的纸白，让空白承担画面分量。
     claims:
-      - statement_zh: 色彩张力被替换成"留白张力"，画面靠未涂区域承担分量。
+      - medium: [colored_on_paper, drawing_on_paper]
+        statement_zh: 纸上的张力从色彩并置换成了纸白与未涂区域。
         evidence:
           - source: src.albertina.schiele
             locator: "graphic works, colour note（待核验）"
@@ -167,13 +188,53 @@ comparison:
         confidence: medium
         status: draft
 
+  - id: cmp.schiele.prior-period.color-oil
+    counterpart:
+      label_zh: 分离派时期（1909–1911）
+      type: self_prior_period
+    axis: color
+    their_practice_zh: 前期的油画靠色块并置与较厚的颜料层建立画面。
+    his_difference_zh: 此期油画里所谓的空白其实是薄涂与刮薄，仍有一层颜料，不是未涂的画布。
+    claims:
+      - medium: [oil]
+        statement_zh: 油画的空白是刮薄的色层，与纸上的未涂底材性质不同。
+        evidence:
+          - source: src.leopold.schiele
+            locator: "collection note, paint handling（待核验）"
+            quote: "Die hellen Partien der Ölbilder sind dünn ausgestrichene Farbschichten, kein unbemalter Grund."
+            quote_lang: de
+            translation_zh: "油画中的亮部是薄薄刮开的色层，不是未涂的底子。"
+        confidence: low
+        status: draft
+        note_zh: 单条 B 级来源，需补图录核对笔层。
+
+  - id: cmp.schiele.self.other-medium
+    counterpart:
+      label_zh: 他自己的纸上素描（同期）
+      type: self_other_medium
+    axis: brushwork
+    their_practice_zh: 纸上素描用铅笔或黑粉笔单线定形，只有极薄的局部点染，纸白即亮部。
+    his_difference_zh: 同期油画仍用单线起形，但体积交给薄涂的色层深浅，空白是刮薄而非空缺。
+    claims:
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 同一时期他把纸上作品压成线加留白，却给油画留了一层可刮薄的颜料。
+        evidence:
+          - source: src.kallir.1990
+            locator: "cat. raisonné, comparative note on oils and works on paper（待核验）"
+            quote: "The works on paper stop at line and bare paper; the oils go one layer further, however thin."
+            quote_lang: en
+            translation_zh: "纸上作品止于线条与纸底，油画则多走一层，尽管很薄。"
+        confidence: medium
+        status: draft
+
 material:
   supports: [paper, canvas]
   mediums: [pencil, watercolor, gouache, oil]
   ground_zh: 纸上作品多不加底，直接用纸本色作为亮部；油画布上仅做薄底。
-  process_zh: 铅笔或黑粉笔一笔起形，不做修改；水彩、水粉局部点染在轮廓内侧，最后才补少量高饱和的局部（唇、伤口、衣物边缘）。
+  process_zh: 铅笔或黑粉笔一笔起形，不做修改；纸上水彩、水粉局部点染在轮廓内侧，最后才补少量高饱和的局部（唇、伤口、衣物边缘）。油画同一起形逻辑，但色层可继续覆盖与刮薄。
   claims:
-    - statement_zh: 纸上作品的工序是"线先定形、色后退填"，与油画的覆盖逻辑相反。
+    - medium: [colored_on_paper, drawing_on_paper]
+      statement_zh: 纸上作品的工序是"线先定形、色后退填"。
       evidence:
         - source: src.albertina.schiele
           locator: "graphic works, technique note（待核验）"
@@ -185,10 +246,6 @@ material:
           quote: "The drawing is built line first; colour is applied afterwards and stays inside the contour."
           quote_lang: en
           translation_zh: "素描先立线，颜色随后施上并留在轮廓之内。"
-      iiif_evidence:
-        - work: work.schiele.1912.laternenbluete-selbstbildnis
-          region: pct:25,10,50,60
-          note_zh: 看手部与肩线：轮廓一笔到底，色只填内侧。
       confidence: high
       status: signed
       signed_by:
@@ -196,22 +253,34 @@ material:
         role: author
         date: "2026-10-25"
         note_zh: 示例签字，仅演示签署结构与校验规则，不代表已真实核验。
-      note_zh: 示例数据：locator 为占位写法。
-    - statement_zh: 他几乎不使用罩染，明暗靠线条密度与留白，而不是颜料层次。
+      note_zh: 示例数据。原先指向布面油画的一条 IIIF 局部已移除——画种不符，待登记该期纸上作品的 manifest 再补。
+    - medium: [oil]
+      statement_zh: 油画几乎不用罩染，体积靠薄涂深浅而非透明层。
       evidence:
         - source: src.leopold.schiele
           locator: "collection note on technique（待核验）"
-          quote: "Auf Lasieren verzichtet Schiele weitgehend; die Modellierung entsteht aus der Liniendichte."
+          quote: "Auf Lasieren verzichtet Schiele weitgehend; die Modellierung entsteht aus dünnen, deckenden Schichten."
           quote_lang: de
-          translation_zh: "席勒基本放弃罩染，体积感来自线条密度。"
+          translation_zh: "席勒基本放弃罩染，体积感来自薄薄的覆盖层。"
+      confidence: medium
+      status: draft
+    - medium: [colored_on_paper, drawing_on_paper]
+      statement_zh: 纸上的体积感来自线条密度，不来自颜料层次。
+      evidence:
+        - source: src.albertina.schiele
+          locator: "graphic works, modelling note（待核验）"
+          quote: "Die Modellierung entsteht aus der Liniendichte, nicht aus der Farbschicht."
+          quote_lang: de
+          translation_zh: "体积感来自线条密度，而非色层。"
       confidence: medium
       status: draft
 
 composition:
   structure_proportion:
-    summary_zh: 人体比例被主动改写：躯干压缩、四肢拉长，关节（手、锁骨、髋）被放大成视觉重心。
+    summary_zh: 人体比例被主动改写：躯干压缩、四肢拉长，关节（手、锁骨、髋）被放大成视觉重心。这一层在油画与纸上作品里一致。
     claims:
-      - statement_zh: 比例不是失真，而是把权重从躯干转移到关节。
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 比例不是失真，而是把权重从躯干转移到关节。
         evidence:
           - source: src.kallir.1990
             locator: "cat. raisonné, introduction（待核验）"
@@ -226,9 +295,10 @@ composition:
         status: draft
 
   color:
-    summary_zh: 色域收窄到肉色、赭、黑、白，高饱和只留极小的点（唇、伤口、衣缘）。
+    summary_zh: 油画的色域收窄到肉色、赭、黑、白，高饱和只留极小的点；纸上彩色作品沿用同一套色域，但以纸白替代白色。素描不谈颜色。
     claims:
-      - statement_zh: 高饱和色被限制在不超过画面百分之几的局部，用作视觉钩子。
+      - medium: [oil, colored_on_paper]
+        statement_zh: 高饱和色被限制在不超过画面百分之几的局部，用作视觉钩子。
         evidence:
           - source: src.albertina.schiele
             locator: "graphic works, colour note（待核验）"
@@ -237,11 +307,23 @@ composition:
             translation_zh: "强烈色彩只以点状出现——在唇、伤口与衣缘。"
         confidence: medium
         status: draft
+      - medium: [drawing_on_paper]
+        not_applicable: true
+        reason_zh: 此期纸上素描一律为黑白（铅笔、炭笔、黑色粉笔），不存在色彩处理可写，因此颜色一项对素描不适用。
+        evidence:
+          - source: src.albertina.schiele
+            locator: "graphic works, 1911–1914 holdings（待核验）"
+            quote: "Die Zeichnungen dieser Jahre sind durchgehend schwarzweiß gearbeitet."
+            quote_lang: de
+            translation_zh: "这一时期的素描通篇以黑白完成。"
+        confidence: medium
+        status: draft
 
   framing:
-    summary_zh: 近距离裁切，人物常被画幅边缘切断，视点略高，观看位置像站在床边而不是展厅里。
+    summary_zh: 近距离裁切，人物常被画幅边缘切断，视点略高；纸上的裁切比油画更激进，常常只留半个身体。
     claims:
-      - statement_zh: 取景高度被压到一臂之内，画面里几乎不出现完整站姿。
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 取景高度被压到一臂之内，画面里几乎不出现完整站姿。
         evidence:
           - source: src.leopold.schiele
             locator: "collection note, framing（待核验）"
@@ -252,9 +334,10 @@ composition:
         status: draft
 
   light_shadow:
-    summary_zh: 取消连续明暗过渡，用线宽与线的疏密暗示体积，阴影多为极薄的灰或褐。
+    summary_zh: 明暗在两套媒介里由不同东西承担：纸上靠线条密度，油画靠薄色层的深浅，两者都没有连续过渡。
     claims:
-      - statement_zh: 体积由线条承担，噪声极低的灰褐只作辅助，不构成明暗系统。
+      - medium: [colored_on_paper, drawing_on_paper]
+        statement_zh: 纸上的灰褐只作辅助，体积主要由线条疏密给出。
         evidence:
           - source: src.albertina.schiele
             locator: "graphic works, modelling note（待核验）"
@@ -263,11 +346,22 @@ composition:
             translation_zh: "阴影薄而局部，体积由线条产生。"
         confidence: medium
         status: draft
+      - medium: [oil]
+        statement_zh: 油画的体积由薄色层深浅给出，不靠排线。
+        evidence:
+          - source: src.kallir.1990
+            locator: "cat. raisonné, technique note on the oils（待核验）"
+            quote: "In the oils the volume comes from a shallow tonal build-up, not from hatching."
+            quote_lang: en
+            translation_zh: "油画里体积来自很浅的色调层次，而不是排线。"
+        confidence: medium
+        status: draft
 
   brushwork:
-    summary_zh: 轮廓一笔到底、不重复修改，边缘干硬；线与色的关系固定为先线后色，笔触本身不作表现手段。
+    summary_zh: 轮廓一笔到底、不重复修改，边缘干硬；线与色的先后关系在两套媒介里一致，笔触本身不作表现手段。
     claims:
-      - statement_zh: 他的识别特征是"一笔到底"：轮廓不重描，错误留在画面上。
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 他的识别特征是"一笔到底"：轮廓不重描，错误留在画面上。
         evidence:
           - source: src.kallir.1990
             locator: "cat. raisonné, introduction（待核验）"
@@ -280,7 +374,8 @@ composition:
             note_zh: 看两人之间的空隙：轮廓单线，无复线修补。
         confidence: high
         status: verified
-      - statement_zh: 笔触不承担情绪，情绪由姿态与视线承担。
+      - medium: [oil, colored_on_paper, drawing_on_paper]
+        statement_zh: 笔触不承担情绪，情绪由姿态与视线承担。
         evidence:
           - source: src.kallir.1990
             locator: "cat. raisonné, introduction（待核验）"
@@ -294,7 +389,8 @@ subject_matter:
   motifs: [self_portrait, double_portrait, nude, figure_study, portrait]
   rationale_zh: 迁居后模特来源变成身边人（情人、妻子、当地少女），题材从"我"扩展到"我与另一个人的关系"，孕妇、病床、死者随之出现。
   claims:
-    - statement_zh: 题材重心从单人的自我转向双人关系，并在 1914 年前后回到母子构图。
+    - medium: [oil, colored_on_paper, drawing_on_paper]
+      statement_zh: 题材重心从单人的自我转向双人关系，并在 1914 年前后回到母子构图。
       evidence:
         - source: src.kallir.1990
           locator: "cat. raisonné, s.v. 1911–1914（待核验）"
@@ -303,7 +399,9 @@ subject_matter:
           translation_zh: "1911 至 1914 年间，单人让位于双人，双人又让位于母子。"
       confidence: medium
       status: draft
-    - statement_zh: 孕妇与病床题材的来源是可指认的：von Graff 的诊所见闻，而非象征性想象。
+      note_zh: 仅覆盖油画、纸上彩色与素描；版画与水彩本期未纳入，因此不主张为跨全部画种的通例。
+    - medium: [oil, colored_on_paper, drawing_on_paper]
+      statement_zh: 孕妇与病床题材的来源是可指认的：von Graff 的诊所见闻，而非象征性想象。
       evidence:
         - source: src.neuegalerie.graff.2026
           locator: "exhibition text（待核验）"
@@ -323,14 +421,14 @@ open_questions:
   - question_zh: 1911–14 期他与维也纳分离派的形式关系是否已完全切断？
     why_open_zh: 缺少同期展览目录的 A 级证据，现有材料只能证明他没有再以群体身份参展。
     needs: [A]
-  - question_zh: 「一笔到底」是能力选择还是工序限制（纸面不允许修改）？
-    why_open_zh: 需要材料分析报告或复原实验，现有文献只描述现象，不解释成因。
+  - question_zh: 本期纸上作品与油画的分期节奏是否一致？
+    why_open_zh: 目前沿用同一套 1911–1914 分期，但纸上的裁切变化似乎早于油画半年到一年，需逐件定年才能确认。
     needs: [A, B]
 
 meta:
   status: draft
-  version: 0.1.0
+  version: 0.2.0
   created: "2026-10-25"
   updated: "2026-10-25"
   example: true
-  notes_zh: 结构示例：六维全部填满，引用为示意，locator 待核验。不得作为对外发布内容。
+  notes_zh: 结构示例：六维按三个画种全部填满，引用为示意，locator 待核验。不得作为对外发布内容。

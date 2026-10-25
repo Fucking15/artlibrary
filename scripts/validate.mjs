@@ -168,7 +168,11 @@ for (const { file, doc } of dossiers) {
       if (cp.registry_ref && !registry.artists.has(cp.registry_ref)) {
         err(where, `${kind}.${entry.id}: counterpart registry_ref not found: ${cp.registry_ref}`);
       }
-      if (!cp.registry_ref && !cp.external_authority && cp.type !== 'self_prior_period' && cp.type !== 'group') {
+      if (
+        !cp.registry_ref &&
+        !cp.external_authority &&
+        !['self_prior_period', 'self_other_medium', 'group'].includes(cp.type)
+      ) {
         warn(where, `${kind}.${entry.id}: counterpart has neither registry_ref nor external_authority`);
       }
     }
@@ -191,8 +195,46 @@ for (const { file, doc } of dossiers) {
   // in an example dossier unverified locators are the expected state, not a finding
   const flag = (m) => (isExampleDoc ? note(where, m) : warn(where, m));
 
+  const ALL_MEDIA = ['oil', 'oil_on_panel', 'watercolor', 'colored_on_paper', 'drawing_on_paper', 'print'];
+  // medium -> set of dimension keys answered for that medium ("composition.color" is its own key)
+  const coverage = new Map();
+  const markCoverage = (medium, key) => {
+    if (!medium || medium === 'period_level') return;
+    if (!coverage.has(medium)) coverage.set(medium, new Set());
+    coverage.get(medium).add(key);
+  };
+  const requiredKeys = () => [
+    'lineage',
+    'comparison',
+    'material',
+    ...COMPOSITION_FIELDS.map((f) => `composition.${f}`),
+    'subject_matter',
+  ];
+
   for (const { dim, field, claim } of claimsOf(doc)) {
+    const coverageKey = dim === 'composition' ? `composition.${field}` : dim;
     byDim[dim].push({ field, claim });
+
+    // ---- 画种: what this claim is true of -------------------------------------------------
+    const media = claim.medium ?? [];
+    if (media.includes('period_level')) {
+      if (dim !== 'period') {
+        err(where, `${dim}/${field}: "period_level" belongs on the period dimension only`);
+      }
+      if (media.length > 1) {
+        err(where, `${dim}/${field}: "period_level" must stand alone, not be mixed with 画种`);
+      }
+    } else if (dim === 'period') {
+      err(where, `${dim}/${field}: a periodization claim must be "period_level", not tied to one 画种`);
+    }
+    for (const medium of media) markCoverage(medium, coverageKey);
+
+    if (claim.not_applicable === true) {
+      if (!claim.reason_zh) err(where, `${dim}/${field}: "not applicable" requires reason_zh`);
+      if (media.length === 0) {
+        err(where, `${dim}/${field}: "not applicable" must name the 画种 it does not apply to`);
+      }
+    }
 
     // evidence must resolve, and grading discipline must hold
     const grades = [];
@@ -224,10 +266,22 @@ for (const { file, doc } of dossiers) {
 
     for (const ref of claim.iiif_evidence ?? []) {
       const work = registry.works.get(ref.work);
-      if (!work) err(where, `${dim}/${field}: iiif_evidence points at unknown work ${ref.work}`);
-      else if (work.attribution !== 'autograph') {
+      if (!work) {
+        err(where, `${dim}/${field}: iiif_evidence points at unknown work ${ref.work}`);
+        continue;
+      }
+      if (work.attribution !== 'autograph') {
         err(where, `${dim}/${field}: iiif_evidence points at a ${work.attribution} object`);
-      } else if (work.iiif?.status !== 'resolved') {
+        continue;
+      }
+      // the point of the 画种 layer: a statement about paper cannot be illustrated with an oil painting
+      if (!media.includes(work.medium_category)) {
+        err(
+          where,
+          `${dim}/${field}: iiif_evidence points at a ${work.medium_category} work, but the claim speaks for ${media.join('/') || 'no 画种'}`,
+        );
+      }
+      if (work.iiif?.status !== 'resolved') {
         flag(`${dim}/${field}: iiif_evidence on ${ref.work} but its manifest is "${work.iiif?.status ?? 'unset'}"`);
       }
     }
@@ -250,6 +304,18 @@ for (const { file, doc } of dossiers) {
       }
       if (best && best !== 'A') {
         warn(where, `${dim}/${field}: signed without any A-grade source (best: ${best})`);
+      }
+    }
+
+    // a general rule speaks for all six 画种 — then it needs at least two of them visible
+    if (media.length === ALL_MEDIA.length) {
+      const workMedia = new Set(
+        (claim.iiif_evidence ?? []).map((ref) => registry.works.get(ref.work)?.medium_category).filter(Boolean),
+      );
+      if (workMedia.size < 2) {
+        const message = `${dim}/${field}: claims to hold for all six 画种 but shows visual evidence for ${workMedia.size} — back a general rule with at least two 画种`;
+        if (STRICT) err(where, message);
+        else warn(where, message);
       }
     }
 
@@ -276,6 +342,21 @@ for (const { file, doc } of dossiers) {
     }
   }
 
+  // …and no blank areas per 画种 either: every declared medium answers every dimension
+  const declaredMedia = doc.media_covered ?? [...coverage.keys()];
+  for (const medium of declaredMedia) {
+    for (const key of requiredKeys()) {
+      if (!coverage.get(medium)?.has(key)) {
+        err(where, `blank area: 画种 "${medium}" answers nothing for "${key}" — fill it, or mark it not_applicable`);
+      }
+    }
+  }
+  for (const medium of doc.media_covered ?? []) {
+    if (!coverage.has(medium)) {
+      note(where, `media_covered lists "${medium}" but no claim speaks for it`);
+    }
+  }
+
   const allGrades = [...claimsOf(doc)].flatMap(({ claim }) =>
     (claim.evidence ?? []).map((ev) => registry.sources.get(ev.source)?.grade).filter(Boolean),
   );
@@ -286,7 +367,7 @@ for (const { file, doc } of dossiers) {
     note(where, 'example dossier: citations are schematic, must not be published as-is');
   }
 
-  doc.__stats = { byDim, dimSigneds, allGrades };
+  doc.__stats = { byDim, dimSigneds, allGrades, declaredMedia, coverage, keys: requiredKeys() };
 }
 
 /* --------------------------------------------------------------------- report */
@@ -323,9 +404,17 @@ for (const { doc } of dossiers) {
     if (dim === 'composition') {
       for (const field of COMPOSITION_FIELDS) {
         const fItems = items.filter((i) => i.field === field);
-        console.log(`    ${field.padEnd(22, ' ')} claims ${String(fItems.length).padStart(2)}`);
+        const na = fItems.filter((i) => i.claim.not_applicable === true).length;
+        console.log(`    ${field.padEnd(22, ' ')} claims ${String(fItems.length).padStart(2)}${na ? `  (${na} n/a)` : ''}`);
       }
     }
+  }
+
+  console.log(`  ${'画种 coverage'.padEnd(16, ' ')} ${s.keys.map((k) => k.replace('composition.', 'c.')).join(' ')}`);
+  for (const medium of s.declaredMedia) {
+    const got = s.coverage.get(medium) ?? new Set();
+    const marks = s.keys.map((k) => (got.has(k) ? color(32, '●') : color(31, '·'))).join(' '.repeat(4));
+    console.log(`  ${medium.padEnd(16, ' ')} ${marks}`);
   }
   console.log('');
 }

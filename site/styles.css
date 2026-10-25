@@ -421,3 +421,100 @@ details.evidence[open] > summary::before { content: "▾ "; }
   html { scroll-behavior: auto; }
   * { transition: none !important; }
 }
+
+/* -------------------------------------------------------------- 画种 filter */
+
+.media-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.media-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.media-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.media-tabs button {
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  padding: 4px 10px 4px 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.media-tabs button:hover { border-color: var(--ink-3); }
+
+.media-tabs button[aria-pressed="true"] {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.media-tabs button .n {
+  font-family: var(--mono);
+  font-size: 10px;
+  opacity: .55;
+}
+
+.chip.medium {
+  border-color: var(--ink-3);
+  color: var(--ink-2);
+  background: transparent;
+}
+
+.chip.medium.is-period-level {
+  font-style: normal;
+  border-style: dashed;
+}
+
+/* an explicit "this dimension does not apply to this 画种" */
+.claim.is-na {
+  border-left-style: dotted;
+  border-left-color: var(--ink-3);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--paper-2),
+    var(--paper-2) 10px,
+    #fbf9f3 10px,
+    #fbf9f3 20px
+  );
+}
+
+.claim.is-na .statement {
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.claim.is-na .na-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.filter-note {
+  margin: 0 0 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}

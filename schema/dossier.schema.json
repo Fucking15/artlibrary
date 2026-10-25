@@ -132,7 +132,10 @@
             "required": ["label_zh", "type"],
             "properties": {
               "label_zh": { "type": "string", "minLength": 2, "maxLength": 80 },
-              "type": { "enum": ["artist", "group", "movement", "self_prior_period"] },
+              "type": {
+                "enum": ["artist", "group", "movement", "self_prior_period", "self_other_medium"],
+                "description": "self_other_medium compares the artist with his own handling of a different 画种 in the same period — the comparison that has no home anywhere else."
+              },
               "registry_ref": { "$ref": "common.schema.json#/$defs/id" },
               "external_authority": {
                 "type": "object",
@@ -189,6 +192,14 @@
         "rationale_zh": { "type": "string", "maxLength": 500, "description": "Why these motifs and not others in this period." },
         "claims": { "type": "array", "minItems": 1, "items": { "$ref": "common.schema.json#/$defs/claim" } }
       }
+    },
+
+    "media_covered": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "common.schema.json#/$defs/mediumCategory" },
+      "description": "The 画种 this dossier claims to cover. Each one must then be answered in all six dimensions by a claim or an explicit 'not applicable'. Omit it and the validator derives the same list from the claims themselves."
     },
 
     "works": {

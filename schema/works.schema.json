@@ -16,10 +16,14 @@
       "items": {
         "type": "object",
         "additionalProperties": false,
-        "required": ["id", "artist", "title", "year", "support", "mediums", "attribution", "public_domain"],
+        "required": ["id", "artist", "title", "year", "medium_category", "support", "mediums", "attribution", "public_domain"],
         "properties": {
           "id": { "$ref": "common.schema.json#/$defs/id" },
           "artist": { "$ref": "common.schema.json#/$defs/id", "description": "Must resolve to an entry in the artist registry." },
+          "medium_category": {
+            "$ref": "common.schema.json#/$defs/mediumCategory",
+            "description": "The work's 画种. A claim may only point IIIF evidence at a work whose category appears in that claim's `medium` list — this is what stops a statement about paper work from being illustrated with an oil painting."
+          },
           "title": {
             "type": "object",
             "additionalProperties": false,

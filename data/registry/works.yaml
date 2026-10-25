@@ -13,6 +13,7 @@ works:
       de: Die Eremiten
     year:
       from: 1912
+    medium_category: oil
     support: canvas
     mediums: [oil]
     collection:
@@ -32,6 +33,7 @@ works:
       de: Selbstbildnis mit chinesischem Laternenblüten
     year:
       from: 1912
+    medium_category: oil
     support: canvas
     mediums: [oil]
     collection:
@@ -51,6 +53,7 @@ works:
       de: Tote Mutter
     year:
       from: 1914
+    medium_category: oil
     support: canvas
     mediums: [oil]
     collection:

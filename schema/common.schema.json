@@ -55,6 +55,14 @@
       ],
       "description": "Comparison axes include the five composition fields plus material, subject matter and lineage."
     },
+    "mediumCategory": {
+      "enum": ["oil", "oil_on_panel", "watercolor", "colored_on_paper", "drawing_on_paper", "print"],
+      "description": "画种 by support-and-medium, not by subject: 布面油画 / 木板油画 / 水彩 / 纸上彩色（水粉、色粉、彩铅）/ 纸上素描（铅笔、炭笔、粉笔）/ 版画（石版、蚀刻、干刻）. Detailed pigments and supports stay in the material dimension."
+    },
+    "mediumScope": {
+      "enum": ["oil", "oil_on_panel", "watercolor", "colored_on_paper", "drawing_on_paper", "print", "period_level"],
+      "description": "What a claim is true of. 'period_level' exists only for claims about periodization itself and is rejected on every other dimension."
+    },
     "support": { "enum": ["paper", "cardboard", "canvas", "wood_panel", "copper", "other"] },
     "medium": {
       "enum": [
@@ -162,20 +170,37 @@
     "claim": {
       "type": "object",
       "additionalProperties": false,
-      "description": "The atomic unit of the knowledge base: one falsifiable sentence plus its evidence. Questions are answered by retrieving claims, never by free generation.",
-      "required": ["statement_zh", "evidence", "status"],
+      "description": "The atomic unit of the knowledge base: one falsifiable sentence, the media it is true of, and its evidence. A claim can also record that a dimension does not apply to a medium — an explicit 'not applicable', never a blank.",
+      "required": ["medium", "evidence", "status"],
       "properties": {
+        "medium": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/mediumScope" },
+          "description": "Required. A statement about oil painting only lists oil; one true of oils and paper work lists both; 'period_level' is for periodization claims alone and must stand by itself."
+        },
         "statement_zh": {
           "type": "string",
           "minLength": 6,
           "maxLength": 160,
           "description": "One sentence, falsifiable, no hedging filler. If it needs two sentences it is two claims."
         },
+        "not_applicable": {
+          "type": "boolean",
+          "description": "True when the dimension does not apply to this medium at all (e.g. colour on a black-and-white drawing). Requires reason_zh and evidence; forbids statement_zh."
+        },
+        "reason_zh": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 300,
+          "description": "Why the dimension does not apply. 'Not applicable' without a reason is a blank wearing a costume."
+        },
         "evidence": { "$ref": "#/$defs/evidenceList" },
         "iiif_evidence": {
           "type": "array",
           "items": { "$ref": "#/$defs/iiifRef" },
-          "description": "Optional visual proof: the region of a work that shows the claim."
+          "description": "Optional visual proof: the region of a work that shows the claim. The work's medium must appear in this claim's `medium` list."
         },
         "confidence": { "$ref": "#/$defs/confidence" },
         "status": { "$ref": "#/$defs/claimStatus" },
@@ -183,6 +208,19 @@
         "note_zh": { "type": "string", "maxLength": 500, "description": "Disagreements, limits of the claim, or what it does not cover." }
       },
       "allOf": [
+        {
+          "anyOf": [
+            { "required": ["statement_zh"] },
+            {
+              "required": ["not_applicable", "reason_zh"],
+              "properties": { "not_applicable": { "const": true } }
+            }
+          ]
+        },
+        {
+          "if": { "required": ["not_applicable"], "properties": { "not_applicable": { "const": true } } },
+          "then": { "required": ["reason_zh"], "not": { "required": ["statement_zh"] } }
+        },
         {
           "if": { "required": ["status"], "properties": { "status": { "const": "signed" } } },
           "then": { "required": ["signed_by", "confidence"] }

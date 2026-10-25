@@ -59,6 +59,28 @@ docs/schema.zh.md      中文字段说明与填写规则
 
 第 3 维是唯一没有现成数据可抓的一维。"受克林姆影响很大"却不说是哪一维、哪个元素——正是这个库要替换掉的那种句子。
 
+### 画种层
+
+技法结论**必须声明它说的是哪个画种**。同一位画家在同一年，油画与纸上素描常常是两套手法；一条不标画种的结论会把两件事混进一句。
+
+| 画种 enum | 中文 | 细节仍写在 material 维度 |
+|---|---|---|
+| `oil` | 布面油画 | 颜料、画布、底子 |
+| `oil_on_panel` | 木板油画 | 颜料、木板、底子 |
+| `watercolor` | 水彩 | 纸、水彩颜料 |
+| `colored_on_paper` | 纸上彩色 | 水粉、色粉、彩铅的混用 |
+| `drawing_on_paper` | 纸上素描 | 铅笔、炭笔、黑色粉笔 |
+| `print` | 版画 | 石版、蚀刻、干刻 |
+
+规则（全部由 `validate.mjs` 强制）：
+
+- 每条 claim 的 `medium` **必填**，可多值；多值表示这条对这几类都成立。
+- **通例**（列满六类）必须在至少两个画种里有可视化证据，否则不许叫通例。
+- 某一维对某画种确实不适用时（例如黑白素描的「颜色」），写 `not_applicable: true` + `reason_zh` + 证据。**空白仍是错误；「不适用」不是空白。**
+- `media_covered` 里声明的每个画种，都要在其余五维（时期除外）各有结论或不适用标记。
+- claim 的 IIIF 证据必须指向**同画种**的作品——说纸上作品却拿油画当图证，当场报错。
+- 时期维度的 claim 标为 `period_level`，不参与画种统计；而「同期油画 vs 纸上素描」的差异是正式条目（`counterpart.type: self_other_medium`）。
+
 ### 来源分级
 
 | 等级 | 含义 | 例子 |
@@ -174,6 +196,28 @@ All six are required, each with at least one sourced claim; otherwise validation
 | 6 | `subject_matter` | motifs, and why these motifs in this period |
 
 Dimension 3 is the one no dataset can supply. "Influenced by Klimt" with no axis and no element named is exactly the vague sentence this repository exists to replace.
+
+### The 画种 (medium) layer
+
+Every technique claim must say **which medium it is true of**. In the same year a painter's oils and his drawings on paper are frequently two different crafts; a claim without a medium blends them into one sentence.
+
+| Enum | 画种 | Details still live in `material` |
+|---|---|---|
+| `oil` | oil on canvas | pigment, canvas, ground |
+| `oil_on_panel` | oil on panel | pigment, panel, ground |
+| `watercolor` | watercolour | paper, watercolour |
+| `colored_on_paper` | colour on paper | gouache, pastel, coloured pencil |
+| `drawing_on_paper` | drawing on paper | graphite, charcoal, black chalk |
+| `print` | print | lithograph, etching, drypoint |
+
+Rules, all enforced by `validate.mjs`:
+
+- `medium` is **required** on every claim; a list means "true of all of these".
+- A **general rule** (all six media) needs visual evidence from at least two media, or it is not a general rule.
+- When a dimension genuinely does not apply to a medium (colour on a black-and-white drawing), write `not_applicable: true` with `reason_zh` and evidence. **A blank is still an error; "not applicable" is not a blank.**
+- Every medium declared in `media_covered` must answer the other five dimensions (period excepted) with a claim or an explicit N/A.
+- IIIF evidence must point at a work of the **same** medium — a claim about paper illustrated with an oil painting fails validation.
+- Periodization claims are marked `period_level` and sit outside the medium statistics; the oil-versus-paper difference inside one period is a real entry (`counterpart.type: self_other_medium`).
 
 ### Source grades
 

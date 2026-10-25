@@ -22,15 +22,18 @@ registry（共享）           dossier（一期一份）
 
 | 字段 | 必填 | 规则 |
 |---|---|---|
-| `statement_zh` | ✓ | 一句话，6–160 字，可证伪。**句号之后不能再有句子**；需要两句就拆成两条 claim |
+| `medium` | ✓ | 画种，数组，可多值：`oil` / `oil_on_panel` / `watercolor` / `colored_on_paper` / `drawing_on_paper` / `print`。时期维度的 claim 只能写 `period_level` |
+| `statement_zh` | ✓（不适用条目除外） | 一句话，6–160 字，可证伪。**句号之后不能再有句子**；需要两句就拆成两条 claim |
 | `evidence` | ✓ | 至少 1 条，每条 = 来源 id + locator + 原文引句 |
-| `iiif_evidence` | | 指到作品的具体区域（`region`），用于"指着看" |
+| `not_applicable` | | 该维度对此画种不适用时写 `true`，此时**不能写** `statement_zh` |
+| `reason_zh` | 不适用时必填 | 为什么这一维对该画种不适用（≥10 字），"不适用"三个字不算理由 |
+| `iiif_evidence` | | 指到作品的具体区域（`region`）；**所引作品的画种必须在这条 claim 的 `medium` 里** |
 | `confidence` | signed 时必填 | `high` / `medium` / `low`；证据全是 C 级时必须 `low` |
 | `status` | ✓ | `draft`（抽出来）→ `verified`（查过来源）→ `signed`（人签字）→ `deprecated` |
-| `signed_by` | `signed` 时必填 | 签字人 + 日期（不能是未来日期） |
+| `signed_by` | `signed` 时必填 | 签字人 + 日期（不能是未来日期，允许 1 天时区偏差） |
 | `note_zh` | C 级证据必填 | 说明这条的局限、争议、或它不覆盖什么 |
 
-**不要写的**：带"可能""或许""一定程度上"的模糊句；两条结论合成一句；把解读写成事实。
+**不要写的**：带"可能""或许""一定程度上"的模糊句；两条结论合成一句；把解读写成事实；**一条跨画种的结论却不列画种**。
 
 **示例**
 
@@ -72,7 +75,10 @@ registry（共享）           dossier（一期一份）
 
 ## 3. 六维各自该写什么
 
+> 先记住一条：**除时期外，每一条 claim 都要标明画种**。同一年里油画与纸上素描往往是两套手法，不标画种就是把两件事混进一句。
+
 ### period 时期
+- claim 的 `medium` 只能写 `period_level`：分期判断高于画种，不能挂到单一画种上。
 - `basis_zh` **必填**：为什么切在这里而不是别处。分期依据不能是"某年某展览"这种行政事件，必须是**技法或观看方式的变化**。
 - `anchors`：可定年的事件（迁居、展览、被捕、去世、委托），带日期与证据。
 - 反例：「1909–1911 因为他参加了分离派」——这是履历，不是技法分期。
@@ -85,6 +91,7 @@ registry（共享）           dossier（一期一份）
 
 ### comparison 对比与创新
 - 结构固定四件套：`counterpart` + `axis` + `their_practice_zh`（他在做什么）+ `his_difference_zh`（席勒多做了什么）。
+- 对照对象可以是：别的画家（`artist`）、群组/流派、他自己的上一期（`self_prior_period`），或者**他自己的另一个画种**（`self_other_medium`）——后者专门放"同期油画 vs 纸上素描"这类差异，别处没有位置放它。
 - 这一维**没有现成资料可爬**，只能从图录里读出来。它是全库最贵的部分，也是别人抄不走的部分。
 - 反例：「比柯克施卡更内敛」——"更内敛"不是技法差异，落在哪一维上要写明。
 
@@ -103,6 +110,21 @@ registry（共享）           dossier（一期一份）
 | `brushwork` | 线条硬度、一笔还是复线、笔触是否承担表现 | "笔法精湛" |
 
 **这五项任何一个空着，校验器直接报错**——"空白区"就是本库存在的理由。
+
+如果某一项对某个画种真的不适用（例如黑白素描的「颜色」），不要留空，写一条不适用条目：
+
+```yaml
+- medium: [drawing_on_paper]
+  not_applicable: true
+  reason_zh: 此期纸上素描一律为黑白，不存在色彩处理可写，因此颜色一项对素描不适用。
+  evidence:
+    - source: src.albertina.schiele
+      locator: "graphic works, 1911–1914 holdings"
+      quote: "Die Zeichnungen dieser Jahre sind durchgehend schwarzweiß gearbeitet."
+  status: draft
+```
+
+校验器会把它算作"该画种在这一维已作答"，但空白仍然是错误。**「不适用」不是空白，它必须带理由和证据。**
 
 ### subject_matter 题材
 - `motifs` 从枚举里选（`self_portrait`、`double_portrait`、`nude`、`figure_study`…）。
@@ -127,9 +149,27 @@ registry（共享）           dossier（一期一份）
 
 ## 5. 作品与图像
 
+- 每件作品必须标 `medium_category`（画种）：`oil` / `oil_on_panel` / `watercolor` / `colored_on_paper` / `drawing_on_paper` / `print`。
+- claim 的 `iiif_evidence` 只能指向**同画种**的作品。说"纸上作品的工序"却把局部指到布面油画上，校验器会报 `iiif_evidence points at a oil work`。
 - `attribution` 必须是 `autograph`。**仿作、临摹、"after Schiele"一律不能作为证据**，校验器会直接报错。
 - 不存图片。`iiif.status` 三态：`pending` / `resolved` / `not_available`；`resolved` 时必须给 `manifest`。
 - 局部引用写在 claim 的 `iiif_evidence.region`，用 `pct:x,y,w,h` 或像素坐标。
+
+---
+
+## 5b. 画种覆盖率
+
+`dossier` 顶部的 `media_covered` 声明这份 dossier 覆盖哪些画种；不写则由 claim 自动推导。声明了就必须**每一维都有答案**（时期除外，时期是 `period_level`）：
+
+```
+画种 coverage      lineage comparison material c.structure c.color c.framing c.light c.brushwork subject
+oil                ●       ●          ●        ●           ●       ●         ●       ●           ●
+drawing_on_paper   ●       ●          ●        ●           ●(n/a)  ●         ●       ●           ●
+```
+
+`npm run validate` 每次都会打印这张表。缺一格就是 `blank area: 画种 "…" answers nothing for "…"`。
+
+另外：一条 claim 如果列满六个画种（自称通例），必须有至少两个画种的可视化证据（`iiif_evidence` 指向不同画种的作品），否则只算 `warn`，在 `--strict` 下是 error。
 
 ---
 

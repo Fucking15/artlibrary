@@ -91,6 +91,54 @@ const cases = [
       fs.writeFileSync(file, yaml.dump(doc));
     },
   },
+  {
+    name: 'a periodization claim tied to one 画种 is rejected',
+    expect: /periodization claim must be "period_level"/,
+    mutate(dir) {
+      const file = path.join(dir, 'data/dossiers/schiele/1911-1914.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      doc.period.claims[0].medium = ['oil'];
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
+  {
+    name: 'a paper claim illustrated with an oil painting is rejected',
+    expect: /iiif_evidence points at a oil work/,
+    mutate(dir) {
+      const file = path.join(dir, 'data/dossiers/schiele/1911-1914.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      doc.composition.structure_proportion.claims[0].medium = ['drawing_on_paper'];
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
+  {
+    name: 'a 画种 that answers nothing for one dimension is rejected',
+    expect: /blank area: 画种 "drawing_on_paper" answers nothing for "composition\.color"/,
+    mutate(dir) {
+      const file = path.join(dir, 'data/dossiers/schiele/1911-1914.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      doc.composition.color.claims = doc.composition.color.claims.filter((c) => c.not_applicable !== true);
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
+  {
+    name: 'a six-画种 general rule with one 画种 of evidence is rejected in strict mode',
+    strict: true,
+    expect: /claims to hold for all six 画种/,
+    mutate(dir) {
+      const file = path.join(dir, 'data/dossiers/schiele/1911-1914.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      doc.composition.brushwork.claims[0].medium = [
+        'oil',
+        'oil_on_panel',
+        'watercolor',
+        'colored_on_paper',
+        'drawing_on_paper',
+        'print',
+      ];
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
 ];
 
 /* --- baseline: the shipped dataset must pass -------------------------------------------- */
@@ -114,7 +162,9 @@ for (const testCase of cases) {
   const dir = scratchRepo();
   try {
     testCase.mutate(dir);
-    const result = spawnSync(process.execPath, [path.join(HERE, 'validate.mjs')], {
+    const args = [path.join(HERE, 'validate.mjs')];
+    if (testCase.strict) args.push('--strict');
+    const result = spawnSync(process.execPath, args, {
       env: { ...process.env, TK_ROOT: dir },
       encoding: 'utf8',
     });

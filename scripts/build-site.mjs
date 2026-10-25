@@ -71,7 +71,10 @@ function enrichEvidence(ev) {
 function enrichClaim(claim) {
   const evidence = (claim.evidence ?? []).map(enrichEvidence);
   return {
-    statement_zh: claim.statement_zh,
+    statement_zh: claim.statement_zh ?? null,
+    not_applicable: claim.not_applicable === true,
+    reason_zh: claim.reason_zh ?? null,
+    medium: claim.medium ?? [],
     confidence: claim.confidence ?? null,
     status: claim.status,
     note_zh: claim.note_zh ?? null,
@@ -134,6 +137,16 @@ function buildDossier(doc) {
   const gradeCount = { A: 0, B: 0, C: 0 };
   for (const claim of allClaims) for (const grade of claim.grades) gradeCount[grade] = (gradeCount[grade] ?? 0) + 1;
 
+  // 画种: which media this dossier speaks for, and how many entries answer each
+  const mediaCounts = {};
+  for (const claim of allClaims) {
+    for (const medium of claim.medium) {
+      if (medium === 'period_level') continue;
+      mediaCounts[medium] = (mediaCounts[medium] ?? 0) + 1;
+    }
+  }
+  const declaredMedia = doc.media_covered ?? Object.keys(mediaCounts);
+
   return {
     id: doc.dossier_id,
     artist: { id: doc.artist, zh: artist?.names?.zh ?? doc.artist, en: artist?.names?.en ?? '' },
@@ -162,6 +175,7 @@ function buildDossier(doc) {
         id,
         title: w?.title ?? { zh: id, en: '' },
         year: w?.year?.from ?? null,
+        medium_category: w?.medium_category ?? null,
         support: w?.support ?? null,
         mediums: w?.mediums ?? [],
         collection: w?.collection ?? null,
@@ -169,6 +183,7 @@ function buildDossier(doc) {
         iiif: w?.iiif ?? null,
       };
     }),
+    media: { declared: declaredMedia, counts: mediaCounts },
     open_questions: (doc.open_questions ?? []).map((q) => ({
       question_zh: q.question_zh,
       why_open_zh: q.why_open_zh,
@@ -177,6 +192,7 @@ function buildDossier(doc) {
     stats: {
       claims: allClaims.length,
       signed: allClaims.filter((c) => c.status === 'signed').length,
+      notApplicable: allClaims.filter((c) => c.not_applicable).length,
       grades: gradeCount,
       unverifiedLocators: allClaims.reduce((n, c) => n + c.evidence.filter((e) => e.unverified).length, 0),
     },
