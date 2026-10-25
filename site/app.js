@@ -207,6 +207,23 @@ function flatten(dossier, dim) {
   }
 }
 
+const MEDIA_ORDER = ['oil', 'oil_on_panel', 'watercolor', 'colored_on_paper', 'drawing_on_paper', 'print'];
+
+/** Claim belongs to a category: null = 全部 (everything, including period-level claims). */
+function matchesMedium(claim, medium) {
+  if (!medium) return true;
+  if (claim.medium.includes('period_level')) return false; // periodization sits above 画种
+  return claim.medium.includes(medium);
+}
+
+function countDim(dossier, dim, medium) {
+  return flatten(dossier, dim).filter((claim) => matchesMedium(claim, medium)).length;
+}
+
+function countCategory(dossier, medium) {
+  return DATA.dims.reduce((total, dim) => total + countDim(dossier, dim, medium), 0);
+}
+
 function renderOverview() {
   return DATA.dossiers
     .map((dossier) => {
@@ -215,20 +232,49 @@ function renderOverview() {
         .map((a) => `<li><span class="year">${esc(a.year)}${a.month_day ? `-${esc(a.month_day)}` : ''}</span><span>${esc(a.event_zh)}</span></li>`)
         .join('');
 
-      const cells = DATA.dims
-        .map((dim) => {
-          const n = flatten(dossier, dim).filter(visible).length;
-          return `<div class="dim-cell" data-goto="${dim}">
-            <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
-            <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>
-            <span class="dim-count">${n} 条结论</span>
-          </div>`;
+      const mediaLine = (dossier.media.declared ?? []).map((medium) => mediumChip(medium)).join(' ');
+
+      // 画种分类：全部算一类，其余每个画种各算一类，类内再按六维细分
+      const categories = [
+        { key: null, label: '全部', sub: 'all media', count: countCategory(dossier, null) },
+        ...MEDIA_ORDER.filter((medium) => (dossier.media.declared ?? []).includes(medium)).map((medium) => ({
+          key: medium,
+          label: MEDIA_LABELS[medium] ?? medium,
+          sub: medium,
+          count: countCategory(dossier, medium),
+        })),
+      ].filter((category) => category.key === null || selectedMedia.size === 0 || selectedMedia.has(category.key));
+
+      const blocks = categories
+        .map((category) => {
+          const cells = DATA.dims
+            .map((dim) => {
+              if (dim === 'period' && category.key) {
+                // 分期对所有画种共用，不属于任何单一画种
+                return `<div class="dim-cell is-static" data-goto="period">
+                  <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
+                  <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>
+                  <span class="dim-count">全期共用 · ${dossier.dimensions.period.length} 条</span>
+                </div>`;
+              }
+              const n = countDim(dossier, dim, category.key);
+              return `<div class="dim-cell${n ? '' : ' is-empty'}" data-goto="${dim}" data-medium="${esc(category.key ?? '')}">
+                <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
+                <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>
+                <span class="dim-count">${n ? `${n} 条结论` : '暂无'}</span>
+              </div>`;
+            })
+            .join('');
+
+          return `<section class="media-block">
+            <div class="media-block-head">
+              <h3>${esc(category.label)}</h3>
+              <span class="media-block-sub">${esc(category.sub)} · ${category.count} 条</span>
+            </div>
+            <div class="dim-grid">${cells}</div>
+          </section>`;
         })
         .join('');
-
-      const mediaLine = (dossier.media.declared ?? [])
-        .map((medium) => mediumChip(medium))
-        .join(' ');
 
       return `
       <section class="artist-card">
@@ -248,8 +294,8 @@ function renderOverview() {
         <div class="stat"><span class="num">${s.unverifiedLocators}</span><span class="lbl">出处待核验</span></div>
       </div>
 
-      <p class="section-title">六个维度 · six dimensions</p>
-      <div class="dim-grid">${cells}</div>
+      <p class="section-title">按画种分类 · by medium</p>
+      ${blocks}
 
       <p class="section-title">分期锚点 · anchors</p>
       <ul class="anchors">${anchors}</ul>
@@ -446,6 +492,14 @@ view.addEventListener('click', (event) => {
   const cell = event.target.closest('[data-goto]');
   if (!cell) return;
   TAB = cell.dataset.goto;
+
+  // drilling in from a 画种 block also applies that 画种 as the filter
+  if (cell.dataset.medium !== undefined) {
+    selectedMedia.clear();
+    if (cell.dataset.medium) selectedMedia.add(cell.dataset.medium);
+    renderMediaBar();
+  }
+
   syncHash();
   renderTabs();
   render();

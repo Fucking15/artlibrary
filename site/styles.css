@@ -518,3 +518,44 @@ details.evidence[open] > summary::before { content: "▾ "; }
   font-size: 11px;
   color: var(--ink-3);
 }
+
+/* ------------------------------------------------- per-画种 blocks (overview) */
+
+.media-block { margin: 0 0 34px; }
+
+.media-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.media-block-head h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+.media-block-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+.media-block .dim-grid { margin-bottom: 0; grid-template-columns: repeat(3, 1fr); }
+
+.dim-cell.is-empty .dim-name { color: var(--ink-3); }
+.dim-cell.is-empty .dim-count { color: var(--ink-3); }
+
+.dim-cell.is-static {
+  cursor: default;
+  background: repeating-linear-gradient(-45deg, var(--paper-2), var(--paper-2) 10px, #fbf9f3 10px, #fbf9f3 20px);
+}
+
+.dim-cell.is-static:hover { background: repeating-linear-gradient(-45deg, var(--paper-2), var(--paper-2) 10px, #fbf9f3 10px, #fbf9f3 20px); }
