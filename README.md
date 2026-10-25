@@ -42,7 +42,10 @@ scripts/
   build-site.mjs        把 YAML 编成站点用的 index.json
   serve.mjs             本地预览
 docs/schema.zh.md      中文字段说明与填写规则
+AGENTS.md              给 AI agent 与贡献者的操作手册与硬规则
 ```
+
+贡献代码或数据前，请先读 [`AGENTS.md`](AGENTS.md)：那里列了不可违反的十条底线、改动 schema 时的连带责任、以及每条校验报错的修法。
 
 ### 六个维度
 
@@ -180,7 +183,10 @@ scripts/
   build-site.mjs        compiles the YAML into the site's index.json
   serve.mjs             local preview
 docs/schema.zh.md      field-by-field authoring guide (Chinese)
+AGENTS.md              operating rules for AI agents and contributors
 ```
+
+Before changing code or data, read [`AGENTS.md`](AGENTS.md): the ten non-negotiable rules, the knock-on effects of a schema change, and the fix for every validation error.
 
 ### The six dimensions
 
