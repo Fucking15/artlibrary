@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>信息审查 · examine</title>
+<meta name="description" content="技法图谱的编辑审查台：审核 C/D/E 类来源，确认 AI 的 T / S / F 初判。" />
+<link rel="stylesheet" href="./styles.css" />
+</head>
+<body class="examine-page">
+
+<header class="masthead">
+  <p class="eyebrow"><a href="./index.html">← 回到技法图谱</a> · 本地编辑工具</p>
+  <h1>信息审查<span class="h1-sub">examine</span></h1>
+  <p class="lede">
+    每周抓回来的候选先过一道范围：与席勒的技法、材料、学术无关的直接筛掉，不进库也不占你的时间。
+    留下的再判 T / S / F，F 当场删除；A、B 类自动入库，C、D、E 类等你在这里点头或摇头。
+    判定一旦落盘就带署名，删掉的和筛掉的都留指纹，下周不会再爬回来。
+  </p>
+  <div id="banner" class="banner" hidden></div>
+</header>
+
+<section class="toolbar">
+  <div class="toolbar-inner">
+    <div class="examine-actions">
+      <button id="screen" class="ask" type="button">运行 AI 初筛</button>
+      <button id="refresh" class="ghost" type="button">刷新</button>
+      <span id="screening" class="search-hint"></span>
+    </div>
+    <div class="examine-filters" id="filters">
+      <span class="media-caption">类别</span>
+      <button type="button" data-class="" aria-pressed="true">全部</button>
+      <button type="button" data-class="A" aria-pressed="false">A 学术</button>
+      <button type="button" data-class="B" aria-pressed="false">B 机构</button>
+      <button type="button" data-class="C" aria-pressed="false">C 次级</button>
+      <button type="button" data-class="D" aria-pressed="false">D 书籍</button>
+      <button type="button" data-class="E" aria-pressed="false">E 评论区</button>
+    </div>
+  </div>
+</section>
+
+<main id="view" aria-live="polite">
+  <p class="loading">正在读取候选…</p>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <h3>判定口径</h3>
+      <p><b>先看范围</b>：套不上六个维度的（八卦、拍卖价、开幕、同名撞车）直接筛除。
+        留下的再判 <b>T</b> 可核对的具体信息 · <b>S</b> 听起来可能但没证据 · <b>F</b> 荒诞、编造、标题党，删。</p>
+    </div>
+    <div>
+      <h3>为什么分两道</h3>
+      <p>AI 只做初筛，节省你的时间；C/D/E 的最终责任在人。A/B 由 AI 放行，因为馆方与学术来源本身可核对。</p>
+    </div>
+    <div>
+      <h3>这一页不会</h3>
+      <p>不会自动往 sources.yaml 写条目，也不会替你改 claim。入库是编辑动作，永远由人来做。</p>
+    </div>
+  </div>
+</footer>
+
+<script src="./examine.js"></script>
+</body>
+</html>

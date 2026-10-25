@@ -4,7 +4,7 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>技法图谱 · technique-kb</title>
-<meta name="description" content="开源的画家技法知识库：六维分期、分级来源、每条结论可追溯。" />
+<meta name="description" content="开源的画家技法知识库：六维分期、分级来源、每条结论可追溯。主页是画家索引，画家页里才是分期与六大维度。" />
 <link rel="stylesheet" href="./styles.css" />
 </head>
 <body>
@@ -22,12 +22,13 @@
 <section class="toolbar">
   <div class="toolbar-inner">
     <div class="search">
-      <input id="q" type="search" placeholder="搜习惯用语：线条 / 留白 / 取景 / 克林姆 / 笔触…" autocomplete="off" aria-label="检索条目" />
-      <span class="search-hint" id="qhint">本地检索，未接 LLM</span>
+      <input id="q" type="search" placeholder="问一个问题：席勒 1912 年的线条为什么是断的？" autocomplete="off" aria-label="向知识库提问" />
+      <button id="ask" class="ask" type="button">问</button>
     </div>
-    <nav id="tabs" class="tabs" aria-label="视图"></nav>
+    <span class="search-hint" id="qhint">AI 检索 · DeepSeek</span>
+    <nav id="tabs" class="tabs" aria-label="次级目录" hidden></nav>
   </div>
-  <div class="media-inner">
+  <div class="media-inner" id="media-row" hidden>
     <span class="media-caption">画种</span>
     <nav id="media" class="media-tabs" aria-label="画种筛选"></nav>
   </div>
@@ -50,6 +51,7 @@
         <li><span class="chip grade-B">B</span> 机构：馆藏官网、档案</li>
         <li><span class="chip grade-C">C</span> 次级：展览页、媒体</li>
         <li>全是 C 级证据的结论，置信度必须为低</li>
+        <li>来源另分 A–E 五类：D 书籍、E 评论区只进候选池，须人审</li>
       </ul>
     </div>
     <div>
@@ -58,10 +60,11 @@
         <li><a href="https://github.com/Fucking15/artlibrary">源码与数据</a></li>
         <li><a href="https://github.com/Fucking15/artlibrary/blob/main/docs/schema.zh.md">字段说明</a></li>
         <li><a href="https://github.com/Fucking15/artlibrary/blob/main/schema/dossier.schema.json">Schema</a></li>
+        <li id="examine-link" hidden><a href="/examine">审查台（仅本机）</a></li>
       </ul>
     </div>
   </div>
-  <p class="colophon">代码 MIT · 数据许可待定 · 图像不落库，只存 IIIF 指针</p>
+  <p class="colophon">代码 MIT · 数据许可待定 · 图像不落库，只存 IIIF 指针 · AI 检索由 DeepSeek 提供，密钥只存本机</p>
 </footer>
 
 <script src="./app.js"></script>

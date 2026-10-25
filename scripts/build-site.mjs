@@ -55,6 +55,7 @@ function citation(src) {
 function enrichEvidence(ev) {
   const src = sources.get(ev.source);
   return {
+    sourceId: ev.source,
     grade: src?.grade ?? '?',
     gradeLabel: gradeLabel[src?.grade] ?? '未登记来源',
     citation: src ? citation(src) : ev.source,
@@ -184,6 +185,8 @@ function buildDossier(doc) {
       };
     }),
     media: { declared: declaredMedia, counts: mediaCounts },
+    // 每份档案实际引用了哪些来源：画家页的「来源」标签按它过滤，不再把全库来源倒给读者
+    sourceIds: [...new Set(allClaims.flatMap((claim) => claim.evidence.map((e) => e.sourceId)))].sort(),
     open_questions: (doc.open_questions ?? []).map((q) => ({
       question_zh: q.question_zh,
       why_open_zh: q.why_open_zh,
@@ -221,6 +224,32 @@ const dossiers = walk(path.join(ROOT, 'data', 'dossiers'))
   .map((file) => buildDossier(yaml.load(fs.readFileSync(file, 'utf8'))))
   .sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
+/* 画家登记表整个带给前端：主页的索引要能列出「已登记但还没有档案」的人，
+   所以不能只从 dossiers 反推画家。 */
+const artistRoster = [...artists.values()]
+  .map((artist) => {
+    const own = dossiers.filter((dossier) => dossier.artist.id === artist.id);
+    return {
+      id: artist.id,
+      zh: artist.names?.zh ?? artist.id,
+      en: artist.names?.en ?? '',
+      birth_year: artist.birth_year ?? null,
+      death_year: artist.death_year ?? null,
+      birth_place_zh: artist.birth_place_zh ?? null,
+      death_place_zh: artist.death_place_zh ?? null,
+      nationality: artist.nationality ?? [],
+      roles: artist.roles ?? [],
+      wikidata: artist.authorities?.wikidata ?? null,
+      notes_zh: artist.notes_zh ?? null,
+      hasDossier: own.length > 0,
+      dossierIds: own.map((dossier) => dossier.id),
+    };
+  })
+  .sort((a, b) => {
+    if (a.hasDossier !== b.hasDossier) return a.hasDossier ? -1 : 1;
+    return (a.birth_year ?? 9999) - (b.birth_year ?? 9999);
+  });
+
 const payload = {
   generated_at: new Date().toISOString(),
   schema_version: '0.1.0',
@@ -233,9 +262,11 @@ const payload = {
     dossiers: dossiers.length,
     claims: dossiers.reduce((n, d) => n + d.stats.claims, 0),
   },
+  artists: artistRoster,
   sources: [...sources.values()].map((s) => ({
     id: s.id,
     grade: s.grade,
+    class: s.class,
     kind: s.kind,
     citation: citation(s),
     url: s.url ?? null,
