@@ -1,0 +1,300 @@
+$schema: "../../../schema/dossier.schema.json"
+dossier_id: schiele.1909-1911
+artist: schiele
+
+# 本期的画种边界：只声明纸上彩色作品（水彩、水粉、树胶水彩）。油画只作背景，不单列判断。
+media_covered: [colored_on_paper]
+
+period:
+  id: schiele.1909-1911
+  label:
+    zh: 表现主义突破期（离校、Kunstschau 与搬离维也纳）
+    en: Expressionist breakthrough (leaving the Academy, Kunstschau, leaving Vienna)
+  start_year: 1909
+  end_year: 1911
+  basis_zh: >-
+    本期从 1909 年退学、参加维也纳「国际艺术展」并另组新艺术团体开始，到 1911 年搬离维也纳为止。
+    这三年他的工作条件连续变了三次：先是学院与团体并置，然后是完全靠展览与画商，最后是离开首都、
+    迁往克鲁毛与新伦巴赫。1910 年被他自己与后来的研究共同当作转折年。
+  anchors:
+    - year: 1909
+      event_zh: 在维也纳「国际艺术展」上看到梵高，此后作品明显转向表现主义。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 4"
+          quote: "Für Schieles Kenntnis der Kunst van Goghs war die »Internationale Kunstschau« von 1909 von ausschlaggebender Wichtigkeit."
+          quote_lang: de
+          translation_zh: "对席勒认识梵高的艺术来说，1909 年的「国际艺术展」具有决定性意义。"
+    - year: 1909
+      event_zh: 与马克斯·奥本海默短暂交往，开始远离装饰性的青年风格。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 3"
+          quote: "Durch die kurze Freundschaft mit Max Oppenheimer, den er 1909 kennenlernte, entfernte sich Schiele vom dekorativen Jugendstil."
+          quote_lang: de
+          translation_zh: "通过与 1909 年结识的马克斯·奥本海默的短暂友谊，席勒远离了装饰性的青年风格。"
+    - year: 1910
+      event_zh: 完成向表现主义的突破，被后来的研究定为他艺术的转折点。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 5"
+          quote: "Das Jahr 1910 markierte mit dem Durchbruch zum Expressionismus einen entscheidenden Wendepunkt in Schieles Kunst."
+          quote_lang: de
+          translation_zh: "1910 年随表现主义突破，成为席勒艺术中决定性的转折点。"
+    - year: 1911
+      event_zh: 在维也纳 Miethke 画廊首次个展。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 6"
+          quote: "Eine erste Einzelausstellung von Schieles Arbeiten wurde 1911 in der Wiener Galerie Miethke gezeigt."
+          quote_lang: de
+          translation_zh: "席勒作品的首次个展于 1911 年在维也纳 Miethke 画廊举办。"
+    - year: 1911
+      event_zh: 厌倦首都的喧闹，搬离维也纳。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 6"
+          quote: "Vom Rummel in der Hauptstadt übersättigt, zog Schiele 1911 aus Wien weg."
+          quote_lang: de
+          translation_zh: "对首都的喧闹感到餍足之后，席勒于 1911 年搬离维也纳。"
+  claims:
+    - medium: [period_level]
+      statement_zh: 1910 年是可断代的转折点，此后他的线条与用色都不再回到学院期。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 5"
+          quote: "Das Jahr 1910 markierte mit dem Durchbruch zum Expressionismus einen entscheidenden Wendepunkt in Schieles Kunst."
+          quote_lang: de
+          translation_zh: "1910 年随表现主义突破，成为席勒艺术中决定性的转折点。"
+      confidence: low
+      status: draft
+      note_zh: C 级通述；具体到哪一件作品完成转折，需按作品目录逐件定年。
+    - medium: [period_level]
+      statement_zh: 本期的终点是搬离维也纳，而不是某一种风格的完成。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 6"
+          quote: "Vom Rummel in der Hauptstadt übersättigt, zog Schiele 1911 aus Wien weg."
+          quote_lang: de
+          translation_zh: "对首都的喧闹感到餍足之后，席勒于 1911 年搬离维也纳。"
+      confidence: low
+      status: draft
+      note_zh: 以生活史事件划界，属编辑上的取舍；换用风格标准可切成 1909–1910 与 1910–1911 两段。
+
+lineage:
+  - id: lin.schiele.klimt.late
+    relation: teacher_mentor
+    counterpart:
+      label_zh: 古斯塔夫·克林姆
+      type: artist
+      registry_ref: klimt
+    window:
+      from_year: 1909
+      to_year: 1911
+    transmitted_elements: [color, structure_proportion]
+    summary_zh: 到 1909 年，克林姆的影响已经从"方法"退成"外观"：批评者一眼就能看出像，而席勒正在把它拆掉。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 1909 年新艺术团体展出的作品仍被评论认为"很像克林姆的风格"。
+        evidence:
+          - source: src.wp.de.schiele
+            locator: "§ Leben, Abs. 3"
+            quote: "Erste Erfolge feierte Schiele 1909 mit der Ausstellung seiner Werke, die alle sehr an Gustav Klimts Stil erinnern, im Rahmen der Neukunstgruppe in der „Großen Internationalen Kunstschau“ in Wien."
+            quote_lang: de
+            translation_zh: "1909 年，席勒在新艺术团体于维也纳「大国际艺术展」的展览上首次获得成功，那些作品都还很像古斯塔夫·克林姆的风格。"
+        confidence: low
+        status: draft
+        note_zh: 引的是当时评论的口径（"alle sehr ... erinnern"），不是今天的风格分析。
+  - id: lin.schiele.vangogh
+    relation: movement
+    counterpart:
+      label_zh: 梵高（经 1909 年维也纳国际艺术展传入）
+      type: movement
+      external_authority:
+        scheme: Wikidata
+        value: Q5582
+    window:
+      from_year: 1909
+      to_year: 1911
+    transmitted_elements: [color, brushwork]
+    summary_zh: 梵高给的不是题材，而是"颜色可以不听物象的话"这条许可；席勒接过去之后立刻用在自己的身体画上。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 1909 年的国际艺术展是席勒认识梵高作品的决定性场合。
+        evidence:
+          - source: src.wp.de.schiele
+            locator: "§ Leben, Abs. 4"
+            quote: "Für Schieles Kenntnis der Kunst van Goghs war die »Internationale Kunstschau« von 1909 von ausschlaggebender Wichtigkeit."
+            quote_lang: de
+            translation_zh: "对席勒认识梵高的艺术来说，1909 年的「国际艺术展」具有决定性意义。"
+        confidence: low
+        status: draft
+        note_zh: 只证明"看过并受影响"，未证明具体哪一幅梵高作品被引用。
+
+comparison:
+  - id: cmp.schiele.1910.line
+    counterpart:
+      label_zh: 古斯塔夫·克林姆
+      type: artist
+      registry_ref: klimt
+    axis: brushwork
+    their_practice_zh: 克林姆的线是装饰性的、连续的，围绕形体走一圈就把人包进图案里。
+    his_difference_zh: 1910 年前后的席勒改用棱角分明的断线，线的转折直接就是情绪的转折；圆润的轮廓要到更晚才回来。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 1910 年代初的棱角线条，到后期才逐渐被更圆、更肉感的轮廓取代。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 2"
+            quote: "Le trait anguleux du début des années 1910 cède progressivement à des contours plus ronds, plus voluptueux, agrémentés parfois de « déviations expressives » ou de hachures et petites boucles transposées peut-être de la gravure."
+            quote_lang: fr
+            translation_zh: "1910 年代初的棱角笔触，逐渐让位于更圆、更丰润的轮廓，有时还加上「表现性的偏移」，或可能是从版画移植来的排线与小环。"
+        confidence: low
+        status: draft
+        note_zh: 这条同时是本期与后期的分界依据；单独使用不足以定位到某一年。
+
+material:
+  supports: [paper]
+  mediums: [watercolor, gouache, charcoal, graphite]
+  process_zh: 先以铅笔或炭笔起形，再上水彩；需要压住纸白处加水粉，水粉有时掺胶增稠以拉大对比。
+  claims:
+    - medium: [colored_on_paper]
+      statement_zh: 1910 年自画像为水彩加炭笔，纸本，45 × 31.5 厘米。
+      evidence:
+        - source: src.thyssen.737
+          locator: "object page, Technical details 字段"
+          quote: "Watercolor and charcoal on paper. 45 x 31.5 cm"
+          quote_lang: en
+          translation_zh: "水彩与炭笔，纸本。45 × 31.5 厘米。"
+      confidence: medium
+      status: draft
+    - medium: [colored_on_paper]
+      statement_zh: 1911 年自画像用不透明水彩、石墨与水粉三种媒介叠在同一张纸上。
+      evidence:
+        - source: src.met.483438
+          locator: "object page, Medium 字段"
+          quote: "Watercolor, graphite, and gouache on paper"
+          quote_lang: en
+          translation_zh: "水彩、石墨与水粉，纸本。"
+      confidence: medium
+      status: draft
+    - medium: [colored_on_paper]
+      statement_zh: 水粉比水彩更"听话"，席勒会在里面掺胶把它变稠，用来强行拉开明暗对比。
+      evidence:
+        - source: src.wp.fr.schiele
+          locator: "§ 2.1.2 Aspects techniques, para. 3"
+          quote: "Dans ses dessins, Schiele use de l'aquarelle et de la gouache, plus maniable, parfois épaissie à la colle pour forcer le contraste."
+          quote_lang: fr
+          translation_zh: "在素描里，席勒使用水彩与水粉；水粉更易操控，有时掺胶增稠以强化对比。"
+      confidence: low
+      status: draft
+      note_zh: 工艺描述来自 C 级通述，未经颜料分析核实。
+
+composition:
+  structure_proportion:
+    summary_zh: 人体被画成扭曲、悬空的姿态，多数取俯视；比例服务于姿态的紧张，而不是解剖的准确。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 他的人物像被吊起来一样悬着，并且常从上方俯看。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 1"
+            quote: "À l'instar de ses sujets non vivants, ses figures contorsionnées sont comme suspendues et saisies en plongée."
+            quote_lang: fr
+            translation_zh: "与他画的无生命对象一样，他那些扭曲的人物像是悬着，并且是从上方俯拍下来的。"
+        confidence: low
+        status: draft
+        note_zh: 通述，未限定年份；本期是否已普遍如此，需按作品逐件核对。
+  color:
+    summary_zh: 1910 年之后酸性色退场，棕、黑、深蓝、紫成为主调；颜色不再描述对象，而是加压。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 1910 年起，刺眼与不谐的颜色减少，代之以褐、黑、蓝与深紫。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 4"
+            quote: "À partir de 1910, les couleurs acides ou discordantes s'atténuent au profit de bruns, noirs, bleus, violets foncés"
+            quote_lang: fr
+            translation_zh: "从 1910 年起，酸性或不谐的颜色减弱，代之以褐色、黑色、蓝色与深紫色。"
+        confidence: low
+        status: draft
+        note_zh: 原文紧接着还说明他并未排除白与鲜艳色；这一条只讲趋势。
+  framing:
+    summary_zh: 线性透视被弃用，取景抬高到俯视；背景压成一片中性色，直到彻底空掉。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 他放弃文艺复兴以来的线性透视，改用不寻常的俯视视角。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 2"
+            quote: "Faisant table rase de la perspective linéaire en vigueur depuis la Renaissance et de l'illusion spatiale qu'elle induit, Schiele adopte sur ses sujets un point de vue surplombant inhabituel."
+            quote_lang: fr
+            translation_zh: "他把文艺复兴以来通行的线性透视及其造成的空间错觉一并推翻，对笔下对象采用不寻常的俯视视角。"
+        confidence: low
+        status: draft
+        note_zh: 通述覆盖其全部创作，不专指本期；本期只取俯视这一条作为可核对项。
+  light_shadow:
+    summary_zh: 亮部就是纸本身；暗部靠浓度与叠加，而不是靠灰调过渡。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 画面亮部直接由纸的白或奶白色承担，不用白颜料提亮。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 3"
+            quote: "Ses dessins laissent visible la couleur blanche ou crème du papier."
+            quote_lang: fr
+            translation_zh: "他的素描让纸张的白色或奶白色留在画面里。"
+        confidence: low
+        status: draft
+        note_zh: 与 1906–1909 期同一条引文；本期需另找能证明"不用白颜料"的馆方技术记录。
+  brushwork:
+    summary_zh: 轮廓用脂笔加重，成为纸面与体积之间的界线；这一手法在本期定型，此后一直保留。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 除 1911 至 1912 年短暂例外，轮廓线都用脂笔压重，作为纸面的平面与人体体积之间的分界。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 2"
+            quote: "Hormis entre 1911 et 1912 où le tracé à la mine de plomb très dure se voit à peine, les contours à la mine grasse sont appuyés. Ils marquent une frontière entre la planéité de la feuille et les volumes du sujet"
+            quote_lang: fr
+            translation_zh: "除了 1911 至 1912 年间用极硬铅笔、几乎看不见痕迹的那一段，轮廓都用脂笔加重。它们在纸的平面与对象的体积之间划出一道边界。"
+        confidence: low
+        status: draft
+        note_zh: 原文点明 1911–1912 是例外，正好横跨本期与下一期的边界，需注意归属。
+
+subject_matter:
+  motifs: [self_portrait, nude, portrait]
+  rationale_zh: 自画像与裸体是他把"看自己"和"看身体"合成一件事的地方；本期数量激增，与水彩技法成熟同步。
+  claims:
+    - medium: [colored_on_paper]
+      statement_zh: 纸上作品里最多的题材是自画像与男女裸体，姿态与细节常常直白到冒犯。
+      evidence:
+        - source: src.wp.fr.schiele
+          locator: "§ 1 Œuvre, para. 3"
+          quote: "natures mortes, paysages, portraits, allégories et surtout autoportraits et nus féminins et masculins innombrables, aux postures ou détails parfois crus"
+          quote_lang: fr
+          translation_zh: "静物、风景、肖像、寓意画，尤其是数不清的自画像与男女裸体，姿态或细节有时相当直露。"
+      confidence: low
+      status: draft
+      note_zh: 概括其全部纸本创作；本期占比更高是推断，需以作品目录统计。
+
+works:
+  - work.schiele.1910.selbstbildnis-thyssen
+  - work.schiele.1911.selbstbildnis-met
+
+open_questions:
+  - question_zh: 1910 年的"突破"能否用单件作品的技法变化来定位？
+    why_open_zh: 现有材料都是通述（"1910 年是转折点"），没有逐件定年的技术记录，无法把转折点钉到某一张画上。
+    needs: [A]
+  - question_zh: 本期水彩与水粉的实际配比能否被检测？
+    why_open_zh: 掺胶增稠的说法来自 C 级通述，尚无颜料分析或修复报告佐证。
+    needs: [A, B]
+
+meta:
+  status: draft
+  version: 0.1.0
+  created: "2026-10-25"
+  updated: "2026-10-25"
+  notes_zh: >-
+    2026-10-25 新建。本期只用纸上彩色作品立档：材质记录来自提森-博内米萨（1910 自画像）与大都会（1911 自画像），
+    其余为德/法文百科通述（C 级），已逐条标 low 并写缺口。分期边界取"退学—搬离维也纳"，属编辑取舍，另在 open_questions 标注。

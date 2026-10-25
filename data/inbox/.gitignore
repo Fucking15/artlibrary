@@ -1,0 +1,6 @@
+# 抓取候选是本机的临时队列，不进版本库。
+candidates.jsonl
+runs/
+# 判过 F 的指纹要留下来：删掉的东西不该下周再爬回来。
+!.gitignore
+!tombstones.jsonl

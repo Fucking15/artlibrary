@@ -1,0 +1,306 @@
+$schema: "../../../schema/dossier.schema.json"
+dossier_id: schiele.1906-1909
+artist: schiele
+
+# 本期的画种边界：只声明纸上素描。此期的油画（如 1907 年 Czihaczek 肖像）尚无馆方记录，暂不纳入。
+media_covered: [drawing_on_paper]
+
+period:
+  id: schiele.1906-1909
+  label:
+    zh: 学院时期（格里彭克尔班与克林姆）
+    en: Academy years (Griepenkerl class, Klimt's mentorship)
+  start_year: 1906
+  end_year: 1909
+  basis_zh: >-
+    分期依据是教学环境的起止：1906 年 10 月入维也纳美术学院，随 Christian Griepenkerl 学画；
+    1909 年 4 月退学并另组新艺术团体。这三年共享同一套学院训练、同一批同学与同一个庇护人网络，
+    此后他的工作条件（独立画室、团体展览、画商）全部换了。
+  anchors:
+    - year: 1906
+      event_zh: 入维也纳美术学院，进入 Christian Griepenkerl 的绘画班。
+      evidence:
+        - source: src.leopold.schiele
+          locator: "collection page, para. 1"
+          quote: "His early knack for drawing led Schiele to the Vienna Academy as early as 1906, to a class led by Christian Griepenkerl, whose rigid structures did not speak to Schiele's own ideas."
+          quote_lang: en
+          translation_zh: "他早年画得一手好画，1906 年就进了维也纳美术学院，入 Christian Griepenkerl 的班；后者僵硬的结构不合席勒自己的想法。"
+    - year: 1907
+      event_zh: 主动结识克林姆，自此获得模特、主顾与交换作品的提携。
+      evidence:
+        - source: src.wp.en.schiele
+          locator: "§ Biography, Klimt and first exhibitions, para. 1"
+          quote: "In 1907, Schiele sought out Gustav Klimt, who generously mentored younger artists. Klimt took a particular interest in the young Schiele, buying his drawings, offering to exchange them for some of his own, arranging models for him, and introducing him to potential patrons."
+          quote_lang: en
+          translation_zh: "1907 年席勒主动找到克林姆，后者一向乐于提携年轻画家。克林姆对年轻的席勒格外有兴趣：买他的素描、提出用自己的画交换、替他安排模特，还把他介绍给潜在主顾。"
+    - year: 1908
+      event_zh: 在克洛斯特新堡修道院皇帝厅首次参加公开展览。
+      evidence:
+        - source: src.wp.en.schiele
+          locator: "§ Biography, Klimt and first exhibitions, para. 3"
+          quote: "In 1908, Schiele had his first exhibition, in Klosterneuburg."
+          quote_lang: en
+          translation_zh: "1908 年，席勒在克洛斯特新堡第一次参加展览。"
+    - year: 1909
+      month_day: "04-00"
+      event_zh: 退学，与不满学院的同学另组"新艺术团体"（Neukunstgruppe）。
+      evidence:
+        - source: src.wp.en.schiele
+          locator: "§ Biography, Klimt and first exhibitions, para. 4"
+          quote: "Schiele left the academy in 1909, after completing his third year, and founded the Neukunstgruppe (\"New Art Group\") with other dissatisfied students."
+          quote_lang: en
+          translation_zh: "1909 年读完第三年后，席勒离开学院，与其他不满的学生一起创立了「新艺术团体」。"
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 2"
+          quote: "Zunehmende Spannungen zwischen Lehrer und Schüler führten schließlich nach zwei Jahren, im April 1909, zum freiwilligen Austritt Schieles aus der Akademie."
+          quote_lang: de
+          translation_zh: "师生间日益加剧的紧张关系，最终导致席勒在两年之后的 1909 年 4 月自愿退学。"
+  claims:
+    - medium: [period_level]
+      statement_zh: 本期以学院训练的起止划界，而不是以风格变化划界。
+      evidence:
+        - source: src.leopold.schiele
+          locator: "collection page, para. 1"
+          quote: "His early knack for drawing led Schiele to the Vienna Academy as early as 1906, to a class led by Christian Griepenkerl, whose rigid structures did not speak to Schiele's own ideas."
+          quote_lang: en
+          translation_zh: "他早年画得一手好画，1906 年就进了维也纳美术学院，入 Christian Griepenkerl 的班；后者僵硬的结构不合席勒自己的想法。"
+      confidence: medium
+      status: draft
+    - medium: [period_level]
+      statement_zh: 学院的教学以历史主义传统为基础，与席勒当时的取向不合。
+      evidence:
+        - source: src.wp.de.schiele
+          locator: "§ Leben, Abs. 2"
+          quote: "In der Akademie kam Schiele in die Malklasse Christian Griepenkerls, eines konservativen, in der Tradition des Historismus verwurzelten Künstlers."
+          quote_lang: de
+          translation_zh: "在学院里，席勒进了 Christian Griepenkerl 的绘画班；格氏是一位保守的、扎根于历史主义传统的画家。"
+      confidence: low
+      status: draft
+      note_zh: 目前只有 C 级（百科）表述支撑，需补入学院档案或同时代人的回忆。
+
+lineage:
+  - id: lin.schiele.klimt
+    relation: teacher_mentor
+    counterpart:
+      label_zh: 古斯塔夫·克林姆
+      type: artist
+      registry_ref: klimt
+    window:
+      from_year: 1907
+      to_year: 1909
+    transmitted_elements: [brushwork, structure_proportion]
+    summary_zh: 克林姆在这三年给的不只是名声，而是能立刻上手的几件事：素描被当作可交换的硬通货、模特与主顾由他引荐、构图沿用他的平面分割。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 1907 至 1909 年的作品在构图上与克林姆高度接近，并带有新艺术的影响。
+        evidence:
+          - source: src.wp.en.schiele
+            locator: "§ Biography, Klimt and first exhibitions, para. 2"
+            quote: "Schiele's earliest works between 1907 and 1909 contain strong similarities with those of Klimt, as well as influences from Art Nouveau."
+            quote_lang: en
+            translation_zh: "席勒 1907 至 1909 年间最早的作品与克林姆的作品高度相似，同时受新艺术运动影响。"
+        confidence: low
+        status: draft
+        note_zh: 该判断来自 C 级通述；本期尚无作品级对照（见 open_questions）。
+      - medium: [drawing_on_paper]
+        statement_zh: 克林姆的提携是具体的：买下素描、以己作交换、安排模特、介绍主顾。
+        evidence:
+          - source: src.wp.en.schiele
+            locator: "§ Biography, Klimt and first exhibitions, para. 1"
+            quote: "Klimt took a particular interest in the young Schiele, buying his drawings, offering to exchange them for some of his own, arranging models for him, and introducing him to potential patrons."
+            quote_lang: en
+            translation_zh: "克林姆对年轻的席勒格外有兴趣：买他的素描、提出用自己的画交换、替他安排模特，还把他介绍给潜在主顾。"
+        confidence: low
+        status: draft
+        note_zh: 这一条记录的是关系事实，不是技法判断；若要作技法论断，需补克林姆与席勒作品的技术对比。
+  - id: lin.schiele.academy
+    relation: institution
+    counterpart:
+      label_zh: 维也纳美术学院（格里彭克尔绘画班）
+      type: institution
+      external_authority:
+        scheme: Wikidata
+        value: Q414052
+    window:
+      from_year: 1906
+      to_year: 1909
+    transmitted_elements: [structure_proportion]
+    summary_zh: 学院给的是可被检验的造型底子：先石膏、后人体，先男后女，最后才到衣褶与构图；这一整套程序决定了他早期素描的比例感。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 学院的素描课按石膏、人体、衣褶、构图的顺序推进，比例训练来自这一程序。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 1（学院课程部分）"
+            quote: "l'enseignement à l'académie des beaux-arts de Vienne consiste la première année en un apprentissage du dessin très progressif (d'après plâtres à l'antique puis d'après nature, nus puis portraits, modèles masculins puis féminins, étude du drapé puis de la composition)"
+            quote_lang: fr
+            translation_zh: "维也纳美术学院第一年的教学是一套循序渐进的素描训练：先画古代石膏，再画写生，先人体后肖像，先男模特后女模特，先衣褶研究再进入构图。"
+        confidence: low
+        status: draft
+        note_zh: 转述自法文维基对学院课程的描述，属 C 级；需补学院课程档案。
+
+comparison:
+  - id: cmp.schiele.klimt.color
+    counterpart:
+      label_zh: 古斯塔夫·克林姆
+      type: artist
+      registry_ref: klimt
+    axis: color
+    their_practice_zh: 克林姆让装饰性平面与色彩本身承担画面功能，背景往往是一整片金或花纹，不服从透视。
+    his_difference_zh: 席勒把背景压成中性底，颜色只留在人物内部；装饰性从画面表面移到姿态上。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 与克林姆相反，席勒把背景简化到近乎消失，让纸或底色直接充当背景。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 3"
+            quote: "En réaction au foisonnement ornemental de l'Art nouveau et de Klimt en particulier, Egon Schiele simplifie l'arrière-plan, le réduisant à un fond anodin jusqu'à l'éliminer complètement"
+            quote_lang: fr
+            translation_zh: "作为对新艺术、尤其对克林姆那种繁复装饰的反弹，席勒简化背景，把它压成不起眼的底色，直至完全去掉。"
+        confidence: low
+        status: draft
+        note_zh: 原文描述的是他整体的做法，不是专指本期；放在此处作为本期与克林姆分野的说明。
+
+material:
+  supports: [paper]
+  mediums: [crayon]
+  process_zh: 纸面直接落笔，不施底；浅色部分留纸，深色部分靠蜡笔层层叠加。
+  claims:
+    - medium: [drawing_on_paper]
+      statement_zh: 1907 年《艺术家的母亲》以黑色蜡笔画在奶白机制纸上，尺寸 42.5 × 29.5 厘米。
+      evidence:
+        - source: src.artic.1907.mother
+          locator: "object page, Medium / Dimensions 字段"
+          quote: "Various black crayons on cream wove paper; 42.5 × 29.5 cm (16 3/4 × 11 5/8 in.)"
+          quote_lang: en
+          translation_zh: "多种黑色蜡笔，画在奶白机制纸上；42.5 × 29.5 厘米。"
+      confidence: medium
+      status: draft
+    - medium: [drawing_on_paper]
+      statement_zh: 本期纸本多为单色线描，纸的白色或奶白色直接留作画面底色。
+      evidence:
+        - source: src.wp.fr.schiele
+          locator: "§ 2.1.3 Compositions récurrentes, para. 3"
+          quote: "Ses dessins laissent visible la couleur blanche ou crème du papier."
+          quote_lang: fr
+          translation_zh: "他的素描让纸张的白色或奶白色留在画面里。"
+      confidence: low
+      status: draft
+      note_zh: C 级通述；与上一条的馆方材质记录方向一致。
+
+composition:
+  structure_proportion:
+    summary_zh: 比例感来自课堂写生，人物多取半身；画面重心放在头与手，躯干常被画幅截断。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 本期人物素描以半身与胸像为主，构图重心落在头部。
+        evidence:
+          - source: src.artic.1907.mother
+            locator: "object page, title 与 dimensions 字段"
+            quote: "The Artist's Mother; Various black crayons on cream wove paper; 42.5 × 29.5 cm"
+            quote_lang: en
+            translation_zh: "《艺术家的母亲》；多种黑色蜡笔画于奶白机制纸；42.5 × 29.5 厘米。"
+        confidence: low
+        status: draft
+        note_zh: 由单件作品的形制推断，样本量不足，需补同期多件作品。
+  color:
+    summary_zh: 纸本几乎不给颜色，深浅只靠同一种黑蜡笔的轻重。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 1907 年的肖像只用黑色系蜡笔，没有第二种颜色参与。
+        evidence:
+          - source: src.artic.1907.mother
+            locator: "object page, Medium 字段"
+            quote: "Various black crayons on cream wove paper"
+            quote_lang: en
+            translation_zh: "多种黑色蜡笔，画在奶白机制纸上。"
+        confidence: medium
+        status: draft
+  framing:
+    summary_zh: 取景贴着人物，背景留给纸本身；没有室内陈设，也没有风景。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 画面不画环境，背景由未上色的纸面承担。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 3"
+            quote: "Ses dessins laissent visible la couleur blanche ou crème du papier."
+            quote_lang: fr
+            translation_zh: "他的素描让纸张的白色或奶白色留在画面里。"
+        confidence: low
+        status: draft
+        note_zh: 这一条只讲"背景由纸面承担"，未区分本期前后的取景变化，需以多件作品核对。
+  light_shadow:
+    summary_zh: 学院练习把纸白当作高光，暗部靠排线累积，不用擦笔。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 明暗靠排线与纸白对比完成，练习中不允许用颜色或橡皮修补。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 1（学院课程部分）"
+            quote: "crayon sans couleurs, craie sans crayon, rehauts obtenus par le blanc du papier"
+            quote_lang: fr
+            translation_zh: "铅笔不许上色，粉笔不许配铅笔，高光靠纸的白。"
+        confidence: low
+        status: draft
+        note_zh: 描述的是学院课程的限制，不是席勒本人的选择；作为本期明暗习惯的背景证据。
+  brushwork:
+    summary_zh: 线是主角：一笔到底、不擦、模特一动就叠加新线。这套习惯他此后一直保留。
+    claims:
+      - medium: [drawing_on_paper]
+        statement_zh: 席勒把"连续而精准的一笔"当作目标，画时不使用橡皮，模特移动就直接叠加新线。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 1"
+            quote: "Il a toujours ambitionné « la ligne parfaite, le trait continu qui allie de façon inséparable rapidité et précision »"
+            quote_lang: fr
+            translation_zh: "他一直追求「完美的线，把迅速与精确不可分割地结合起来的连续笔触」。"
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 1（引 Otto Benesch）"
+            quote: "Il ne connaissait pas la gomme et, si le modèle bougeait, les nouvelles lignes s'ajoutaient aux anciennes avec la même sûreté"
+            quote_lang: fr
+            translation_zh: "他不用橡皮；模特一动，新的线就同样笃定地叠在旧的线上。"
+        confidence: low
+        status: draft
+        note_zh: 两条均转引自法文维基所引的 Benesch 回忆，属 C 级；需回到 Benesch 原文核校。
+
+subject_matter:
+  motifs: [portrait, self_portrait, figure_study]
+  rationale_zh: 学院阶段能接触到的模特只有家人、同学与课堂人体；题材因此被环境限定，而不是被趣味选择。
+  claims:
+    - medium: [drawing_on_paper]
+      statement_zh: 本期题材集中在家人肖像、自画像与课堂人体习作。
+      evidence:
+        - source: src.leopold.schiele
+          locator: "collection page, para. 2"
+          quote: "At the center of his artistic interest was the contemplation of his own existence, as reflected in countless self-portraits as well as landscapes and cityscapes."
+          quote_lang: en
+          translation_zh: "他的艺术兴趣中心是对自身存在的凝视，这体现在无数自画像以及风景与城市景观中。"
+        - source: src.artic.1907.mother
+          locator: "object page, title 字段"
+          quote: "The Artist's Mother"
+          quote_lang: en
+          translation_zh: "《艺术家的母亲》。"
+      confidence: medium
+      status: draft
+      note_zh: 自画像的"无数"是通述说法；本期具体件数待以作品目录核对。
+
+works:
+  - work.schiele.1907.kuenstlerinnemutter
+
+open_questions:
+  - question_zh: 1906–1907 年的油画（如 1907 年 Czihaczek 肖像）用什么支撑与颜料？
+    why_open_zh: 目前只见于二手图注（布面油画、42.5 × 62.5 cm），未取得馆方对象记录，故本期不声明油画覆盖。
+    needs: [B]
+  - question_zh: 本期素描里"连续线"的具体形态能否用图像核对？
+    why_open_zh: 本期登记的纸上作品尚无 IIIF manifest，无法把 claim 指到具体笔画的区域。
+    needs: [B]
+
+meta:
+  status: draft
+  version: 0.1.0
+  created: "2026-10-25"
+  updated: "2026-10-25"
+  notes_zh: >-
+    2026-10-25 新建。本期只用纸上素描一个画种立档：可核的材质记录来自芝加哥艺术博物馆 1907 年《艺术家的母亲》，
+    其余技法表述依赖百科通述（C 级），已逐条标为 confidence low 并写明缺口。不是示例档案，citation 均可复查。

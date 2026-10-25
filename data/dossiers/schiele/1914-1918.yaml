@@ -1,0 +1,288 @@
+$schema: "../../../schema/dossier.schema.json"
+dossier_id: schiele.1914-1918
+artist: schiele
+
+# 本期的画种边界：只声明纸上彩色作品（水彩、水粉、不透明水彩与石墨/炭笔）。
+# 本期的油画（如 1915《死神与少女》）只作背景，不单列判断。
+media_covered: [colored_on_paper]
+
+period:
+  id: schiele.1914-1918
+  label:
+    zh: 晚期（战争、婚姻与写实转向）
+    en: Late period (war, marriage, turn to realism)
+  start_year: 1914
+  end_year: 1918
+  basis_zh: >-
+    本期从 1914 年战争爆发开始，到 1918 年他死于西班牙流感为止。这四年里外部现实强行进入画面：
+    1915 年结婚、随即被征入伍，1917 年回到维也纳并开始经营自己的名声。分期依据是这些外部事件，
+    而非某一种笔法的完成——晚期笔法本身就是逐步变"安静"的。
+  anchors:
+    - year: 1914
+      event_zh: 战争爆发，私人生活与历史环境同时剧变，作品的重心从内省转向外部现实。
+      evidence:
+        - source: src.leopold.2025.late
+          locator: "press release, para. 1"
+          quote: "From 1914, Schiele faced dramatic changes both of a private and historical nature, which he was forced to adapt to and which impacted on his oeuvre. His introspection gave way to a new focus on external realities and novel themes, altering his artistic style."
+          quote_lang: en
+          translation_zh: "从 1914 年起，席勒面对私人生活与历史环境的剧烈变化，不得不适应这些变化，它们也影响了他的创作。他的内省让位于对外部现实与新题材的关注，其艺术风格随之改变。"
+    - year: 1915
+      event_zh: 入伍，此后三年间画了四十余幅士兵与军官肖像。
+      evidence:
+        - source: src.leopold.2025.late
+          locator: "press release, para. 5"
+          quote: "His heightened sense of empathy is reflected in numerous portraits of soldiers and officers he created from 1915; today, we are aware of more than 40 such likenesses he executed until 1918."
+          quote_lang: en
+          translation_zh: "他增强的同理心体现在 1915 年起创作的众多士兵与军官肖像中；今天我们所知他直到 1918 年画了四十余幅这类肖像。"
+    - year: 1917
+      event_zh: 回到维也纳，着手在艺术界取得领导地位；版画集很快售罄。
+      evidence:
+        - source: src.leopold.2025.late
+          locator: "press release, section 'Success, Late Nudes and Last Works'"
+          quote: "In 1917, Schiele was able to return to Vienna, and was determined to assume a leading position in the art world. A portfolio of prints he issued, featuring reproductions of his drawings, soon sold out, and the artist was asked to help with the realization of exhibitions."
+          quote_lang: en
+          translation_zh: "1917 年席勒得以回到维也纳，并决意要在艺术界取得领导地位。他发行的一册版画集（收录其素描的复制品）很快售罄，他还被邀请参与展览的筹办。"
+    - year: 1918
+      event_zh: 参加分离派第 49 届展览并设计海报；同年秋死于西班牙流感。
+      evidence:
+        - source: src.wp.fr.schiele
+          locator: "§ Biographie, para. 5"
+          quote: "C'est alors qu'il succombe, ainsi que son épouse enceinte, à la grippe espagnole."
+          quote_lang: fr
+          translation_zh: "就在那时，他与怀孕的妻子都死于西班牙流感。"
+  claims:
+    - medium: [period_level]
+      statement_zh: 本期以 1914 年战争爆发为起点，此后他的题材与笔法同时转向外部世界。
+      evidence:
+        - source: src.leopold.2025.late
+          locator: "press release, para. 1"
+          quote: "His introspection gave way to a new focus on external realities and novel themes, altering his artistic style."
+          quote_lang: en
+          translation_zh: "他的内省让位于对外部现实与新题材的关注，其艺术风格随之改变。"
+      confidence: medium
+      status: draft
+    - medium: [period_level]
+      statement_zh: 晚期风格不是"变弱"，而是线条更流畅、人物更有实体感、共情更强。
+      evidence:
+        - source: src.leopold.2025.late
+          locator: "press release, para. 2"
+          quote: "is characterized by calmer, more fluent and organic strokes, more realistic figures with an increased physical presence, as well as greater empathy"
+          quote_lang: en
+          translation_zh: "其特征是更平静、更流畅而有机的笔触，更写实、实体感更强的人物，以及更强的共情。"
+      confidence: medium
+      status: draft
+
+lineage:
+  - id: lin.schiele.self.1911-1914
+    relation: self_prior_period
+    counterpart:
+      label_zh: 前一时期（1911–1914 的棱角线）
+      type: self_prior_period
+      external_authority:
+        scheme: Wikidata
+        value: Q152697
+    window:
+      from_year: 1914
+      to_year: 1918
+    transmitted_elements: [brushwork, structure_proportion]
+    summary_zh: 晚期是"接着自己往下走"：把 1910 年代初的断续棱角磨成连续而有机的线，同时保留俯视与裁切。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 与前一时期相比，晚期的线条更有机、更少躁动，姿态经过推敲，透视缩短更讲究。
+        evidence:
+          - source: src.leopold.2025.late
+            locator: "press release, section 'Success, Late Nudes and Last Works'"
+            quote: "Schiele’s lines became more organic and less erratic, and he demonstrated his artistic prowess in well-considered poses and sophisticated foreshortening."
+            quote_lang: en
+            translation_zh: "席勒的线条变得更有机、更少躁动，他在经过推敲的姿态与讲究的透视缩短中展示了功力。"
+        confidence: medium
+        status: draft
+  - id: lin.schiele.war
+    relation: institution
+    counterpart:
+      label_zh: 奥匈帝国军队（1915–1918 服役）
+      type: institution
+      external_authority:
+        scheme: Wikidata
+        value: Q28513
+    window:
+      from_year: 1915
+      to_year: 1918
+    transmitted_elements: [subject_matter]
+    summary_zh: 军队把陌生人推到他面前：战俘、军官、医院里的人。这些面孔取代了他早年只画身边人的题材结构。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 服役期间他画了大量士兵与军官肖像，共四十余幅。
+        evidence:
+          - source: src.leopold.2025.late
+            locator: "press release, para. 5"
+            quote: "numerous portraits of soldiers and officers he created from 1915; today, we are aware of more than 40 such likenesses he executed until 1918"
+            quote_lang: en
+            translation_zh: "他 1915 年起创作了众多士兵与军官肖像；今天我们所知他直到 1918 年画了四十余幅这类肖像。"
+        confidence: medium
+        status: draft
+
+comparison:
+  - id: cmp.schiele.landscape.late
+    counterpart:
+      label_zh: 他自己早期的风景（1907–1910）
+      type: self_prior_period
+      external_authority:
+        scheme: Wikidata
+        value: Q152697
+    axis: structure_proportion
+    their_practice_zh: 早期风景常被风格化，房屋与树被拉长、拟人化，地平线服从构图。
+    his_difference_zh: 晚期风景转向自然主义：他要画的是"看到的城"，而不是"感到的城"。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 晚期风景越来越自然主义，与早期那种常带拟人元素的风格化风景形成对照。
+        evidence:
+          - source: src.leopold.2025.late
+            locator: "press release, para. 4"
+            quote: "Schiele’s later landscapes are also testament to his increasing naturalistic approach – much in contrast to his early, often stylized landscape motifs, which at times featured anthropomorphic elements."
+            quote_lang: en
+            translation_zh: "席勒晚期的风景也印证了他日益增强的自然主义取向——这与他早期往往风格化、有时带拟人元素的风景母题形成鲜明对比。"
+        confidence: medium
+        status: draft
+
+material:
+  supports: [paper]
+  mediums: [watercolor, gouache, graphite, charcoal, mixed_media]
+  process_zh: 石墨或炭笔起形，再以水彩铺底、不透明水彩压暗；纸的底色常被保留为中间调。
+  claims:
+    - medium: [colored_on_paper]
+      statement_zh: 1916 年《俄国战俘》用不透明水彩覆盖在石墨上，画在奶白机制纸上，43.8 × 30.8 厘米。
+      evidence:
+        - source: src.artic.1916.prisoner
+          locator: "object page, Medium / Dimensions 字段"
+          quote: "Opaque watercolor, over graphite, on cream wove paper"
+          quote_lang: en
+          translation_zh: "不透明水彩，覆于石墨之上，画在奶白机制纸上。"
+      confidence: medium
+      status: draft
+    - medium: [colored_on_paper]
+      statement_zh: 1917 年《坐着的女子（背影）》用水彩、水粉与石墨，46.4 × 29.8 厘米。
+      evidence:
+        - source: src.met.483434
+          locator: "object page, Medium 字段"
+          quote: "Watercolor, gouache, and graphite on paper"
+          quote_lang: en
+          translation_zh: "水彩、水粉与石墨，纸本。"
+      confidence: medium
+      status: draft
+    - medium: [colored_on_paper]
+      statement_zh: 1914 年之后，他的纸上作品获得了此前只有油画才有的绘画性。
+      evidence:
+        - source: src.wp.fr.schiele
+          locator: "§ 2.1.2 Aspects techniques, para. 4（引 Jane Kallir）"
+          quote: "ses œuvres sur papier acquièrent à partir de 1914 l'expressivité picturale de ses tableaux"
+          quote_lang: fr
+          translation_zh: "从 1914 年起，他的纸上作品获得了其油画的绘画表现力。"
+      confidence: low
+      status: draft
+      note_zh: 转引自法文维基所引 Kallir 的判断，属 C 级；需回到 Kallir 原文核校。
+
+composition:
+  structure_proportion:
+    summary_zh: 人体获得了体积与重量，但女性形象反而被类型化——这是晚期最矛盾的一处。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 晚期人体更有体积感，女性形象却失去个性、变成类型。
+        evidence:
+          - source: src.leopold.2025.late
+            locator: "press release, section 'Success, Late Nudes and Last Works'"
+            quote: "While the bodies won plasticity, his female figures lost their personality and became generic types."
+            quote_lang: en
+            translation_zh: "人体获得了体积感，而他的女性形象却失去了个性，变成了类型化的形象。"
+        confidence: medium
+        status: draft
+  color:
+    summary_zh: 调色板在战争年代整体变闷：从酸性色转向更暗、更土的色阶，颜色让位给造型。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 一战前后他的调色板变得沉闷——对他来说，造型的可塑性比颜色更重要。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.3 Compositions récurrentes, para. 4"
+            quote: "la palette de Schiele, qui lui importe moins que la qualité sculpturale du dessin, s'assourdit"
+            quote_lang: fr
+            translation_zh: "席勒的调色板——对他而言，它不如素描的雕塑感重要——变得沉闷。"
+        confidence: low
+        status: draft
+        note_zh: C 级通述；原文把时间范围写作"从战前到战争结束"，与本期大致重合但更宽。
+  framing:
+    summary_zh: 取景不再靠裁切制造紧张，而是让整个人站进画面；姿态被完整交代。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 晚期人物的姿态经过推敲，透视缩短更讲究，画面允许人完整地站进来。
+        evidence:
+          - source: src.leopold.2025.late
+            locator: "press release, section 'Success, Late Nudes and Last Works'"
+            quote: "he demonstrated his artistic prowess in well-considered poses and sophisticated foreshortening"
+            quote_lang: en
+            translation_zh: "他在经过推敲的姿态与讲究的透视缩短中展示了功力。"
+        confidence: medium
+        status: draft
+  light_shadow:
+    summary_zh: 炭笔阴影变得更"学院"：不是情绪的涂抹，而是塑造体积的明暗。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 他晚年在肖像上用炭笔打阴影，方式近乎学院派的明暗塑造。
+        evidence:
+          - source: src.wp.fr.schiele
+            locator: "§ 2.1.2 Aspects techniques, para. 2"
+            quote: "il finit par ombrer ses portraits au fusain d'une façon presque académique"
+            quote_lang: fr
+            translation_zh: "他最终用炭笔给他的肖像打阴影，方式几乎像学院派。"
+        confidence: low
+        status: draft
+        note_zh: C 级通述，且"académique"在此带贬义色彩，引用时应保留原文语气。
+  brushwork:
+    summary_zh: 笔触从"掐"变成"走"：更平静、更流畅、更有机，一次性完成的线条增多。
+    claims:
+      - medium: [colored_on_paper]
+        statement_zh: 晚期笔触更平静、更流畅、更有机，与此前的躁动形成对比。
+        evidence:
+          - source: src.leopold.2025.late
+            locator: "press release, para. 2"
+            quote: "calmer, more fluent and organic strokes, more realistic figures with an increased physical presence"
+            quote_lang: en
+            translation_zh: "更平静、更流畅而有机的笔触，更写实、实体感更强的人物。"
+        confidence: medium
+        status: draft
+
+subject_matter:
+  motifs: [portrait, double_portrait, nude, landscape, figure_study]
+  rationale_zh: 战争与婚姻把"关系"变成主题：夫妻、母子、战友；同时他还得靠肖像谋生，题材因此被委托推动。
+  claims:
+    - medium: [colored_on_paper]
+      statement_zh: 1915 年前后起，他反复画夫妻题材，身体虽贴近，情感却常常疏离。
+      evidence:
+        - source: src.leopold.2025.late
+          locator: "press release, para. 6"
+          quote: "From around 1915, Schiele increasingly explored couple motifs. Despite their physical intimacy, his couples often seem to lack an emotional connection, while his puppet-like figures convey a sense of alienation"
+          quote_lang: en
+          translation_zh: "大约从 1915 年起，席勒越来越多地探索夫妻母题。尽管身体亲密，他笔下的夫妻往往显得缺乏情感联结，而那些木偶般的人物传达出一种疏离感。"
+      confidence: medium
+      status: draft
+
+works:
+  - work.schiele.1916.russischer-kriegsgefangener
+  - work.schiele.1917.sitzendefrau-rueckenansicht
+
+open_questions:
+  - question_zh: 1915–1918 的士兵肖像里，有多少是受委托、有多少是自发画的？
+    why_open_zh: 现有材料只说"四十余幅"，没有委托记录，无法判断题材转向在多大程度上由生计驱动。
+    needs: [A, B]
+  - question_zh: 晚期"更写实"是否与他在战地医院见到的东西有关？
+    why_open_zh: 策展文字只把它写成"共情增强"，没有给出他具体接触了哪些病例或场景的记录。
+    needs: [A]
+
+meta:
+  status: draft
+  version: 0.1.0
+  created: "2026-10-25"
+  updated: "2026-10-25"
+  notes_zh: >-
+    2026-10-25 新建。本期只用纸上彩色作品立档：材质记录来自芝加哥艺术博物馆（1916 战俘）与大都会（1917 背影女子），
+    分期与风格判断主要依据利奥波德博物馆 2025 年展览新闻稿（B 级）与法文维基（C 级），已逐条标 confidence。

@@ -1,8 +1,8 @@
 $schema: "../schema/works.schema.json"
-version: 0.1.0
+version: 0.2.0
 updated: "2026-10-25"
 # 说明：本文件只登记作品与 IIIF 指针，不存任何图像字节。
-# 示例记录的材质/馆藏信息待核验，详见各条 notes_zh。
+# 前三条为示例记录（材质/馆藏待核验）；2026-10-25 起的四条取自馆方对象记录，材质与尺寸逐字抄录。
 
 works:
   - id: work.schiele.1912.die-eremiten
@@ -64,3 +64,116 @@ works:
     iiif:
       status: pending
     notes_zh: 示例记录。此期结束处的关键作品，母子构图规模重新出现。
+
+  # ---- 2026-10-25 新增：多分期档案所用的纸上作品（材质与尺寸取自馆方对象记录） ----
+
+  - id: work.schiele.1907.kuenstlerinnemutter
+    artist: schiele
+    title:
+      zh: 艺术家的母亲
+      en: The Artist's Mother
+    year:
+      from: 1907
+    medium_category: drawing_on_paper
+    support: paper
+    mediums: [crayon]
+    dimensions_cm:
+      height: 42.5
+      width: 29.5
+    collection:
+      institution: Art Institute of Chicago
+      city: Chicago
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 馆方材质记录为「Various black crayons on cream wove paper」，尺寸 42.5 × 29.5 cm。IIIF manifest 尚未登记。
+
+  - id: work.schiele.1910.selbstbildnis-thyssen
+    artist: schiele
+    title:
+      zh: 自画像（蒂森藏）
+      en: Self-Portrait
+    year:
+      from: 1910
+    medium_category: colored_on_paper
+    support: paper
+    mediums: [watercolor, charcoal]
+    dimensions_cm:
+      height: 45
+      width: 31.5
+    collection:
+      institution: Museo Nacional Thyssen-Bornemisza
+      city: Madrid
+      inventory_no: "737 (1972.19)"
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 馆方材质记录为「Watercolor and charcoal on paper」，45 × 31.5 cm。IIIF manifest 尚未登记。
+
+  - id: work.schiele.1911.selbstbildnis-met
+    artist: schiele
+    title:
+      zh: 自画像（大都会藏）
+      en: Self-Portrait
+    year:
+      from: 1911
+    medium_category: colored_on_paper
+    support: paper
+    mediums: [watercolor, graphite, gouache]
+    dimensions_cm:
+      height: 51.4
+      width: 34.9
+    collection:
+      institution: The Metropolitan Museum of Art
+      city: New York
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 馆方材质记录为「Watercolor, graphite, and gouache on paper」，20 1/4 × 13 3/4 in.（51.4 × 34.9 cm）；Scofield Thayer 遗赠，1982。
+
+  - id: work.schiele.1916.russischer-kriegsgefangener
+    artist: schiele
+    title:
+      zh: 俄国战俘
+      en: Russian War Prisoner
+    year:
+      from: 1916
+    medium_category: colored_on_paper
+    support: paper
+    mediums: [watercolor, graphite]
+    dimensions_cm:
+      height: 43.8
+      width: 30.8
+    collection:
+      institution: Art Institute of Chicago
+      city: Chicago
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 馆方材质记录为「Opaque watercolor, over graphite, on cream wove paper」，43.8 × 30.8 cm。IIIF manifest 尚未登记。
+
+  - id: work.schiele.1917.sitzendefrau-rueckenansicht
+    artist: schiele
+    title:
+      zh: 坐着的女子（背影）
+      en: Seated Woman, Back View
+    year:
+      from: 1917
+    medium_category: colored_on_paper
+    support: paper
+    mediums: [watercolor, gouache, graphite]
+    dimensions_cm:
+      height: 46.4
+      width: 29.8
+    collection:
+      institution: The Metropolitan Museum of Art
+      city: New York
+    attribution: autograph
+    public_domain: true
+    iiif:
+      status: pending
+    notes_zh: 馆方材质记录为「Watercolor, gouache, and graphite on paper」，18 1/8 × 11 3/4 in.（46.4 × 29.8 cm）；Scofield Thayer 遗赠，1982。

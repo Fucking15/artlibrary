@@ -1,10 +1,16 @@
-$schema: "../schema/sources.schema.json"
-version: 0.1.0
+$schema: "../../schema/sources.schema.json"
+version: 0.2.0
 updated: "2026-10-25"
 # 分级规则（详见 README.md）：
 #   A 学术：catalogue raisonné / 专著 / 同行评审论文 / 馆方研究文档
 #   B 机构：馆藏对象页、官方藏品数据库、档案记录
 #   C 次级：展览专题页、媒体报道、访谈、纪录片
+#   D 书籍：出版物本身（书 / 章节 / 文集），grade 只能是 A 或 B
+#   E 评论区：社交平台、论坛、书评网站的用户发言，grade 只能是 C，且必须过人工审核
+#
+# class 与 grade 的关系由 scripts/validate.mjs 强制：
+#   A/B/C 的 class 必须与 grade 相同；D 只能是 A 或 B；E 只能是 C。
+#   E 类永远不能出现在 signed 的 claim 里。
 #
 # 注意：以下示例条目的页码、章节等 locator 均为占位写法，尚未逐条核验。
 # 任何 claim 在 status 变为 signed 之前，必须把 locator 换成可复查的准确位置。
@@ -12,6 +18,7 @@ updated: "2026-10-25"
 sources:
   - id: src.kallir.1990
     grade: A
+    class: A
     kind: catalogue_raisonne
     citation:
       authors: [Jane Kallir]
@@ -26,20 +33,22 @@ sources:
 
   - id: src.leopold.schiele
     grade: B
+    class: B
     kind: museum_object_page
     citation:
       title: Egon Schiele — collection holdings
       container: Leopold Museum
       year: 2026
-    url: https://www.leopoldmuseum.org/
+    url: https://www.leopoldmuseum.org/en/collection/egon-schiele
     accessed: "2026-10-25"
-    lang: de
+    lang: en
     rights:
       quotation_basis_zh: 引用馆方公开的对象说明文字，逐条标注。
-    notes_zh: 全球最大的席勒收藏。URL 待核验到具体对象页；示例中仅作机构级来源使用。
+    notes_zh: 全球最大的席勒收藏（44 幅油画、200 余件纸上作品）。此处用其藏品总述页，作品级条目另立。
 
   - id: src.albertina.schiele
     grade: B
+    class: B
     kind: museum_research_document
     citation:
       title: Egon Schiele — graphic works, online collection
@@ -52,6 +61,7 @@ sources:
 
   - id: src.neuegalerie.graff.2026
     grade: C
+    class: C
     kind: exhibition_page
     citation:
       title: "Egon Schiele: Portrait of Dr. Erwin von Graff"
@@ -64,6 +74,7 @@ sources:
 
   - id: src.schielemuseum.rivals.2026
     grade: C
+    class: C
     kind: exhibition_page
     citation:
       title: "Egon Schiele und Oskar Kokoschka. Rivalen"
@@ -73,3 +84,132 @@ sources:
     accessed: "2026-10-25"
     lang: de
     notes_zh: 用于同期对比关系的旁证；对比维度的 A 级来源仍需补图录。
+
+  # ---- 2026-10-25 新增：多分期档案所依据的对象页与通述来源 ----
+
+  - id: src.artic.1907.mother
+    grade: B
+    class: B
+    kind: museum_object_page
+    citation:
+      title: "The Artist's Mother"
+      container: Art Institute of Chicago
+      year: 1907
+    url: https://www.artic.edu/artworks/29424
+    accessed: "2026-10-25"
+    lang: en
+    rights:
+      quotation_basis_zh: 引用馆方对象页公开的材质、尺寸与题名，逐条标注。
+    notes_zh: 1907 年 crayon 纸本肖像，是 1906–1909 期少有的带完整材质记录的机构对象。
+
+  - id: src.thyssen.737
+    grade: B
+    class: B
+    kind: museum_object_page
+    citation:
+      title: "Self-Portrait"
+      container: Museo Nacional Thyssen-Bornemisza, Madrid
+      year: 1910
+    url: https://www.museothyssen.org/en/collection/artists/schiele-egon/self-portrait
+    accessed: "2026-10-25"
+    lang: en
+    rights:
+      quotation_basis_zh: 引用馆方对象页公开的材质、尺寸与登录号。
+    notes_zh: 1910 年水彩加炭笔纸本自画像，Inv. no. 737 (1972.19)。
+
+  - id: src.met.483438
+    grade: B
+    class: B
+    kind: museum_object_page
+    citation:
+      title: "Self-Portrait"
+      container: The Metropolitan Museum of Art
+      year: 1911
+    url: https://www.metmuseum.org/art/collection/search/483438
+    accessed: "2026-10-25"
+    lang: en
+    rights:
+      quotation_basis_zh: 引用馆方对象记录（Met Collection API 返回的 medium / dimensions 字段）。
+    notes_zh: 1911 年水彩、石墨与水粉纸本；Scofield Thayer 遗赠。材质与尺寸取自官方 API 记录。
+
+  - id: src.artic.1916.prisoner
+    grade: B
+    class: B
+    kind: museum_object_page
+    citation:
+      title: "Russian War Prisoner"
+      container: Art Institute of Chicago
+      year: 1916
+    url: https://www.artic.edu/artworks/25342
+    accessed: "2026-10-25"
+    lang: en
+    rights:
+      quotation_basis_zh: 引用馆方对象页公开的材质与尺寸。
+    notes_zh: 1916 年不透明水彩覆盖石墨的纸本作品，属 1914–1918 期。
+
+  - id: src.met.483434
+    grade: B
+    class: B
+    kind: museum_object_page
+    citation:
+      title: "Seated Woman, Back View"
+      container: The Metropolitan Museum of Art
+      year: 1917
+    url: https://www.metmuseum.org/art/collection/search/483434
+    accessed: "2026-10-25"
+    lang: en
+    rights:
+      quotation_basis_zh: 引用馆方对象记录（Met Collection API 返回的 medium / dimensions 字段）。
+    notes_zh: 1917 年水彩、水粉与石墨纸本；Scofield Thayer 遗赠。
+
+  - id: src.leopold.2025.late
+    grade: B
+    class: B
+    kind: press_article
+    citation:
+      title: "Changing Times: Egon Schiele's Last Years"
+      container: Leopold Museum, press release
+      year: 2025
+    url: https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years
+    accessed: "2026-10-25"
+    lang: en
+    notes_zh: 2025 年「Changing Times」展览的馆方新闻稿，展陈文字由策展人 Jane Kallir、Kerstin Jesse 撰写。按"机构出品"归 B 级；但它是展览宣传文本，措辞带评价色彩，引用时逐条给出原句，不作独立学术依据。
+
+  - id: src.wp.en.schiele
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele"
+      container: Wikipedia (English)
+      year: 2026
+    url: https://en.wikipedia.org/wiki/Egon_Schiele
+    accessed: "2026-10-25"
+    lang: en
+    notes_zh: 通述性条目，用于生平常年与展览年份的交叉核对；不能单独支撑技法判断。
+
+  - id: src.wp.de.schiele
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele"
+      container: Wikipedia (Deutsch)
+      year: 2026
+    url: https://de.wikipedia.org/wiki/Egon_Schiele
+    accessed: "2026-10-25"
+    lang: de
+    notes_zh: 德文条目对学院时期、新艺术团体与 1909 年 Kunstschau 的记述较英文条更细，仍属 C 级。
+
+  - id: src.wp.fr.schiele
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele"
+      container: Wikipédia (français)
+      year: 2026
+    url: https://fr.wikipedia.org/wiki/Egon_Schiele
+    accessed: "2026-10-25"
+    lang: fr
+    notes_zh: 法文条目的「Aspects techniques」「Compositions récurrentes」两节转述了 Kallir 等研究者的技术描述，是目前唯一成段的技法通述；因载体是维基，仍按 C 级使用。
