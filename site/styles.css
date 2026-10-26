@@ -201,10 +201,107 @@ main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
   border-bottom: 1px solid var(--rule);
 }
 
+/* --------------------------------------------------- 六维档案（同一页六个板块） */
+
+.doc-jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 44px;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.doc-jump-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-right: 8px;
+}
+
+.doc-jump .jump {
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-jump .jump:hover { border-color: var(--ink-3); }
+
+.doc-jump .jump.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.doc-jump .jump .n { font-family: var(--mono); font-size: 10px; opacity: .65; }
+
+.dim-section {
+  scroll-margin-top: 96px;
+  padding-top: 4px;
+  margin-bottom: 72px;
+}
+
+.dim-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 18px;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dim-head h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.dim-head .dim-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.dim-head .dim-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+
+.dim-head .dim-en {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.dim-head .dim-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
 /* --------------------------------------------------------------- overview */
 
 .artist-card { margin-bottom: 48px; }
-
 .artist-card h2 {
   font-family: var(--serif);
   font-size: clamp(24px, 3.4vw, 34px);
@@ -232,7 +329,7 @@ main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
 }
 
 .dim-cell {
-  background: var(--paper-2);
+  background: #fff;
   padding: 20px;
   display: flex;
   flex-direction: column;
@@ -241,7 +338,7 @@ main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
   transition: background .15s ease;
 }
 
-.dim-cell:hover { background: #fff; }
+.dim-cell:hover { background: #fbf9f3; }
 
 .dim-cell .dim-name { font-family: var(--serif); font-size: 17px; }
 .dim-cell .dim-en { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--ink-3); text-transform: uppercase; }
@@ -427,6 +524,11 @@ details.evidence[open] > summary::before { content: "▾ "; }
   .pair-block { grid-template-columns: 1fr; }
   .anchors li { grid-template-columns: 70px 1fr; gap: 10px; }
   .search-hint { display: none; }
+  .doc-jump { margin-bottom: 32px; }
+  .dim-section { scroll-margin-top: 120px; margin-bottom: 56px; }
+  .dim-head { align-items: flex-start; }
+  .dim-head h2 { font-size: 22px; }
+  .dim-head .dim-meta { align-items: flex-start; text-align: left; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -458,7 +560,7 @@ details.evidence[open] > summary::before { content: "▾ "; }
 
 .media-tabs button {
   border: 1px solid var(--rule);
-  background: var(--paper-2);
+  background: #fff;
   padding: 4px 10px 4px 8px;
   font-family: var(--sans);
   font-size: 12px;
@@ -470,13 +572,23 @@ details.evidence[open] > summary::before { content: "▾ "; }
   gap: 6px;
 }
 
-.media-tabs button:hover { border-color: var(--ink-3); }
+.media-tabs button:hover { border-color: var(--ink-3); background: #fff; }
+
+/* 画种这一行统一：平时白底，选中黑底；空白画种也一样，只用虚线边框和「空白」二字提示缺条目。 */
+.media-tabs button.is-blank {
+  border-style: dashed;
+  background: #fff;
+  color: var(--ink-2);
+}
 
 .media-tabs button[aria-pressed="true"] {
   background: var(--ink);
   border-color: var(--ink);
+  border-style: solid;
   color: var(--paper);
 }
+
+.media-tabs button[aria-pressed="true"] .n { opacity: .8; }
 
 .media-tabs button .n {
   font-family: var(--mono);
@@ -493,6 +605,23 @@ details.evidence[open] > summary::before { content: "▾ "; }
 .chip.medium.is-period-level {
   font-style: normal;
   border-style: dashed;
+}
+
+.chip.medium.is-blank {
+  border-style: dashed;
+  color: var(--ink-3);
+  background: var(--paper);
+}
+
+.blank-banner {
+  margin: 0 0 24px;
+  padding: 12px 14px;
+  border: 1px dashed var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .04em;
 }
 
 /* an explicit "this dimension does not apply to this 画种" */
@@ -552,6 +681,16 @@ details.evidence[open] > summary::before { content: "▾ "; }
   font-weight: 600;
 }
 
+/* 概览里被选中的画种行：标题反黑，和顶部筛选按钮的选中态一致 */
+.media-block.is-on .media-block-head h3 {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 10px;
+  border-radius: 2px;
+}
+
+.media-block.is-on .media-block-head { border-bottom-color: var(--ink); }
+
 .media-block-sub {
   font-family: var(--mono);
   font-size: 10px;
@@ -562,15 +701,40 @@ details.evidence[open] > summary::before { content: "▾ "; }
 
 .media-block .dim-grid { margin-bottom: 0; grid-template-columns: repeat(3, 1fr); }
 
+/* 这一期完全没有这个画种的条目：整块标空白，不藏起来 */
+.media-block.is-blank .media-block-head { border-bottom-style: dashed; }
+.media-block.is-blank .media-block-head h3 { color: var(--ink-3); font-weight: 500; }
+.media-block.is-blank .dim-grid { border-style: dashed; }
+
+.media-blank {
+  margin: -2px 0 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+}
+
+.dim-cell.is-blank {
+  background: #fff;
+}
+
+.dim-cell.is-blank .dim-name { color: var(--ink-3); }
+.dim-cell.is-blank .dim-count { color: var(--ink-3); }
+.dim-cell.is-blank:hover { background: #fbf9f3; }
+
 .dim-cell.is-empty .dim-name { color: var(--ink-3); }
 .dim-cell.is-empty .dim-count { color: var(--ink-3); }
 
 .dim-cell.is-static {
   cursor: default;
-  background: repeating-linear-gradient(-45deg, var(--paper-2), var(--paper-2) 10px, #fbf9f3 10px, #fbf9f3 20px);
+  background: #fff;
 }
 
-.dim-cell.is-static:hover { background: repeating-linear-gradient(-45deg, var(--paper-2), var(--paper-2) 10px, #fbf9f3 10px, #fbf9f3 20px); }
+.dim-cell.is-static:hover { background: #fff; }
+
+/* 空白画种的「时期」格也保持白底；整块已经用虚线边框和「空白」标注 */
+.dim-cell.is-static.is-blank,
+.dim-cell.is-static.is-blank:hover { background: #fff; }
 
 /* ------------------------------------------------- 索引 / 画家页 / AI 检索 */
 

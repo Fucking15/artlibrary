@@ -9,7 +9,7 @@ registry（共享）           dossier（一期一份）
   artists  画家              period         时期
   works    作品 + IIIF       lineage        师从与影响
   sources  来源 + 等级        comparison     对比与创新
-                            material       材料
+                            material       媒介与材料（字段名 material）
                             composition    画面构成（五个固定子项）
                             subject_matter 题材
 ```
@@ -95,7 +95,7 @@ registry（共享）           dossier（一期一份）
 - 这一维**没有现成资料可爬**，只能从图录里读出来。它是全库最贵的部分，也是别人抄不走的部分。
 - 反例：「比柯克施卡更内敛」——"更内敛"不是技法差异，落在哪一维上要写明。
 
-### material 材料
+### material 媒介与材料（字段名 `material`）
 - `supports`：paper / cardboard / canvas / wood_panel …
 - `mediums`：graphite / pencil / watercolor / gouache / oil …
 - `process_zh`：**工序顺序**，先什么后什么，哪里留空。这一项比"用了水彩"有价值得多。

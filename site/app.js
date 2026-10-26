@@ -2,10 +2,16 @@
  *
  * Routes (hash only, so GitHub Pages needs no rewrites):
  *   #/                      画家索引（主页）
- *   #/artist/<id>           画家页 · 概览
- *   #/artist/<id>/<dim>     画家页 · 六个维度之一
- *   #/artist/<id>/sources   该画家引用的来源
+ *   #/artist/<id>           画家页 · 概览（一页）
+ *   #/artist/<id>/dimensions
+ *                           画家页 · 六维档案（时期 / 师从与影响 / 对比与创新 /
+ *                           媒介与材料 / 画面构成 / 题材，六个板块同一页）
+ *   #/artist/<id>/dimensions/<dim>
+ *                           同上，直接落到某一个板块
+ *   #/artist/<id>/sources   该画家引用的来源（单独一页）
  *   #/sources               全部来源登记
+ *
+ * 旧链接 #/artist/<id>/<dim> 仍然可用：会被读成「六维档案」并滚到对应的板块。
  *
  * 数据只有 ./data/index.json 一处。AI 检索先打本地预览服务器的 /api/ai（密钥留在服务端），
  * 没有代理时退回浏览器直连 DeepSeek，密钥只存在本机 localStorage。 */
@@ -14,10 +20,26 @@ const DIM_LABELS = {
   period: { zh: '时期', en: 'period' },
   lineage: { zh: '师从与影响', en: 'lineage' },
   comparison: { zh: '对比与创新', en: 'comparison' },
-  material: { zh: '材料', en: 'material' },
+  material: { zh: '媒介与材料', en: 'medium & material' },
   composition: { zh: '画面构成', en: 'composition' },
   subject_matter: { zh: '题材', en: 'subject matter' },
 };
+
+/** 六维在「六维档案」页里的固定顺序。 */
+const DIM_ORDER = ['period', 'lineage', 'comparison', 'material', 'composition', 'subject_matter'];
+
+/** 每个板块的一句导语，放在长页面里给人一个抓手。 */
+const DIM_NOTES = {
+  period: '分期依据与断点事件',
+  lineage: '他接过谁的做法，又改写了哪一段',
+  comparison: '同代人在做什么，他多出了什么',
+  material: '底材、媒介与工序',
+  composition: '结构、颜色、取景、光影、笔法',
+  subject_matter: '反复出现的母题与理由',
+};
+
+/** 画家页只有三个顶层页：概览 / 六维档案 / 来源。 */
+const TAB_LABELS = { overview: '概览', dimensions: '六维档案', sources: '来源' };
 
 const FIELD_LABELS = {
   structure_proportion: '结构与比例',
@@ -40,7 +62,28 @@ const MEDIA_LABELS = {
   period_level: '时期级',
 };
 
+/* 画面上一律先列这四类；没有条目的也列出来，标「空白」。
+   数据里若还声明了别的画种（水彩、木板油画…），排在四类之后，免得把已有内容藏掉。 */
+const MEDIA_CORE = ['oil', 'colored_on_paper', 'drawing_on_paper', 'print'];
 const MEDIA_ORDER = ['oil', 'oil_on_panel', 'watercolor', 'colored_on_paper', 'drawing_on_paper', 'print'];
+const BLANK = '空白';
+
+const mediaCount = (dossier, medium) => Number(dossier?.media?.counts?.[medium] ?? 0);
+
+/** 这一期要显示的全部画种：固定四类 + 数据里额外声明的。 */
+function mediaList(dossier) {
+  const extra = new Set(
+    [...(dossier?.media?.declared ?? []), ...Object.keys(dossier?.media?.counts ?? {})].filter(
+      (medium) => medium !== 'period_level',
+    ),
+  );
+  return [
+    ...MEDIA_CORE,
+    ...MEDIA_ORDER.filter((medium) => !MEDIA_CORE.includes(medium) && extra.has(medium)),
+  ].filter((medium) => MEDIA_LABELS[medium]);
+}
+
+const selectedMediaLabel = () => [...state.media].map((medium) => MEDIA_LABELS[medium] ?? medium).join(' / ');
 
 const SUPPORT_LABELS = {
   paper: '纸本',
@@ -174,6 +217,7 @@ let DATA = null;
 
 const state = {
   route: { name: 'home' },
+  pendingAnchor: null, // 路由带板块锚点时，渲染完再滚过去
   media: new Set(), // empty = 全部画种
   ai: {
     query: '',
@@ -202,8 +246,10 @@ const askButton = qs('#ask');
 
 /* ------------------------------------------------------------------ helpers */
 
-const mediumChip = (key) =>
-  `<span class="chip medium${key === 'period_level' ? ' is-period-level' : ''}">${esc(MEDIA_LABELS[key] ?? key)}</span>`;
+const mediumChip = (key, blank = false) =>
+  `<span class="chip medium${key === 'period_level' ? ' is-period-level' : ''}${blank ? ' is-blank' : ''}"${
+    blank ? ' title="此时期没有这类画种的技法描述"' : ''
+  }>${esc(MEDIA_LABELS[key] ?? key)}${blank ? ` · ${BLANK}` : ''}</span>`;
 
 /** A claim is visible when no filter is active, or when it speaks for a selected 画种. */
 const visible = (claim) => {
@@ -216,7 +262,7 @@ function claimCard(claim, dimKey) {
   const grade = claim.grades.includes('C') && claim.grades.length === 1 ? 'C' : claim.grades[0] ?? '';
   const chips = [
     dimKey ? `<span class="chip">${esc(DIM_LABELS[dimKey]?.zh ?? dimKey)}</span>` : '',
-    claim.medium.map(mediumChip).join(''),
+    claim.medium.map((medium) => mediumChip(medium)).join(''),
     claim.not_applicable ? '<span class="chip warn">不适用</span>' : '',
     claim.grades.map((g) => `<span class="chip grade-${esc(g)}">${esc(g)} 级</span>`).join(''),
     `<span class="chip status-${esc(claim.status)}">${esc(STATUS_LABELS[claim.status] ?? claim.status)}</span>`,
@@ -280,7 +326,10 @@ function claimCard(claim, dimKey) {
 function claimList(list, dimKey) {
   const shown = list.filter(visible);
   if (!shown.length) {
-    return `<p class="filter-note">当前画种筛选下，这一项没有可显示的结论。</p>`;
+    const filter = selectedMediaLabel();
+    return `<p class="filter-note">${
+      filter ? `${esc(filter)}：` : ''
+    }这一项没有可显示的结论${filter ? `（${BLANK}）` : ''}。</p>`;
   }
   return `<div class="claims">${shown.map((claim) => claimCard(claim, dimKey)).join('')}</div>`;
 }
@@ -320,7 +369,14 @@ function flatten(dossier, dim) {
 }
 
 function countDim(dossier, dim) {
+  // 选中的画种在这一期完全没有条目：整页按空白处理，连「全期共用」的时期判断也不冒充该画种的内容。
+  if (state.media.size > 0 && ![...state.media].some((medium) => mediaCount(dossier, medium) > 0)) return 0;
   return flatten(dossier, dim).filter(visible).length;
+}
+
+/** 概览页用的固定覆盖数：不跟当前画种筛选变，永远显示这一期的真实覆盖。 */
+function countDimAll(dossier, dim, medium = null) {
+  return flatten(dossier, dim).filter((claim) => (medium ? claim.medium.includes(medium) : true)).length;
 }
 
 function countCategory(dossier) {
@@ -329,38 +385,66 @@ function countCategory(dossier) {
 
 /* ------------------------------------------------------------------ routing */
 
-const isTab = (value) => value === 'sources' || (DATA?.dims ?? []).includes(value);
+/** 旧路由里的单个维度（#/artist/<id>/composition）现在都落到「六维档案」页的对应板块。 */
+function resolveArtistTab(raw, anchorRaw) {
+  if (raw === 'sources') return { tab: 'sources', anchor: '' };
+  if (raw === 'dimensions') {
+    return { tab: 'dimensions', anchor: DIM_ORDER.includes(anchorRaw) ? anchorRaw : '' };
+  }
+  if (DIM_ORDER.includes(raw)) return { tab: 'dimensions', anchor: raw };
+  return { tab: 'overview', anchor: '' };
+}
 
-function parseRoute() {
-  const raw = location.hash.replace(/^#/, '');
+/** 解析一个 hash（不读 location），这样点击链接时可以先算好路由再决定地址怎么更新。 */
+function parseHash(rawHash) {
+  const raw = String(rawHash ?? '').replace(/^#/, '');
   const parts = raw.split('/').filter(Boolean);
   if (!parts.length) return { name: 'home' };
   if (parts[0] === 'sources') return { name: 'sources' };
   if (parts[0] === 'artist' && parts[1]) {
     const id = decodeURIComponent(parts[1]);
-    // #/artist/schiele/<period>/<tab>：第二段只有确实是这位画家的分期 slug 时才当分期，
+    // #/artist/schiele/<period>/<tab>/<anchor>：第二段只有确实是这位画家的分期 slug 时才当分期，
     // 否则仍按旧链接理解成 tab，老书签不会失效。
     const maybePeriod = parts[2] ? decodeURIComponent(parts[2]) : '';
     const period = maybePeriod && dossierByPeriod(id, maybePeriod) ? maybePeriod : null;
-    const tabRaw = (period ? parts[3] : parts[2]) ?? 'overview';
-    const tab = tabRaw === 'overview' || !isTab(tabRaw) ? 'overview' : tabRaw;
-    return { name: 'artist', id, period, tab };
+    const rest = (period ? parts.slice(3) : parts.slice(2)).map((part) => decodeURIComponent(part));
+    const { tab, anchor } = resolveArtistTab(rest[0] ?? 'overview', rest[1] ?? '');
+    return { name: 'artist', id, period, tab, anchor };
   }
   return { name: 'home' };
 }
 
-const artistHref = (id, tab = 'overview', period = null) => {
+function parseRoute() {
+  return parseHash(location.hash);
+}
+
+const artistHref = (id, tab = 'overview', period = null, anchor = null) => {
   const base = `#/artist/${encodeURIComponent(id)}${period ? `/${encodeURIComponent(period)}` : ''}`;
-  return tab === 'overview' ? base : `${base}/${tab}`;
+  if (tab === 'overview') return base;
+  return `${base}/${encodeURIComponent(tab)}${anchor ? `/${encodeURIComponent(anchor)}` : ''}`;
 };
 
+/**
+ * 内部导航：先按目标 hash 直接渲染，再尽量把地址栏换成可分享的样子。
+ *
+ * 不把「改地址 → 等 hashchange」当成唯一通路：DSH 预览、file:// 单文件、带 sandbox 的 iframe
+ * 里，pushState / hashchange 可能被禁或失效，只靠它们会出现「点了没反应」。这里内容先切过去，
+ * 地址栏改不了也不影响阅读；浏览器里的前进 / 后退由 popstate 接。
+ */
 function go(hash) {
-  if (location.hash === hash) {
-    state.route = parseRoute();
-    render();
-    return;
+  const next = String(hash ?? '').startsWith('#') ? String(hash) : `#${hash ?? ''}`;
+  if (location.hash !== next) {
+    try {
+      history.pushState(null, '', next);
+    } catch {
+      /* 地址栏改不了就只换内容 */
+    }
   }
-  location.hash = hash;
+  state.route = parseHash(next);
+  state.pendingAnchor = state.route.anchor || null;
+  canonicalizeRoute();
+  render();
+  if (!state.pendingAnchor) window.scrollTo({ top: 0 });
 }
 
 const artists = () => DATA?.artists ?? [];
@@ -437,14 +521,15 @@ function renderPeriodSwitch(artist, active, route) {
   const periods = dossiersOf(artist.id);
   if (periods.length < 2) return '';
   const tab = route?.tab && route.tab !== 'overview' ? route.tab : 'overview';
+  const anchor = route?.anchor || null;
   const items = periods
     .map((dossier) => {
       const slug = periodSlug(dossier);
       const on = dossier.id === active?.id;
-      return `<a class="period-chip${on ? ' is-on' : ''}" href="${artistHref(artist.id, tab, slug)}"${
+      return `<a class="period-chip${on ? ' is-on' : ''}" href="${artistHref(artist.id, tab, slug, anchor)}"${
         on ? ' aria-current="page"' : ''
       }><b>${esc(dossier.period.start_year)}–${esc(dossier.period.end_year)}</b>${esc(dossier.period.label.zh)}
-        <span class="n">${countCategory(dossier)}</span></a>`;
+        <span class="n">${dossier.stats?.claims ?? 0}</span></a>`;
     })
     .join('');
   return `<nav class="period-switch" aria-label="分期">${items}</nav>`;
@@ -472,7 +557,9 @@ function renderArtistHero(artist, dossier, route) {
   const period = dossier
     ? `<p class="period-line"><b>${esc(dossier.period.start_year)}–${esc(dossier.period.end_year)}</b> ${esc(dossier.period.label.zh)}
          <br />${esc(dossier.period.basis_zh)}</p>${trLine(dossier.period.basis_zh)}
-       <div class="chips" style="margin-top:14px">${(dossier.media.declared ?? []).map(mediumChip).join(' ')}</div>`
+       <div class="chips" style="margin-top:14px">${mediaList(dossier)
+         .map((medium) => mediumChip(medium, mediaCount(dossier, medium) === 0))
+         .join(' ')}</div>`
     : '';
 
   return `
@@ -503,10 +590,9 @@ function renderPending(artist) {
   </section>`;
 }
 
-/** 档案还没建时，每个次级目录照样给一页，说清楚这一格为什么是空的。 */
+/** 档案还没建时，三个顶层页照样给一页，说清楚这一格为什么是空的。 */
 function renderPendingDimension(artist, tab) {
-  const dim = DIM_LABELS[tab];
-  const label = tab === 'sources' ? '来源' : dim?.zh ?? tab;
+  const label = TAB_LABELS[tab] ?? tab;
   return `
   ${renderArtistHero(artist, null, state.route)}
   <section class="empty-card">
@@ -524,40 +610,45 @@ function renderOverview(dossier) {
     .join('');
 
   const categories = [
-    { key: null, label: '全部', sub: 'all media', count: countCategory(dossier) },
-    ...MEDIA_ORDER.filter((medium) => (dossier.media.declared ?? []).includes(medium)).map((medium) => ({
+    { key: null, label: '全部', sub: 'all media', count: s.claims },
+    ...mediaList(dossier).map((medium) => ({
       key: medium,
       label: MEDIA_LABELS[medium] ?? medium,
       sub: medium,
-      count: flattenAll(dossier).filter((claim) => claim.medium.includes(medium)).filter(visible).length,
+      count: mediaCount(dossier, medium),
     })),
   ];
 
   const blocks = categories
     .map((category) => {
+      const blankMedium = Boolean(category.key) && category.count === 0;
       const cells = DATA.dims
         .map((dim) => {
+          const head = `<span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
+            <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>`;
           if (dim === 'period' && category.key) {
-            return `<div class="dim-cell is-static" data-goto="${dim}">
-              <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
-              <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>
-              <span class="dim-count">全期共用 · ${dossier.dimensions.period.length} 条</span>
+            return `<div class="dim-cell is-static${blankMedium ? ' is-blank' : ''}"${
+              blankMedium ? '' : ` data-goto="dimensions" data-anchor="${dim}"`
+            }>
+              ${head}
+              <span class="dim-count">${blankMedium ? BLANK : `全期共用 · ${dossier.dimensions.period.length} 条`}</span>
             </div>`;
           }
-          const n = countDim(dossier, dim);
-          return `<div class="dim-cell${n ? '' : ' is-empty'}" data-goto="${dim}" data-medium="${esc(category.key ?? '')}">
-            <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
-            <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>
-            <span class="dim-count">${n ? `${n} 条结论` : '暂无'}</span>
+          const n = countDimAll(dossier, dim, category.key);
+          return `<div class="dim-cell${n ? '' : ' is-empty'}${blankMedium ? ' is-blank' : ''}" data-goto="dimensions" data-anchor="${dim}" data-medium="${esc(category.key ?? '')}">
+            ${head}
+            <span class="dim-count">${blankMedium ? BLANK : n ? `${n} 条结论` : '暂无'}</span>
           </div>`;
         })
         .join('');
 
-      return `<section class="media-block">
+      const selectedBlock = category.key ? state.media.has(category.key) : state.media.size === 0;
+      return `<section class="media-block${blankMedium ? ' is-blank' : ''}${selectedBlock ? ' is-on' : ''}">
         <div class="media-block-head">
           <h3>${esc(category.label)}</h3>
-          <span class="media-block-sub">${esc(category.sub)} · ${category.count} 条</span>
+          <span class="media-block-sub">${esc(category.sub)} · ${blankMedium ? BLANK : `${category.count} 条`}</span>
         </div>
+        ${blankMedium ? `<p class="media-blank">此时期没有${esc(category.label)}的技法描述（${BLANK}）。</p>` : ''}
         <div class="dim-grid">${cells}</div>
       </section>`;
     })
@@ -588,7 +679,7 @@ function renderOverview(dossier) {
   return `
   <div class="stat-row">
     <div class="stat"><span class="num">${s.claims}</span><span class="lbl">claims</span></div>
-    <div class="stat"><span class="num">${dossier.media.declared.length}</span><span class="lbl">画种</span></div>
+    <div class="stat"><span class="num">${mediaList(dossier).filter((medium) => mediaCount(dossier, medium) > 0).length} / ${mediaList(dossier).length}</span><span class="lbl">画种覆盖</span></div>
     <div class="stat"><span class="num">${s.signed}</span><span class="lbl">已签字</span></div>
     <div class="stat"><span class="num">${s.grades.A ?? 0}</span><span class="lbl">A 级证据</span></div>
     <div class="stat"><span class="num">${s.notApplicable ?? 0}</span><span class="lbl">不适用</span></div>
@@ -596,6 +687,7 @@ function renderOverview(dossier) {
   </div>
 
   <p class="section-title">按画种分类 · by medium</p>
+  <p class="filter-note">固定列出油画 / 纸上彩色 / 纸上素描 / 版画；这一期没有这类条目的画种整块标「空白」，不隐藏。</p>
   ${blocks}
 
   <p class="section-title">分期锚点 · anchors</p>
@@ -615,17 +707,28 @@ function renderOverview(dossier) {
   }`;
 }
 
-function flattenAll(dossier) {
-  return DATA.dims.flatMap((dim) => flatten(dossier, dim));
+/** 当前画种筛选命中的 claim 实际引用了哪些来源。没选画种时返回 null（= 整份档案）。 */
+function sourceIdsForSelection(dossier) {
+  if (!state.media.size) return null;
+  const ids = new Set();
+  for (const dim of DATA.dims) {
+    for (const claim of flatten(dossier, dim)) {
+      if (claim.medium.includes('period_level')) continue; // 时期判断不属于单一画种
+      if (!claim.medium.some((medium) => state.media.has(medium))) continue;
+      for (const evidence of claim.evidence) {
+        if (evidence.sourceId) ids.add(evidence.sourceId);
+      }
+    }
+  }
+  return [...ids].sort();
 }
 
+/** 单个维度的正文。板块标题由「六维档案」页统一给出，这里只出内容。 */
 function renderDimension(dossier, dim) {
   const d = dossier.dimensions;
 
   if (dim === 'period') {
-    return `<p class="section-title">${esc(DIM_LABELS.period.zh)} · ${esc(dossier.id)}</p>
-      <div class="chips">${dossier.media.declared.map(mediumChip).join('')}</div>
-      ${claimList(d.period, 'period')}`;
+    return claimList(d.period, 'period');
   }
 
   if (dim === 'lineage') {
@@ -656,8 +759,7 @@ function renderDimension(dossier, dim) {
 
   if (dim === 'material') {
     const m = d.material;
-    return `<p class="section-title">材料 · ${esc(dossier.id)}</p>
-      <dl class="pair-block">
+    return `<dl class="pair-block">
         <div><dt>底材</dt><dd>${esc(m.supports.map((s) => SUPPORT_LABELS[s] ?? s).join(' / ') || '—')}</dd></div>
         <div><dt>媒介</dt><dd>${esc((m.mediums ?? []).map((s) => DRAWING_MEDIUM_LABELS[s] ?? s).join(' / ') || '—')}</dd></div>
       </dl>
@@ -679,17 +781,104 @@ function renderDimension(dossier, dim) {
   }
 
   const sm = d.subject_matter;
-  return `<p class="section-title">题材 · ${esc(dossier.id)}</p>
-    <div class="chips">${sm.motifs.map((m) => `<span class="chip">${esc(MOTIF_LABELS[m] ?? m)}</span>`).join('')}</div>
+  return `<div class="chips">${sm.motifs.map((m) => `<span class="chip">${esc(MOTIF_LABELS[m] ?? m)}</span>`).join('')}</div>
     ${sm.rationale_zh ? `<p class="summary-zh">${esc(sm.rationale_zh)}</p>${trLine(sm.rationale_zh)}` : ''}
     ${claimList(sm.claims, 'subject_matter')}`;
 }
 
-function renderSources(ids) {
+/** 六维档案：时期 / 师从与影响 / 对比与创新 / 媒介与材料 / 画面构成 / 题材，六个板块共用一页。 */
+function renderDimensions(dossier, anchor) {
+  const blankFilter = state.media.size > 0 && [...state.media].every((medium) => mediaCount(dossier, medium) === 0);
+  const blankBanner = blankFilter
+    ? `<p class="blank-banner">此时期没有${esc(selectedMediaLabel())}的技法描述（${BLANK}）。下面的六个板块是空的。</p>`
+    : '';
+
+  const jumps = DIM_ORDER.map((dim) => {
+    const n = countDim(dossier, dim);
+    return `<button type="button" class="jump${anchor === dim ? ' is-on' : ''}" data-jump="${dim}" aria-current="${
+      anchor === dim ? 'true' : 'false'
+    }">${esc(DIM_LABELS[dim].zh)} <span class="n">${n}</span></button>`;
+  }).join('');
+
+  const sections = DIM_ORDER.map((dim) => {
+    const n = countDim(dossier, dim);
+    return `<section class="dim-section" id="dim-${dim}">
+      <header class="dim-head">
+        <div>
+          <h2>${esc(DIM_LABELS[dim].zh)}</h2>
+          <p class="dim-note">${esc(DIM_NOTES[dim])}</p>
+        </div>
+        <div class="dim-meta">
+          <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
+          <span class="dim-n">${n} 条结论</span>
+        </div>
+      </header>
+      ${blankFilter ? '' : renderDimension(dossier, dim)}
+    </section>`;
+  }).join('');
+
+  return `${blankBanner}<nav class="doc-jump" aria-label="六维目录">
+      <span class="doc-jump-label">本页 · 六维</span>
+      ${jumps}
+    </nav>${sections}`;
+}
+
+const raf = (callback) =>
+  typeof window.requestAnimationFrame === 'function' ? window.requestAnimationFrame(callback) : window.setTimeout(callback, 0);
+
+/** 滚到某个板块，并把地址栏换成可分享的深链接（不触发 hashchange 重渲染）。 */
+function focusDimension(dim, { smooth = true, updateHash = true } = {}) {
+  const target = document.getElementById(`dim-${dim}`);
+  if (!target) return;
+  if (typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'start' });
+  }
+  for (const button of document.querySelectorAll('[data-jump]')) {
+    const on = button.dataset.jump === dim;
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-current', on ? 'true' : 'false');
+  }
+  if (updateHash && state.route.name === 'artist') {
+    state.route = { ...state.route, anchor: dim };
+    const href = artistHref(state.route.id, 'dimensions', state.route.period, dim);
+    if (location.hash !== href) replaceHash(href);
+  }
+}
+
+/** 改地址栏但不触发重渲染。单文件离线版在 file:// 下可能禁止改历史记录，失败就算了。 */
+function replaceHash(href) {
+  try {
+    history.replaceState(null, '', href);
+  } catch {
+    /* 滚到位置就够了 */
+  }
+}
+
+/** 旧链接（#/artist/<id>/<dim>）落地后把地址栏换成新的深链接，分享出去不再带旧格式。 */
+function canonicalizeRoute() {
+  if (state.route.name !== 'artist') return;
+  const href = artistHref(state.route.id, state.route.tab, state.route.period, state.route.anchor || null);
+  if (location.hash !== href) replaceHash(href);
+}
+
+/** 深链接进来时，等一帧再滚：这时样式与字体已经排好，不会滚偏。 */
+function settlePendingAnchor() {
+  const anchor = state.pendingAnchor;
+  state.pendingAnchor = null;
+  if (!anchor) return;
+  raf(() => {
+    if (state.route.anchor === anchor) focusDimension(anchor, { smooth: false, updateHash: false });
+  });
+}
+
+function renderSources(ids, { filterLabel = '', emptyNote = '' } = {}) {
   const pool = ids ? DATA.sources.filter((s) => ids.includes(s.id)) : DATA.sources;
-  const heading = ids ? `来源登记 · 本页引用 ${pool.length} 条` : `来源登记 · ${pool.length} 条`;
+  const scope = filterLabel ? ` · ${filterLabel}` : '';
+  const heading = ids ? `来源登记 · 本页引用 ${pool.length} 条${scope}` : `来源登记 · ${pool.length} 条`;
   if (!pool.length) {
-    return `<p class="section-title">${esc(heading)}</p><p class="filter-note">这份档案还没有引用任何来源。</p>`;
+    return `<p class="section-title">${esc(heading)}</p><p class="filter-note">${esc(
+      emptyNote || '这份档案还没有引用任何来源。',
+    )}</p>`;
   }
   const sorted = [...pool].sort((a, b) => String(a.grade).localeCompare(String(b.grade)));
   return `<p class="section-title">${esc(heading)}</p>
@@ -718,10 +907,15 @@ function renderTabsFor(route) {
     return;
   }
   const dossier = currentDossier(route);
+  const sourceCount = dossier
+    ? state.media.size
+      ? (sourceIdsForSelection(dossier) ?? []).length
+      : (dossier.sourceIds ?? []).length
+    : null;
   const items = [
-    { key: 'overview', label: '概览', count: null },
-    ...DATA.dims.map((dim) => ({ key: dim, label: DIM_LABELS[dim].zh, count: dossier ? countDim(dossier, dim) : null })),
-    { key: 'sources', label: '来源', count: dossier ? (dossier.sourceIds ?? []).length : null },
+    { key: 'overview', label: TAB_LABELS.overview, count: null },
+    { key: 'dimensions', label: TAB_LABELS.dimensions, count: dossier ? countCategory(dossier) : null },
+    { key: 'sources', label: TAB_LABELS.sources, count: sourceCount },
   ];
   tabsEl.innerHTML = items
     .map(
@@ -741,17 +935,18 @@ function renderMediaBarFor(route) {
     mediaBar.innerHTML = '';
     return;
   }
-  const counts = {};
-  for (const [medium, n] of Object.entries(dossier.media.counts ?? {})) counts[medium] = n;
-  const items = MEDIA_ORDER.filter((medium) => counts[medium]);
+  const items = mediaList(dossier);
   const allPressed = state.media.size === 0;
   mediaBar.innerHTML =
     `<button type="button" data-media="__all" aria-pressed="${allPressed}">全部</button>` +
     items
-      .map(
-        (medium) =>
-          `<button type="button" data-media="${esc(medium)}" aria-pressed="${state.media.has(medium)}">${esc(MEDIA_LABELS[medium] ?? medium)} <span class="n">${counts[medium]}</span></button>`,
-      )
+      .map((medium) => {
+        const n = mediaCount(dossier, medium);
+        const blank = n === 0;
+        return `<button type="button" class="media-chip${blank ? ' is-blank' : ''}" data-media="${esc(medium)}" aria-pressed="${state.media.has(medium)}"${
+          blank ? ' title="此时期没有这类画种的技法描述，选中后各维为空白"' : ''
+        }>${esc(MEDIA_LABELS[medium] ?? medium)} <span class="n">${blank ? BLANK : n}</span></button>`;
+      })
       .join('');
   mediaRow.hidden = false;
 }
@@ -970,7 +1165,7 @@ const AI_STATUS = {
 
 function aiCite(hit) {
   if (!hit) return '<span class="cite">?</span>';
-  return `<a class="cite" href="${artistHref(hit.dossier.artist.id, hit.dim, periodSlug(hit.dossier))}" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
+  return `<a class="cite" href="${artistHref(hit.dossier.artist.id, 'dimensions', periodSlug(hit.dossier), hit.dim)}" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
 }
 
 function aiInline(text) {
@@ -1004,7 +1199,7 @@ function renderAiPanel() {
     ? `<p class="section-title">作为依据的条目 · ${hits.length}</p>
       <div class="hits">${hits
         .map(
-          (hit) => `<a class="hit" href="${artistHref(hit.dossier.artist.id, hit.dim, periodSlug(hit.dossier))}">
+          (hit) => `<a class="hit" href="${artistHref(hit.dossier.artist.id, 'dimensions', periodSlug(hit.dossier), hit.dim)}">
             <span class="hit-ref">${esc(hit.ref)}</span>
             <span class="hit-dim">${esc(hit.dossier.artist.zh)} · ${esc(DIM_LABELS[hit.dim].zh)}</span>
             <span class="hit-text">${esc(hit.claim.statement_zh ?? hit.claim.reason_zh ?? '')}</span>
@@ -1158,6 +1353,7 @@ function render() {
 
   const dossier = currentDossier(route);
   if (!dossier) {
+    state.pendingAnchor = null;
     view.innerHTML = route.tab === 'overview' ? renderPending(artist) : renderPendingDimension(artist, route.tab);
     return;
   }
@@ -1168,10 +1364,16 @@ function render() {
     return;
   }
   if (route.tab === 'sources') {
-    view.innerHTML = `${head}${renderSources(dossier.sourceIds ?? [])}`;
+    const filterLabel = selectedMediaLabel();
+    const ids = state.media.size ? sourceIdsForSelection(dossier) : (dossier.sourceIds ?? []);
+    const emptyNote = filterLabel
+      ? `此时期没有${filterLabel}的技法描述，因此没有对应来源（${BLANK}）。`
+      : '';
+    view.innerHTML = `${head}${renderSources(ids, { filterLabel, emptyNote })}`;
     return;
   }
-  view.innerHTML = `${head}${renderDimension(dossier, route.tab)}`;
+  view.innerHTML = `${head}${renderDimensions(dossier, route.anchor)}`;
+  settlePendingAnchor();
 }
 
 /* ---------------------------------------------------------------------- wire */
@@ -1205,6 +1407,8 @@ function load() {
       }
 
       state.route = parseRoute();
+      state.pendingAnchor = state.route.anchor || null;
+      canonicalizeRoute();
       revealLocalTools();
       render();
     })
@@ -1218,7 +1422,6 @@ tabsEl.addEventListener('click', (event) => {
   const button = event.target.closest('button[data-tab]');
   if (!button || state.route.name !== 'artist') return;
   go(artistHref(state.route.id, button.dataset.tab, state.route.period));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
 });
 
 mediaBar.addEventListener('click', (event) => {
@@ -1258,8 +1461,32 @@ view.addEventListener('click', (event) => {
     return;
   }
 
+  /* 站内链接（画家卡、分期条、面包屑、AI 引用…）全部走 go()。
+     这样不依赖浏览器的 hash 跳转：预览 iframe / file:// 里点了也有反应。
+     Ctrl / Cmd / Shift 点击仍交给浏览器（新标签页等）。 */
+  const internal = event.target.closest('a[href^="#/"]');
+  if (
+    internal &&
+    !internal.target &&
+    !internal.hasAttribute('download') &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey
+  ) {
+    event.preventDefault();
+    go(internal.getAttribute('href'));
+    return;
+  }
+
   if (event.target.closest('[data-tr-run]')) {
     runTranslate();
+    return;
+  }
+
+  const jump = event.target.closest('[data-jump]');
+  if (jump) {
+    focusDimension(jump.dataset.jump);
     return;
   }
 
@@ -1267,8 +1494,7 @@ view.addEventListener('click', (event) => {
   if (!cell) return;
   state.media.clear();
   if (cell.dataset.medium) state.media.add(cell.dataset.medium);
-  go(artistHref(state.route.id, cell.dataset.goto, state.route.period));
-  window.scrollTo({ top: 0, behavior: 'smooth' });
+  go(artistHref(state.route.id, 'dimensions', state.route.period, cell.dataset.anchor || null));
 });
 
 view.addEventListener('submit', (event) => {
@@ -1296,13 +1522,20 @@ input.addEventListener('keydown', (event) => {
   }
 });
 
-window.addEventListener('hashchange', () => {
+/** 地址栏变化（手输、前进/后退、没被拦截的链接）统一从这里同步页面。 */
+function syncFromLocation() {
   state.route = parseRoute();
+  const anchor = state.route.name === 'artist' ? state.route.anchor || null : null;
+  state.pendingAnchor = anchor;
+  canonicalizeRoute();
   if (state.route.name !== 'home') {
     state.ai = { query: '', status: 'idle', answer: '', hits: [], error: '', via: '', model: '' };
   }
   render();
-  window.scrollTo({ top: 0 });
-});
+  if (!anchor) window.scrollTo({ top: 0 });
+}
+
+window.addEventListener('hashchange', syncFromLocation);
+window.addEventListener('popstate', syncFromLocation);
 
 load();
