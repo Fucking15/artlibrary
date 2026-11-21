@@ -224,6 +224,42 @@ const dossiers = walk(path.join(ROOT, 'data', 'dossiers'))
   .map((file) => buildDossier(yaml.load(fs.readFileSync(file, 'utf8'))))
   .sort((a, b) => String(a.id).localeCompare(String(b.id)));
 
+/**
+ * 候选池：每周抓取 + AI 初筛判过 A/B 的原文材料。它们还不是 claim（要人写、要核 locator），
+ * 但问答必须能看见——否则「爬虫抓到了、问答却答不出」会一直复现。
+ * candidates.jsonl 在本机、被 gitignore；CI 上没有这个文件，这里自然返回空数组。
+ */
+function loadInbox() {
+  const file = path.join(ROOT, 'data', 'inbox', 'candidates.jsonl');
+  if (!fs.existsSync(file)) return [];
+  return fs
+    .readFileSync(file, 'utf8')
+    .split('\n')
+    .filter(Boolean)
+    .map((line) => {
+      try {
+        return JSON.parse(line);
+      } catch {
+        return null;
+      }
+    })
+    .filter((row) => row && row.status === 'approved' && (row.excerpt || row.title))
+    .map((row) => ({
+      id: row.id,
+      class: row.class ?? null,
+      kind: row.kind ?? null,
+      lang: row.lang ?? null,
+      title: String(row.title ?? '').slice(0, 200),
+      excerpt: String(row.excerpt ?? '').replace(/\s+/g, ' ').slice(0, 400),
+      url: row.url ?? null,
+      publisher: row.publisher ?? null,
+      published: row.published ? String(row.published).slice(0, 10) : null,
+      verdict: row.verdict ?? null,
+      reason_zh: row.reason_zh ? String(row.reason_zh).slice(0, 200) : null,
+      retrieved_at: row.retrieved_at ?? null,
+    }));
+}
+
 /* 画家登记表整个带给前端：主页的索引要能列出「已登记但还没有档案」的人，
    所以不能只从 dossiers 反推画家。 */
 const artistRoster = [...artists.values()]
@@ -274,10 +310,13 @@ const payload = {
     note_zh: s.notes_zh ?? null,
   })),
   dossiers,
+  inbox: loadInbox(),
 };
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true });
 fs.writeFileSync(OUT, JSON.stringify(payload, null, 1), 'utf8');
 
 const kb = (Buffer.byteLength(JSON.stringify(payload)) / 1024).toFixed(1);
-console.log(`site/data/index.json  ${dossiers.length} dossier(s) · ${payload.counts.claims} claims · ${payload.counts.sources} sources · ${kb} KB`);
+console.log(
+  `site/data/index.json  ${dossiers.length} dossier(s) · ${payload.counts.claims} claims · ${payload.counts.sources} sources · ${payload.inbox.length} approved candidate(s) · ${kb} KB`,
+);

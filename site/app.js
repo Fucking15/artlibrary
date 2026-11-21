@@ -954,62 +954,234 @@ function renderMediaBarFor(route) {
 /* ------------------------------------------------------------------ AI 检索 */
 
 const STOPWORDS = new Set(['什么', '怎么', '为什么', '如何', '哪些', '哪个', '是否', '以及', '还有', '一个', '这个', '那个', '我们', '他们']);
+/** 画家名每一条都带，不能作为区分度；年份相同也不等于在讲同一个技法。 */
+const ARTIST_TOKENS = new Set(['席勒', 'schiele']);
+const LINE_QUERY = /线|轮廓|笔|描|断|裂/;
 
-function queryTokens(query) {
-  const cleaned = query.toLowerCase().replace(/[\s，。、；：？！,.;:?!「」『』（）()《》〈〉…—\-_"'’“”]/g, '');
-  const tokens = new Set();
+/** 中文问题里的同义扩展：不补充事实，只是让「断线/线条/轮廓」能互相召回。 */
+const QUERY_EXPANSIONS = [
+  {
+    test: /断|裂|中断|不连续/,
+    terms: ['断线', '断裂', '中断', '不连续', '复线', '叠线', '续线', '错误留在画面'],
+  },
+  {
+    test: /线|轮廓|笔|描/,
+    terms: ['线条', '轮廓', '用线', '一笔', '重描', '描线', '边缘', '笔法', '线描'],
+  },
+  {
+    test: /1912/,
+    terms: ['1912', '1911–1912', '1911-1912'],
+  },
+  // 中文问题要能命中库里的英文/德文引文与候选池原文（excerpt 基本是外文），
+  // 否则「爬虫抓到的英文材料」永远不会出现在中文提问的上下文里。
+  {
+    test: /线|轮廓|笔|描/,
+    terms: ['line', 'linear', 'contour', 'stroke', 'drawing', 'pencil', 'graphite'],
+  },
+  {
+    test: /色|颜色|水彩|水粉|颜料/,
+    terms: ['colour', 'color', 'watercolour', 'watercolor', 'gouache', 'palette', 'oil'],
+  },
+  {
+    test: /构图|取景|画幅|裁切/,
+    terms: ['composition', 'framing', 'crop', 'format'],
+  },
+  {
+    test: /身体|人体|裸|姿态/,
+    terms: ['body', 'nude', 'figure', 'pose'],
+  },
+  {
+    test: /影响|师承|克林姆|老师/,
+    terms: ['influence', 'klimt', 'academy', 'teacher'],
+  },
+  {
+    test: /版画|印|蚀刻/,
+    terms: ['print', 'lithograph', 'etching'],
+  },
+];
+
+function queryTerms(query) {
+  const lower = query.toLowerCase();
+  const cleaned = lower.replace(/[\s，。、；：？！,.;:?!「」『』（）()《》〈〉…—\-_"'’“”]/g, '');
+  const direct = new Set();
   for (let i = 0; i < cleaned.length - 1; i += 1) {
     const bigram = cleaned.slice(i, i + 2);
-    if (!STOPWORDS.has(bigram)) tokens.add(bigram);
+    if (/\d/.test(bigram) || STOPWORDS.has(bigram) || ARTIST_TOKENS.has(bigram)) continue;
+    direct.add(bigram);
   }
-  for (const latin of query.toLowerCase().match(/[a-z]{3,}/g) ?? []) tokens.add(latin);
-  return [...tokens];
+  for (const latin of lower.match(/[a-z]{3,}/g) ?? []) {
+    if (!ARTIST_TOKENS.has(latin)) direct.add(latin);
+  }
+  const years = [...new Set(lower.match(/(?:19|20)\d{2}/g) ?? [])];
+  const aliases = new Set();
+  for (const rule of QUERY_EXPANSIONS) {
+    if (!rule.test.test(lower)) continue;
+    for (const term of rule.terms) aliases.add(term);
+  }
+  return { direct: [...direct], aliases: [...aliases].filter((term) => !direct.has(term) && !years.includes(term)), years };
 }
 
-/** Lexical retrieval over every claim: enough to hand the model a small, cited context. */
-function retrieve(query, limit = 12) {
-  const tokens = queryTokens(query);
-  if (!tokens.length) return [];
+function countToken(haystack, token) {
+  let count = 0;
+  let at = haystack.indexOf(token);
+  while (at !== -1) {
+    count += 1;
+    at = haystack.indexOf(token, at + token.length);
+  }
+  return count;
+}
+
+/**
+ * Lexical retrieval over every retrievable claim.
+ *
+ * 六维 claim 只是库里的一半事实：分期锚点（哪年发生了什么）和「尚未回答的问题」同样
+ * 写在 YAML 里、页面上能读到。旧版只遍历 dimensions，所以问「1912 年新伦巴赫发生了什么」
+ * 时，库里明明有「4 月 13 日被捕、关押二十四天」这条锚点，模型却收到「条目没有交代经过」，
+ * 于是只能回答「现有条目不足以回答」。这里把三类条目放进同一个排序池，让模型看到的
+ * 上下文与页面上能读到的内容一致。
+ */
+function retrieve(query, limit = 18) {
+  const { direct, aliases, years } = queryTerms(query);
+  if (!direct.length && !aliases.length && !years.length) return [];
 
   const rows = [];
+  const haystackOf = (...parts) => parts.filter(Boolean).join(' ').toLowerCase();
+  const evidenceText = (evidence) =>
+    (evidence ?? []).map((e) => `${e.quote ?? ''} ${e.translation_zh ?? ''} ${e.citation ?? ''}`).join(' ');
+
+  const lexical = (haystack) => {
+    let score = 0;
+    for (const token of direct) score += countToken(haystack, token) * 3;
+    for (const token of aliases) score += countToken(haystack, token) * 1.5;
+    for (const year of years) score += countToken(haystack, year) * 2;
+    return score;
+  };
+
   for (const dossier of DATA.dossiers) {
+    const start = Number(dossier.period.start_year);
+    const end = Number(dossier.period.end_year);
+
+    // 1912 这类年份是范围线索：命中所在分期加高分，相邻分期保留一点上下文。
+    let yearBias = 0;
+    for (const year of years) {
+      const value = Number(year);
+      if (!Number.isFinite(value) || !Number.isFinite(start) || !Number.isFinite(end)) continue;
+      if (value >= start && value <= end) yearBias += 6;
+      else if (Math.min(Math.abs(value - start), Math.abs(value - end)) <= 1) yearBias += 2;
+    }
+
+    const dimBias = (dim) => {
+      if (!LINE_QUERY.test(query)) return 0;
+      if (dim === 'composition') return 2;
+      if (dim === 'material') return 1;
+      if (dim === 'lineage') return 1;
+      return 0;
+    };
+
     for (const dim of DATA.dims) {
       for (const claim of flatten(dossier, dim)) {
         if (claim.not_applicable) continue;
-        const haystack = [
+        const haystack = haystackOf(
           claim.statement_zh,
           claim.note_zh,
-          ...claim.evidence.map((e) => `${e.quote} ${e.translation_zh ?? ''} ${e.citation}`),
+          evidenceText(claim.evidence),
           DIM_LABELS[dim].zh,
-          DIM_LABELS[dim].en,
           ...claim.medium.map((m) => MEDIA_LABELS[m] ?? m),
-          dossier.artist.zh,
-          dossier.artist.en,
-        ]
-          .join(' ')
-          .toLowerCase();
+        );
+        // 问题点了年份、条目却不在那一期：保留但降权，免得拿晚期对照条目冒充本期依据。
+        const offPeriod = years.length && yearBias === 0 ? 0.7 : 1;
+        const score = (lexical(haystack) + yearBias + dimBias(dim)) * offPeriod;
+        if (score > 0) rows.push({ dossier, dim, claim, score, kind: 'claim', label: DIM_LABELS[dim].zh });
+      }
+    }
 
-        let score = 0;
-        for (const token of tokens) {
-          let at = haystack.indexOf(token);
-          while (at !== -1) {
-            score += 1;
-            at = haystack.indexOf(token, at + token.length);
-          }
-        }
-        if (score > 0) rows.push({ dossier, dim, claim, score });
+    // 分期锚点：问「发生了什么 / 为什么会变」时，事件时间线才是直接答案。
+    for (const anchor of dossier.period.anchors ?? []) {
+      const stamp = anchor.month_day ? `${anchor.year}-${anchor.month_day}` : String(anchor.year);
+      const haystack = haystackOf(anchor.event_zh, evidenceText(anchor.evidence), dossier.period.label?.zh, stamp);
+      const score = lexical(haystack) + Math.round(yearBias * 1.5) + 2;
+      if (score > 2) {
+        rows.push({
+          dossier,
+          dim: 'period',
+          kind: 'anchor',
+          label: `时期锚点 ${stamp}`,
+          score,
+          claim: {
+            statement_zh: anchor.event_zh,
+            note_zh: null,
+            evidence: anchor.evidence ?? [],
+            medium: ['period_level'],
+            grades: [...new Set((anchor.evidence ?? []).map((e) => e.grade))],
+            confidence: 'medium',
+            status: 'draft',
+          },
+        });
+      }
+    }
+
+    // 「尚未回答的问题」：让模型能说清这一问缺什么，而不是笼统说条目不够。
+    for (const open of dossier.open_questions ?? []) {
+      const haystack = haystackOf(open.question_zh, open.why_open_zh);
+      const score = Math.round(lexical(haystack) * 0.9);
+      if (score >= 6) {
+        rows.push({
+          dossier,
+          dim: 'period',
+          kind: 'open',
+          label: '尚未回答的问题',
+          score,
+          claim: {
+            statement_zh: open.question_zh,
+            note_zh: open.why_open_zh,
+            evidence: [],
+            medium: ['period_level'],
+            grades: [],
+            confidence: null,
+            status: 'draft',
+          },
+        });
       }
     }
   }
 
+  // 候选池：每周抓取 + 初筛通过的原文材料。还不是 claim，但「抓到了却答不出」正是要修的病。
+  for (const row of DATA.inbox ?? []) {
+    const text = haystackOf(row.title, row.excerpt, row.publisher, row.published, row.kind);
+    const score = Math.round(lexical(text) * 0.8);
+    if (score >= 6) {
+      rows.push({
+        dossier: { id: 'inbox', artist: { id: 'inbox', zh: '候选池' }, period: {} },
+        dim: 'period',
+        kind: 'inbox',
+        label: [row.kind ?? '原文', row.class ? `${row.class} 级` : '', row.published].filter(Boolean).join(' · '),
+        score,
+        claim: {
+          statement_zh: `${row.title}${row.excerpt ? `：${String(row.excerpt).slice(0, 260)}` : ''}`,
+          note_zh: row.reason_zh ? `初筛理由：${row.reason_zh}` : null,
+          evidence: [{ quote: row.excerpt ?? '', citation: [row.publisher, row.published].filter(Boolean).join(' · '), url: row.url, grade: row.class, unverified: false }],
+          medium: [],
+          grades: row.class ? [row.class] : [],
+          confidence: 'low',
+          status: 'candidate',
+          url: row.url,
+        },
+      });
+    }
+  }
+
   rows.sort((a, b) => b.score - a.score);
-  const perDim = new Map();
+  const top = rows[0]?.score ?? 0;
+  const floor = Math.max(3, top * 0.18);
+  const quotas = { anchor: 4, open: 1, inbox: 2 };
+  const perBucket = new Map();
   const picked = [];
   for (const row of rows) {
-    const key = `${row.dossier.id}:${row.dim}`;
-    const used = perDim.get(key) ?? 0;
-    if (used >= 3) continue;
-    perDim.set(key, used + 1);
+    if (row.score < floor) break; // 已按分数降序，后面的只会更弱
+    const key = `${row.kind}:${row.dossier.id}:${row.dim}`;
+    const used = perBucket.get(key) ?? 0;
+    if (used >= (quotas[row.kind] ?? 2)) continue;
+    perBucket.set(key, used + 1);
     picked.push(row);
     if (picked.length >= limit) break;
   }
@@ -1022,28 +1194,50 @@ function buildMessages(query, hits) {
     .join('；');
   const lines = hits.map((hit) => {
     const claim = hit.claim;
-    const media = claim.medium.map((m) => MEDIA_LABELS[m] ?? m).join('/');
+    const media = (claim.medium ?? []).map((m) => MEDIA_LABELS[m] ?? m).join('/');
     const flags = [
-      `${claim.grades.join('')} 级证据`,
+      claim.grades?.length ? `${claim.grades.join('')} 级证据` : '',
       claim.confidence ? `置信${CONF_LABELS[claim.confidence] ?? claim.confidence}` : '',
       claim.evidence.some((e) => e.unverified) ? '出处待核验' : '',
       claim.status === 'signed' ? '已签字' : '',
     ]
       .filter(Boolean)
       .join(' · ');
-    return `[${hit.ref}] ${hit.dossier.artist.zh} · ${DIM_LABELS[hit.dim].zh} · ${media} · ${flags}：${claim.statement_zh}${
-      claim.note_zh ? `（注：${claim.note_zh}）` : ''
-    }`;
+    // 关键细节常只存在于证据引文里（例如「1911–1912 用极硬铅笔，几乎看不见」），
+    // 只给 statement 会让模型误以为条目没写原因。这里带上 1–2 条短引文。
+    // 候选池条目的 statement 本身就是原文摘录，不再重复一遍，只补链接。
+    const evidence =
+      hit.kind === 'inbox'
+        ? ''
+        : claim.evidence
+            .filter((e) => e.quote || e.translation_zh)
+            .slice(0, 2)
+            .map((e) => String(e.translation_zh || e.quote || '').slice(0, 180))
+            .filter(Boolean)
+            .join('；');
+    const link = claim.url ? `\n    链接：${claim.url}` : '';
+    const head = [`[${hit.ref}]`, hit.dossier.artist.zh, hit.label ?? DIM_LABELS[hit.dim].zh, media, flags]
+      .filter(Boolean)
+      .join(' · ');
+    return `${head}：${claim.statement_zh}${claim.note_zh ? `（注：${claim.note_zh}）` : ''}${
+      evidence ? `\n    证据：${evidence}` : ''
+    }${link}`;
   });
 
   const system = [
     '你在检索一个「画家技法知识库」。下面给出的条目是唯一可用的事实来源。',
     '规则：',
     '1. 只能使用条目里的内容，不得补充外部知识，不得编造页码、引文、年份或作品名。',
-    '2. 每条要点后面用 [S1] 这样的编号标注依据；编号必须来自下面给出的条目。',
-    '3. 如果条目不足以回答问题，直接说「现有条目不足以回答」，并说明还缺什么。',
-    '4. 条目里标注「出处待核验」的，回答时要用一句话提醒读者它尚未核验。',
-    '5. 用中文回答，控制在 250 字内，先给结论，再给要点，不要复述问题。',
+    '2. 先正面回答「为什么」：第一句就是结论。即使条目没有一句直接因果句，也要把同一时期、同一画种、同一技法维度的多条条目组合起来，用「推断：」开头给出结论；不许把「现有条目不足以回答」放在开头。',
+    '3. 只有在结论之后，才可以说哪一部分缺证据，并说明缺什么；条目里若有「尚未回答的问题」，直接把它作为缺口说出来。',
+    '4. 标注「时期锚点」的是事件条目（哪年发生了什么），可以直接用来回答「发生了什么」「为什么会变」；标注「尚未回答的问题」的是库里还没解决的问题。',
+    '5. 标注「候选池」的是每周抓取、AI 初筛判过可靠性的原文摘录，还没写成条目：可以用它说明「库里还没有结论，但候选池已有这篇材料这样说」，并给出链接；不要把它当成已核对过的技法结论。',
+    '6. 如果问题里的前提和条目冲突（例如把叠线当成断线），先用一句话纠正前提，再给推断。',
+    '7. 条目里标注「出处待核验」的，回答末尾用一句话提醒读者它尚未核验。',
+    '8. 引用只写 [S1] 这样单独的编号，不要在方括号里夹任何文字；「出处待核验」的提醒不要塞进编号里。',
+    '9. 年份相同不等于相关；优先同一时期、同一画种、同一技法维度的条目。',
+    '10. 推断只能组合条目，不能写成条目直述；每条依据仍要标 [S#]。',
+    '11. 用中文回答，控制在 320 字内，先给结论（直述或推断），再给要点，不要复述问题。',
     '',
     `知识库里的画家：${roster || '（暂无）'}`,
     '',
@@ -1053,7 +1247,10 @@ function buildMessages(query, hits) {
 
   return [
     { role: 'system', content: system },
-    { role: 'user', content: query },
+    {
+      role: 'user',
+      content: `${query}\n\n请先给出结论；如果只能从条目推断，请以「推断：」开头，不要只罗列资料。`,
+    },
   ];
 }
 
@@ -1165,13 +1362,26 @@ const AI_STATUS = {
 
 function aiCite(hit) {
   if (!hit) return '<span class="cite">?</span>';
-  return `<a class="cite" href="${artistHref(hit.dossier.artist.id, 'dimensions', periodSlug(hit.dossier), hit.dim)}" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
+  // 候选池条目不是页面上的条目，只能指向原文链接。
+  if (hit.kind === 'inbox') {
+    return `<a class="cite" href="${esc(hit.claim.url ?? '#/')}" target="_blank" rel="noopener" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
+  }
+  // 事件锚点与开放问题不在六维页里，落到该期的概览页（那里正好列出这两块）。
+  const tab = hit.kind === 'claim' ? 'dimensions' : 'overview';
+  const anchor = hit.kind === 'claim' ? hit.dim : null;
+  return `<a class="cite" href="${artistHref(hit.dossier.artist.id, tab, periodSlug(hit.dossier), anchor)}" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
 }
 
 function aiInline(text) {
   let html = esc(text);
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\[(S\d+)\]/g, (match, ref) => aiCite(state.ai.hits.find((hit) => hit.ref === ref)));
+  // 模型有时把提醒塞进编号里（[S4，出处待核验]），这种也要变成可点链接，附注单独显示。
+  html = html.replace(/[\[【]\s*(S\d+)\s*([^\]]*?)\s*[\]】]/g, (match, ref, trail) => {
+    const hit = state.ai.hits.find((item) => item.ref === ref);
+    const cite = aiCite(hit);
+    const note = String(trail ?? '').replace(/^[，,、·|/／\s]+/, '').trim();
+    return note ? `${cite}<span class="cite-note">${esc(note)}</span>` : cite;
+  });
   return html;
 }
 
@@ -1198,14 +1408,24 @@ function renderAiPanel() {
   const hitsHtml = hits.length
     ? `<p class="section-title">作为依据的条目 · ${hits.length}</p>
       <div class="hits">${hits
-        .map(
-          (hit) => `<a class="hit" href="${artistHref(hit.dossier.artist.id, 'dimensions', periodSlug(hit.dossier), hit.dim)}">
+        .map((hit) => {
+          const fromInbox = hit.kind === 'inbox';
+          const href = fromInbox
+            ? esc(hit.claim.url ?? '#/')
+            : artistHref(
+                hit.dossier.artist.id,
+                hit.kind === 'claim' ? 'dimensions' : 'overview',
+                periodSlug(hit.dossier),
+                hit.kind === 'claim' ? hit.dim : null,
+              );
+          const extra = fromInbox ? ' target="_blank" rel="noopener"' : '';
+          return `<a class="hit" href="${href}"${extra}>
             <span class="hit-ref">${esc(hit.ref)}</span>
-            <span class="hit-dim">${esc(hit.dossier.artist.zh)} · ${esc(DIM_LABELS[hit.dim].zh)}</span>
+            <span class="hit-dim">${esc(hit.dossier.artist.zh)} · ${esc(hit.label ?? DIM_LABELS[hit.dim].zh)}</span>
             <span class="hit-text">${esc(hit.claim.statement_zh ?? hit.claim.reason_zh ?? '')}</span>
-            <span class="hit-grades">${esc(hit.claim.grades.join('') || '—')}</span>
-          </a>`,
-        )
+            <span class="hit-grades">${esc((hit.claim.grades ?? []).join('') || '—')}</span>
+          </a>`;
+        })
         .join('')}</div>`
     : '';
 
@@ -1244,11 +1464,20 @@ function renderAiPanel() {
   }
 
   const meta = [ai.via === 'proxy' ? '本地代理' : '浏览器直连', ai.model, 'DeepSeek'].filter(Boolean).join(' · ');
+  const kinds = new Set(hits.map((hit) => hit.kind));
+  const scope = [
+    '六维条目',
+    kinds.has('anchor') ? '分期锚点' : '',
+    kinds.has('open') ? '待解问题' : '',
+    kinds.has('inbox') ? '候选池原文' : '',
+  ]
+    .filter(Boolean)
+    .join(' + ');
   return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
     <section class="ai-panel">
       <p class="ai-q">问题：${esc(ai.query)}</p>
       <div class="ai-answer">${aiAnswerHtml(ai.answer)}</div>
-      <p class="ai-meta">${esc(meta)} · 回答基于下面 ${hits.length} 条 claim，引用编号可点</p>
+      <p class="ai-meta">${esc(meta)} · 回答基于下面 ${hits.length} 条${esc(scope)}，引用编号可点</p>
     </section>
     ${hitsHtml}
     <p class="ai-disclaimer">AI 只是把已入库的条目读给你听；它说的每句话都该用 [S1] 这样的链接回到条目上核对。</p>`;

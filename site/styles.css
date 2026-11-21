@@ -586,8 +586,8 @@ details.evidence[open] > summary::before { content: "▾ "; }
 .media-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 
 .media-tabs button {
-  border: 1px solid var(--rule);
-  background: var(--paper-2);
+  border: 1px solid rgba(244, 251, 247, .35);
+  background: #0a6e4b;
   padding: 4px 10px 4px 8px;
   font-family: var(--sans);
   font-size: 12px;
@@ -599,23 +599,28 @@ details.evidence[open] > summary::before { content: "▾ "; }
   gap: 6px;
 }
 
-.media-tabs button:hover { border-color: var(--ink-3); background: var(--paper-2); }
+.media-tabs button:hover {
+  background: #0a6e4b;
+  border-color: var(--accent);
+  color: var(--accent);
+}
 
-/* 画种这一行统一：平时面底色，选中主文字色；空白画种也一样，只用虚线边框和「空白」二字提示缺条目。 */
+/* 画种这一行（全部 + 四个画种）统一用主题绿 #0a6e4b；选中靠薄荷色描边区分。 */
 .media-tabs button.is-blank {
   border-style: dashed;
-  background: var(--paper-2);
+  background: #0a6e4b;
   color: var(--ink-2);
 }
 
 .media-tabs button[aria-pressed="true"] {
-  background: var(--ink);
-  border-color: var(--ink);
+  background: #0a6e4b;
+  border-color: var(--accent);
   border-style: solid;
-  color: var(--paper);
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
 }
 
-.media-tabs button[aria-pressed="true"] .n { opacity: .8; }
+.media-tabs button[aria-pressed="true"] .n { color: var(--accent); opacity: .9; }
 
 .media-tabs button .n {
   font-family: var(--mono);
@@ -690,6 +695,22 @@ details.evidence[open] > summary::before { content: "▾ "; }
 /* ------------------------------------------------- per-画种 blocks (overview) */
 
 .media-block { margin: 0 0 34px; }
+
+/* 概览里的五个画种板块（全部 + 四个画种）整块用主题绿 #0a6e4b；
+   格子用同色系浅一档，文字切回深绿主题的浅色。 */
+.media-block {
+  padding: 18px 20px 20px;
+  background: #0a6e4b;
+  color: #f4fbf7;
+  --paper: #0a6e4b;
+  --paper-2: #0b7a55;
+  --ink: #f4fbf7;
+  --ink-2: #d3e7de;
+  --ink-3: #a5c6b9;
+  --rule: rgba(244, 251, 247, .18);
+  --accent: #d9fff0;
+  --accent-soft: rgba(217, 255, 240, .12);
+}
 
 .media-block-head {
   display: flex;
@@ -1018,7 +1039,7 @@ details.evidence[open] > summary::before { content: "▾ "; }
 .cite {
   display: inline-block;
   padding: 0 4px;
-  margin: 0 1px;
+  margin: 0 3px 0 0;
   border: 1px solid var(--rule);
   border-radius: 2px;
   background: var(--paper);
@@ -1029,6 +1050,14 @@ details.evidence[open] > summary::before { content: "▾ "; }
 }
 
 .cite:hover { border-color: var(--ink-3); color: var(--ink); }
+
+/* 模型把「出处待核验」写进了编号里时的附注：链接照点，附注小一号跟在后头。 */
+.cite-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  margin: 0 4px 0 1px;
+}
 
 .hits {
   display: flex;
