@@ -5,7 +5,7 @@
 ```
 每周日 09:00（可改）
   _tools\run-weekly.cmd
-    └─ node scripts/inbox/weekly.mjs     抓：17 个适配器、中英文查询、原文不译
+    └─ node scripts/inbox/weekly.mjs     抓：18 个适配器、中英文查询、原文不译
     └─ node scripts/inbox/screen.mjs     AI 初筛（PTC）：先判范围（无关直接删），再判 T/S/F
          └─ data/inbox/candidates.jsonl  候选池
               └─ /examine                人审：C/D/E 必须过目才算数
@@ -56,9 +56,42 @@ node scripts/inbox/weekly.mjs --class=C
 | 豆瓣读书（suggest API） | D | 需要 UA + referer；命中常常是「作者」而非图书，返回 0 是常态 |
 | Hacker News (Algolia) | E | 英文讨论 |
 | 豆瓣短评 / 豆瓣小组 | E | 正则要容忍 `?_spm_id=` 这类跟踪参数 |
+| MediaCrawler（小红书 / 抖音 / 快手 / B站 / 微博 / 贴吧 / 知乎） | E | 先手动登录跑，周检只读它的 JSONL 导出；见下 |
 
-不可用的源记在这里省得重试：Reddit（IP 级封锁）、知乎、微博、Bilibili（412 限流）、Google Books / Semantic Scholar（429）、
-DuckDuckGo HTML（202 挑战）、百度（空壳）、Bing 网页版（返回无关结果）。
+### MediaCrawler：把中文社交平台接进来
+
+[MediaCrawler](https://github.com/NanmiCoder/MediaCrawler) 是基于 Playwright 的多平台采集器。它需要扫码登录、
+真实 Chrome（>= 144，CDP 模式）和 Python 3.11，所以**不塞进 45 秒的无头周检**；周检只读它导出的 JSONL。
+
+```bash
+# 1) 把 MediaCrawler 放在 _tools/MediaCrawler（或设置 TK_MEDIACRAWLER_DIR）
+#    按它的 README 装 Python 3.11、uv、Chrome CDP；先登录一次
+
+# 2) 跑一个平台（关键词用中文精确词，避免「席勒」撞德国诗人）
+node scripts/inbox/mediacrawler.mjs --check
+node scripts/inbox/mediacrawler.mjs --run --platform xhs \
+  --keywords "埃贡·席勒,席勒 素描,席勒 绘画" --notes=10
+
+# 也可以直接跑 MediaCrawler，把 --save_data_path 指到 drop：
+#   uv run main.py --platform bili --lt qrcode --type search \
+#     --keywords "埃贡·席勒" --save_data_option jsonl \
+#     --save_data_path <repo>/data/inbox/mediacrawler
+
+# 3) 周检只读 MediaCrawler 导出（不会触发登录）
+node scripts/inbox/weekly.mjs --only=mediacrawler --dry
+```
+
+- 本机已把 MediaCrawler clone 到 `_tools/MediaCrawler`；首次 `--run` 由 uv 自动建 Python 3.11 环境并装依赖，然后弹二维码。
+- 默认读 `data/inbox/mediacrawler/` 和 `<MediaCrawler>/data/` 下的 `*contents*.jsonl`；`TK_MEDIACRAWLER_INCLUDE_COMMENTS=1`
+  才连 `*comments*.jsonl` 一起读。
+- 归一化后是 **E 类**：`kind=forum_thread`（帖子）或 `social_comment`（评论）；只保留标题/摘要里出现 `席勒` 或 `Schiele` 的条目。
+- 一次最多收 `TK_MEDIACRAWLER_MAX`（默认 40）条，交给 `screen.mjs` 判范围与 T/S/F；E 类**必须人审**，只能作 C 级，不能支撑 signed claim。
+- 没有导出时适配器会返回 `ok:true` + 0 条并带一句说明，不会让整轮周检失败。
+- 登录态、验证码、频控和平台条款由运行者自己负责；这个仓库只消费导出，不保存平台的登录信息。
+
+不可用的源（免登录直连）记在这里省得重试：Reddit（IP 级封锁）、知乎、微博、Bilibili（412 限流）、Google Books / Semantic Scholar（429）、
+DuckDuckGo HTML（202 挑战）、百度（空壳）、Bing 网页版（返回无关结果）。知乎 / 微博 / B站 / 小红书 / 抖音这类需要登录的平台，
+改走上面的 MediaCrawler 导出，不要在这里重试。
 
 ## 三、AI 初筛（PTC）：先判范围，再判可靠性
 
@@ -120,14 +153,19 @@ preview.cmd          # 打印 http://localhost:4321/examine 与审查口令
 ## 五、排期
 
 ```powershell
+# 注册 S4U 需要管理员权限：请用“以管理员身份运行”的 PowerShell
 powershell -ExecutionPolicy Bypass -File _tools\install-weekly.ps1            # 每周日 09:00
 powershell -ExecutionPolicy Bypass -File _tools\install-weekly.ps1 -Time 21:30 -Day WED
 powershell -ExecutionPolicy Bypass -File _tools\install-weekly.ps1 -RunNow    # 立刻跑一次
 powershell -ExecutionPolicy Bypass -File _tools\install-weekly.ps1 -Remove    # 卸载
 ```
 
-任务名 `technique-kb weekly inbox`，日志在 `data/inbox/runs/scheduler.log`。任务只在当前用户登录时运行，
-机器休眠会错过并且不补跑；想补就 `-RunNow` 或双击 `_tools\run-weekly.cmd`。
+任务名 `technique-kb weekly inbox`，日志在 `data/inbox/runs/scheduler.log`。
+
+- 运行方式：**S4U**（无论当前用户是否登录，都在后台以该用户身份运行）；不需要保持桌面会话，也不需要保存密码。
+- `WakeToRun`：到点可从睡眠唤醒；`StartWhenAvailable`：错过时间后机器一可用就补跑。
+- 电源：安装脚本把 AC/DC 的自动睡眠/休眠都设为 0；机器关机仍然无法运行，请保持通电或开机。
+- 如果还要人工跑 MediaCrawler（扫码），那是另一件事：需要用户登录桌面并操作浏览器；周检本身不依赖登录。
 
 ## 六、文件
 

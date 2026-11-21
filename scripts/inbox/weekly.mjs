@@ -48,7 +48,7 @@ console.log(`源 ${picked.length} 个，每次查询上限 ${limit} 条，中英
 
 for (const adapter of picked) {
   const queries = adapter.terms ?? QUERIES[adapter.lang] ?? QUERIES.en;
-  const record = { id: adapter.id, class: adapter.class, ok: true, queries: 0, fetched: 0, error: null };
+  const record = { id: adapter.id, class: adapter.class, ok: true, queries: 0, fetched: 0, error: null, note: null };
   const started = Date.now();
 
   for (const query of queries) {
@@ -68,6 +68,7 @@ for (const adapter of picked) {
       record.error = result.error;
       continue;
     }
+    if (result.note) record.note = result.note;
     for (const entry of result.items ?? []) {
       if (!entry.title || !entry.url) continue;
       collected.push({ ...entry, run_id: runId });
@@ -80,7 +81,7 @@ for (const adapter of picked) {
   record.ms = Date.now() - started;
   adapters.push(record);
   const mark = record.ok ? '✓' : '✗';
-  const note = record.ok ? '' : ` (${record.error})`;
+  const note = record.ok ? (record.note ? ` (${record.note})` : '') : ` (${record.error})`;
   console.log(`${mark} ${adapter.id.padEnd(16)} ${adapter.class}  ${String(record.fetched).padStart(3)} 条  ${record.ms}ms${note}`);
 }
 

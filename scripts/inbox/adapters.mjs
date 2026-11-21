@@ -13,6 +13,9 @@
  * Nothing here writes the knowledge base. Everything lands in data/inbox/candidates.jsonl
  * and waits for the screener.
  */
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { cleanUrl, clip, fetchJson, fetchText, stripTags } from './net.mjs';
 
 const MAILTO = process.env.TK_MAILTO ?? 'technique-kb@example.org';
@@ -20,6 +23,21 @@ const MAILTO = process.env.TK_MAILTO ?? 'technique-kb@example.org';
 const BROWSER_UA =
   process.env.TK_BROWSER_UA ??
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/141.0.0.0 Safari/537.36';
+
+/* MediaCrawler（https://github.com/NanmiCoder/MediaCrawler）是一个需要登录态的 Python/Playwright
+   采集器，不适合塞进 45 秒的无头周检。这里的边界是「读它的导出」：
+   - 先按 docs/inbox.zh.md 手动跑 MediaCrawler，JSONL 落到 _tools/MediaCrawler/data 或本仓库的
+     data/inbox/mediacrawler；
+   - 周检只读这些 JSONL，把命中席勒的帖子/评论变成 E 类候选，交给 screen + /examine。
+   MediaCrawler 的登录、二维码、风控与平台条款都由使用者自己处理。 */
+const HERE = path.dirname(fileURLToPath(import.meta.url));
+const REPO_ROOT = path.resolve(HERE, '..', '..');
+const WORKSPACE_ROOT = path.resolve(REPO_ROOT, '..');
+const MC_DIR = path.resolve(process.env.TK_MEDIACRAWLER_DIR ?? path.join(WORKSPACE_ROOT, '_tools', 'MediaCrawler'));
+const MC_DATA = path.resolve(process.env.TK_MEDIACRAWLER_DATA ?? path.join(MC_DIR, 'data'));
+const MC_DROP = path.resolve(process.env.TK_MEDIACRAWLER_DROP ?? path.join(REPO_ROOT, 'data', 'inbox', 'mediacrawler'));
+const MC_INCLUDE_COMMENTS = process.env.TK_MEDIACRAWLER_INCLUDE_COMMENTS === '1';
+const MC_MAX = Number(process.env.TK_MEDIACRAWLER_MAX ?? 40) || 40;
 
 export const QUERIES = {
   en: ['"Egon Schiele"', 'Egon Schiele drawing technique', 'Egon Schiele provenance', 'Egon Schiele exhibition'],
@@ -433,6 +451,197 @@ const doubanBooks = {
 
 /* ------------------------------------------------------------------ E 评论区 */
 
+/* MediaCrawler 的 JSONL 字段是各平台自己的：小红书 note_url / 抖音 aweme_url / B站 bvid …
+   这里只做一层宽容的归一化，字段缺失就丢掉，不猜。 */
+const MC_PLATFORM_LABELS = {
+  xhs: '小红书',
+  dy: '抖音',
+  ks: '快手',
+  bili: '哔哩哔哩',
+  wb: '微博',
+  tieba: '百度贴吧',
+  zhihu: '知乎',
+};
+const MC_PLATFORM_SLUGS = new Set(Object.keys(MC_PLATFORM_LABELS));
+
+function mcText(...values) {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value.trim();
+    if (typeof value === 'number' && Number.isFinite(value)) return String(value);
+  }
+  return '';
+}
+
+function mcDate(value) {
+  const raw = mcText(value);
+  if (!raw) return '';
+  if (/^\d{10,13}$/.test(raw)) {
+    const milliseconds = raw.length >= 13 ? Number(raw) : Number(raw) * 1000;
+    const date = new Date(milliseconds);
+    if (!Number.isNaN(date.getTime())) return date.toISOString().slice(0, 10);
+  }
+  const match = raw.match(/((?:19|20)\d{2})[-/.年](\d{1,2})[-/.月](\d{1,2})/);
+  if (match) return `${match[1]}-${match[2].padStart(2, '0')}-${match[3].padStart(2, '0')}`;
+  return '';
+}
+
+function mcPlatformOf(file) {
+  for (const part of String(file).split(/[\\/]/)) {
+    const slug = part.toLowerCase();
+    if (MC_PLATFORM_SLUGS.has(slug)) return slug;
+  }
+  return 'mediacrawler';
+}
+
+function mcUrl(entry, platform) {
+  const direct = mcText(
+    entry.note_url,
+    entry.video_url,
+    entry.aweme_url,
+    entry.content_url,
+    entry.share_url,
+    entry.url,
+    entry.question_url,
+    entry.article_url,
+  );
+  if (direct && /^https?:\/\//i.test(direct)) return direct;
+  if (platform === 'bili') {
+    const bvid = mcText(entry.bvid, entry.bv_id, entry.video_id);
+    if (bvid) return `https://www.bilibili.com/video/${bvid}`;
+  }
+  if (platform === 'xhs' && mcText(entry.note_id)) return `https://www.xiaohongshu.com/explore/${mcText(entry.note_id)}`;
+  if (platform === 'dy' && mcText(entry.aweme_id)) return `https://www.douyin.com/video/${mcText(entry.aweme_id)}`;
+  if (platform === 'wb') {
+    const id = mcText(entry.mblogid, entry.mblog_id, entry.id);
+    if (id) return `https://m.weibo.cn/detail/${id}`;
+  }
+  if (platform === 'zhihu') {
+    const answer = mcText(entry.answer_id);
+    const question = mcText(entry.question_id);
+    if (answer && question) return `https://www.zhihu.com/question/${question}/answer/${answer}`;
+    const article = mcText(entry.article_id);
+    if (article) return `https://zhuanlan.zhihu.com/p/${article}`;
+  }
+  return '';
+}
+
+function mcItem(entry, file, query) {
+  if (!entry || typeof entry !== 'object') return null;
+  const platform = mcPlatformOf(file);
+  const title = mcText(
+    entry.title,
+    entry.note_title,
+    entry.video_title,
+    entry.article_title,
+    entry.question_title,
+    entry.content,
+    entry.desc,
+    entry.text,
+  );
+  const excerpt = mcText(entry.desc, entry.content, entry.text, entry.summary, entry.title);
+  const url = mcUrl(entry, platform);
+  if (!title || !url) return null;
+
+  const haystack = `${title} ${excerpt}`;
+  if (!SCHIELE.test(haystack)) return null;
+
+  const isComment = /comments/i.test(file) || Boolean(entry.comment_id);
+  return item({
+    class: 'E',
+    kind: isComment ? 'social_comment' : 'forum_thread',
+    lang: 'zh',
+    title: stripTags(title),
+    url,
+    publisher: `${MC_PLATFORM_LABELS[platform] ?? platform} · MediaCrawler`,
+    published: mcDate(mcText(entry.time, entry.create_time, entry.publish_time, entry.last_update_time, entry.created_at)),
+    excerpt: stripTags(excerpt || title),
+    adapter: 'mediacrawler',
+    query: mcText(entry.source_keyword, entry.keyword) || query,
+  });
+}
+
+function mcJsonlFiles(dir, out = [], depth = 0) {
+  if (depth > 5) return out;
+  let entries;
+  try {
+    entries = fs.readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const entry of entries) {
+    if (entry.name.startsWith('.')) continue;
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (entry.name === 'node_modules' || entry.name === '.git') continue;
+      mcJsonlFiles(full, out, depth + 1);
+    } else if (entry.isFile() && entry.name.endsWith('.jsonl')) {
+      if (entry.name.includes('contents')) out.push(full);
+      else if (MC_INCLUDE_COMMENTS && entry.name.includes('comments')) out.push(full);
+    }
+  }
+  return out;
+}
+
+const mediaCrawler = {
+  id: 'mediacrawler',
+  class: 'E',
+  lang: 'zh',
+  // 一次把导出批次全部读入；weekly 只调用一次，不需要按查询重复扫盘。
+  terms: ['MediaCrawler'],
+  async run(query, limit) {
+    const files = [...new Set([...mcJsonlFiles(MC_DROP), ...mcJsonlFiles(MC_DATA)])];
+    if (!files.length) {
+      return {
+        ok: true,
+        items: [],
+        note: `没有 MediaCrawler 导出（${MC_DROP} 或 ${MC_DATA}）；先按 docs/inbox.zh.md 跑一次`,
+      };
+    }
+
+    const seen = new Set();
+    const items = [];
+    let badLines = 0;
+    for (const file of files) {
+      let text = '';
+      try {
+        text = fs.readFileSync(file, 'utf8');
+      } catch {
+        badLines += 1;
+        continue;
+      }
+      for (const line of text.split('\n')) {
+        if (!line.trim()) continue;
+        let entry;
+        try {
+          entry = JSON.parse(line);
+        } catch {
+          badLines += 1;
+          continue;
+        }
+        const mapped = mcItem(entry, file, query);
+        if (!mapped || seen.has(mapped.url)) continue;
+        seen.add(mapped.url);
+        items.push(mapped);
+      }
+    }
+
+    if (!items.length) {
+      return {
+        ok: true,
+        items: [],
+        note: `${files.length} 个 JSONL，没有命中席勒${badLines ? `（${badLines} 行无法解析）` : ''}`,
+      };
+    }
+
+    const cap = Math.max(limit, MC_MAX);
+    return {
+      ok: true,
+      items: items.slice(0, cap),
+      note: `${files.length} 个 JSONL · 命中 ${items.length} 条${badLines ? ` · ${badLines} 行坏数据` : ''}`,
+    };
+  },
+};
+
 const hackerNews = {
   id: 'hn',
   class: 'E',
@@ -599,6 +808,7 @@ export const ADAPTERS = [
   hackerNews,
   doubanReviews,
   doubanGroups,
+  mediaCrawler,
 ];
 
 export function adaptersByClass(klass) {
