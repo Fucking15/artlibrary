@@ -76,17 +76,34 @@ async function handleAi(request, response) {
   }
 
   try {
-    const upstream = await fetch(DEEPSEEK_URL, {
-      method: 'POST',
-      headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-      body: JSON.stringify({
-        model: body.model ?? 'deepseek-chat',
-        messages: messages.slice(0, 8),
-        temperature: 0.2,
-        max_tokens: 900,
-      }),
-      signal: AbortSignal.timeout(60_000),
-    });
+    // 上游抖动（超时 / 5xx / 网络断）占失败的大多数：重试一次比让读者再点一次便宜。
+    const call = () =>
+      fetch(DEEPSEEK_URL, {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+        body: JSON.stringify({
+          model: body.model ?? 'deepseek-chat',
+          messages: messages.slice(0, 8),
+          temperature: 0.2,
+          max_tokens: 900,
+        }),
+        signal: AbortSignal.timeout(90_000),
+      });
+
+    let upstream = await call().catch((error) => ({ unreachable: error }));
+    if (upstream.unreachable || upstream.status >= 500) {
+      await new Promise((resolve) => setTimeout(resolve, 800));
+      upstream = await call().catch((error) => ({ unreachable: error }));
+    }
+
+    if (upstream.unreachable) {
+      sendJson(response, 502, {
+        ok: false,
+        error: 'upstream-unreachable',
+        detail: `连不上 api.deepseek.com：${String(upstream.unreachable?.message ?? upstream.unreachable)}`,
+      });
+      return;
+    }
 
     if (!upstream.ok) {
       const detail = (await upstream.text()).slice(0, 300);

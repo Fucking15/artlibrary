@@ -1059,6 +1059,22 @@ details.evidence[open] > summary::before { content: "▾ "; }
   margin: 0 4px 0 1px;
 }
 
+/* 出错时给一个重试入口，别让人只能刷新页面。 */
+.ai-actions { margin: 12px 0 0; }
+
+.retry {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.retry:hover { border-color: var(--ink-3); color: var(--ink); }
+
 .hits {
   display: flex;
   flex-direction: column;

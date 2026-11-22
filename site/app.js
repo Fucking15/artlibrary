@@ -1274,11 +1274,20 @@ async function callDeepSeek(messages) {
     }
     if (payload?.error === 'no-key') proxySaidNoKey = true;
     else if (response.ok) throw { code: 'EMPTY' };
-    else if (response.status !== 404) throw { code: 'PROXY_ERROR', status: response.status };
+    else if (response.status !== 404) {
+      // 把代理带上来的原因原样透出：502 多半是上游 DeepSeek 这次没答上来。
+      const detail = payload?.detail ?? payload?.error ?? (payload ? '' : '代理返回的不是 JSON');
+      throw { code: 'PROXY_ERROR', status: response.status, detail: typeof detail === 'string' ? detail : JSON.stringify(detail) };
+    }
     // 404 = 没起本地服务（静态托管），继续走直连
   } catch (error) {
-    // fetch 本身失败（离线、跨域、服务没起）也继续尝试直连
     if (error?.code === 'PROXY_ERROR' || error?.code === 'EMPTY') throw error;
+    // fetch 本身失败：在本机访问说明代理没起或被断开；静态托管上则继续尝试直连。
+    const host = String(location.hostname || '');
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+    if (isLocal) {
+      throw { code: 'PROXY_ERROR', status: 0, detail: `连不上本地预览服务（${host}:${location.port || '?'}）：serve.mjs 没在跑，或刚重启过。` };
+    }
   }
 
   // 2) 浏览器直连：密钥由用户自己粘贴，只存本机 localStorage。
@@ -1301,17 +1310,37 @@ async function callDeepSeek(messages) {
 }
 
 function errorText(error) {
+  const asText = (value) => {
+    if (value === undefined || value === null) return '';
+    if (typeof value === 'string') return value;
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  };
   switch (error?.code) {
     case 'NO_KEY':
       return error?.viaProxy
         ? '本地预览服务没有读到 DEEPSEEK_KEY，浏览器里也还没存过 Key。'
         : '还没有配置 API Key。';
     case 'HTTP':
-      return `DeepSeek 返回 HTTP ${error.status}${error.detail ? `：${error.detail}` : ''}`;
+      return `DeepSeek 返回 HTTP ${error.status}${error.detail ? `：${asText(error.detail)}` : ''}`;
     case 'EMPTY':
-      return 'DeepSeek 返回了空回答。';
+      return 'DeepSeek 返回了空回答（这次没吐内容，重试一次通常就好）。';
+    case 'PROXY_ERROR': {
+      const where = error.status ? `HTTP ${error.status}` : '网络中断';
+      const detail = asText(error.detail).slice(0, 240);
+      const hint =
+        error.status === 502
+          ? '上游 DeepSeek 这次没答上来（超时 / 限流 / 网络抖动），点下面「重试」一般就好。'
+          : error.status === 0
+            ? '本地预览服务这会儿没响应。'
+            : '';
+      return [`本地代理请求失败（${where}）`, detail ? `：${detail}` : '', hint ? ` ${hint}` : ''].join('');
+    }
     default:
-      return `请求失败：${error?.message ?? error}`;
+      return `请求失败：${asText(error?.message) || asText(error?.code) || '未知错误'}（可重试）`;
   }
 }
 
@@ -1459,6 +1488,7 @@ function renderAiPanel() {
       <section class="ai-panel">
         <p class="ai-q">问题：${esc(ai.query)}</p>
         <p class="ai-error">${esc(ai.error || AI_STATUS[ai.status])}</p>
+        ${ai.status === 'error' ? '<p class="ai-actions"><button type="button" class="retry" data-retry>重试这个问题</button></p>' : ''}
         ${keyForm}
       </section>`;
   }
@@ -1674,6 +1704,12 @@ view.addEventListener('change', (event) => {
 });
 
 view.addEventListener('click', (event) => {
+  const retry = event.target.closest('[data-retry]');
+  if (retry) {
+    event.preventDefault();
+    if (state.ai.query) ask(state.ai.query);
+    return;
+  }
   const back = event.target.closest('[data-back]');
   if (back) {
     event.preventDefault();
