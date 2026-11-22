@@ -828,9 +828,86 @@ function renderDimension(dossier, dim) {
     ${claimList(sm.claims, 'subject_matter')}`;
 }
 
+/**
+ * 「本页提到的作品」：六维页下方单独列一块，每条都能跳到馆方对象页看高清图。
+ *
+ * 只列**真的在本页出现**的作品，两种来源：
+ *   1) 某条 claim 的 iiif_evidence 指向它（本页有局部图证）；
+ *   2) 某条 claim 的正文/引文里写着它的名字（含去括号的简称、英文名）。
+ * 链接只给馆方对象页或 IIIF 清单，图像字节既不入库也不重托管。
+ */
+function workNames(work) {
+  const names = new Set();
+  const zh = String(work.title?.zh ?? '');
+  if (zh) {
+    names.add(zh);
+    const bare = zh.replace(/（[^）]*）|\([^)]*\)/g, '').trim();
+    if (bare.length >= 3) names.add(bare);
+  }
+  for (const key of ['en', 'de']) {
+    const value = String(work.title?.[key] ?? '');
+    if (value.length >= 8) names.add(value);
+  }
+  return [...names];
+}
+
+function worksMentionedIn(dossier) {
+  const rows = (dossier.works ?? []).map((work) => ({ work, cited: false, mentions: 0 }));
+  if (!rows.length) return [];
+  const byId = new Map(rows.map((row) => [row.work.id, row]));
+
+  for (const dim of DATA.dims) {
+    for (const claim of flatten(dossier, dim)) {
+      for (const ref of claim.iiif ?? []) {
+        const row = byId.get(ref.work);
+        if (row) row.cited = true;
+      }
+      const text = [
+        claim.statement_zh,
+        claim.note_zh,
+        claim.reason_zh,
+        ...(claim.evidence ?? []).map((e) => `${e.translation_zh ?? ''} ${e.quote ?? ''}`),
+      ]
+        .filter(Boolean)
+        .join(' ');
+      for (const row of rows) {
+        if (workNames(row.work).some((name) => text.includes(name))) row.mentions += 1;
+      }
+    }
+  }
+  return rows.filter((row) => row.cited || row.mentions > 0);
+}
+
+function renderWorksBlock(dossier) {
+  const rows = worksMentionedIn(dossier);
+  if (!rows.length) return '';
+
+  const items = rows
+    .map(({ work, cited, mentions }) => {
+      const objectUrl = work.object?.url ?? null;
+      const manifest = work.iiif?.manifest ?? null;
+      const href = objectUrl || manifest;
+      const label = objectUrl ? '原馆高清图' : manifest ? 'IIIF 清单' : '原馆链接待补';
+      const meta = [work.year, MEDIA_LABELS[work.medium_category] ?? work.medium_category, work.collection?.institution]
+        .filter(Boolean)
+        .join(' · ');
+      const tags = [cited ? '本页有局部图证' : '', mentions ? `正文提到 ${mentions} 处` : ''].filter(Boolean).join(' · ');
+      const inner = `<span class="work-title">${esc(work.title.zh)}<em>${esc(work.title.en)}</em></span>
+        <span class="work-meta">${esc(meta)}</span>
+        <span class="work-tag">${esc(tags)}</span>`;
+      return href
+        ? `<a class="work-row" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${inner}<span class="work-link">${esc(label)} ↗</span></a>`
+        : `<div class="work-row is-missing">${inner}<span class="work-link">${esc(label)}</span></div>`;
+    })
+    .join('');
+
+  return `<p class="section-title">本页提到的作品 · ${rows.length}</p>
+    <div class="works-block">${items}</div>
+    <p class="filter-note">作品名后的链接只跳馆方对象页或 IIIF 清单：图像不入库、不重托管，高清图的版权与访问条件由馆方决定。</p>`;
+}
+
 /** 六维档案：时期 / 师从与影响 / 对比与创新 / 媒介与材料 / 画面构成 / 题材，六个板块共用一页。 */
-function renderDimensions(dossier, anchor) {
-  const blankFilter = state.media.size > 0 && [...state.media].every((medium) => mediaCount(dossier, medium) === 0);
+function renderDimensions(dossier, anchor) {  const blankFilter = state.media.size > 0 && [...state.media].every((medium) => mediaCount(dossier, medium) === 0);
   const blankBanner = blankFilter
     ? `<p class="blank-banner">此时期没有${esc(selectedMediaLabel())}的技法描述（${BLANK}）。下面的六个板块是空的。</p>`
     : '';
@@ -1694,7 +1771,7 @@ function render() {
     view.innerHTML = `${head}${renderSources(ids, { filterLabel, emptyNote })}`;
     return;
   }
-  view.innerHTML = `${head}${renderDimensions(dossier, route.anchor)}`;
+  view.innerHTML = `${head}${renderDimensions(dossier, route.anchor)}${renderWorksBlock(dossier)}`;
   settlePendingAnchor();
 }
 

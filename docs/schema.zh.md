@@ -170,6 +170,10 @@ registry（共享）           dossier（一期一份）
 - `attribution` 必须是 `autograph`。**仿作、临摹、"after Schiele"一律不能作为证据**，校验器会直接报错。
 - 不存图片。`iiif.status` 三态：`pending` / `resolved` / `not_available`；`resolved` 时必须给 `manifest`。
 - 局部引用写在 claim 的 `iiif_evidence.region`，用 `pct:x,y,w,h` 或像素坐标。
+- **`object_source`（可选）**：指向 `sources.yaml` 里「这件作品自己的馆方对象页」。站点在六维页底部按它生成「作品名 → 原馆高清图 ↗」的跳转。
+  - 必须解析得到该来源；来源必须带 `url`，且是 `https`；
+  - **不能是图片直链**（`.jpg/.png/.tif/…` 或 IIIF Image API 的 `/full/` 请求）—— 校验器会报 `object_source must point at the object page, not an image file`；
+  - 没有对象页就留空：页面显示「原馆链接待补」，不编 URL。当前 5 件有对象页（ArtIC 29424 / 25342、Met 483438 / 483434、Thyssen 737），Leopold 三件暂缺。
 
 ---
 

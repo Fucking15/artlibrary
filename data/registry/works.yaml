@@ -87,7 +87,9 @@ works:
     public_domain: true
     iiif:
       status: pending
-    notes_zh: 馆方材质记录为「Various black crayons on cream wove paper」，尺寸 42.5 × 29.5 cm。IIIF manifest 尚未登记。
+    object_source: src.artic.1907.mother
+    notes_zh: 馆方材质记录为「Various black crayons on cream wove paper」，尺寸 42.5 × 29.5 cm。
+      馆方对象页标题写作「Portrait of a Woman」，与本库中文名「艺术家的母亲」不同，标题关系待核；IIIF manifest 尚未登记。
 
   - id: work.schiele.1910.selbstbildnis-thyssen
     artist: schiele
@@ -110,7 +112,8 @@ works:
     public_domain: true
     iiif:
       status: pending
-    notes_zh: 馆方材质记录为「Watercolor and charcoal on paper」，45 × 31.5 cm。IIIF manifest 尚未登记。
+    object_source: src.thyssen.737
+    notes_zh: 馆方材质记录为「Watercolor and charcoal on paper」，45 × 31.5 cm；馆藏号 737 (1972.19)。IIIF manifest 尚未登记。
 
   - id: work.schiele.1911.selbstbildnis-met
     artist: schiele
@@ -132,6 +135,7 @@ works:
     public_domain: true
     iiif:
       status: pending
+    object_source: src.met.483438
     notes_zh: 馆方材质记录为「Watercolor, graphite, and gouache on paper」，20 1/4 × 13 3/4 in.（51.4 × 34.9 cm）；Scofield Thayer 遗赠，1982。
 
   - id: work.schiele.1916.russischer-kriegsgefangener
@@ -154,6 +158,7 @@ works:
     public_domain: true
     iiif:
       status: pending
+    object_source: src.artic.1916.prisoner
     notes_zh: 馆方材质记录为「Opaque watercolor, over graphite, on cream wove paper」，43.8 × 30.8 cm。IIIF manifest 尚未登记。
 
   - id: work.schiele.1917.sitzendefrau-rueckenansicht
@@ -176,4 +181,5 @@ works:
     public_domain: true
     iiif:
       status: pending
+    object_source: src.met.483434
     notes_zh: 馆方材质记录为「Watercolor, gouache, and graphite on paper」，18 1/8 × 11 3/4 in.（46.4 × 29.8 cm）；Scofield Thayer 遗赠，1982。

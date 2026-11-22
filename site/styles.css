@@ -1166,6 +1166,65 @@ details.evidence[open] > summary::before { content: "▾ "; }
 
 .retry:hover { border-color: var(--ink-3); color: var(--ink); }
 
+/* 六维页底部的「本页提到的作品」：名字 + 元信息 + 馆方跳转。 */
+.works-block {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-width: 960px;
+  margin: 0 auto 22px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.work-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    'title link'
+    'meta link'
+    'tag link';
+  gap: 2px 14px;
+  align-items: center;
+  padding: 10px 14px;
+  background: var(--paper-2);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.work-row:hover { background: var(--accent-soft); }
+/* 没有对象页时只有右侧提示变灰，作品名照旧清晰——不然像是作品本身不存在。 */
+.work-row.is-missing .work-title { color: var(--ink-2); }
+
+.work-title { grid-area: title; font-size: 14px; }
+.work-title em {
+  font-style: normal;
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  margin-left: 8px;
+}
+
+.work-meta { grid-area: meta; font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+.work-tag { grid-area: tag; font-size: 11px; color: var(--ink-3); }
+
+.work-link {
+  grid-area: link;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-2);
+  border-bottom: 1px solid var(--rule);
+  white-space: nowrap;
+}
+
+.work-row:hover .work-link { border-bottom-color: var(--ink-2); }
+.work-row.is-missing .work-link { border-bottom: none; color: var(--ink-3); }
+
+@media (max-width: 620px) {
+  .work-row { grid-template-columns: 1fr; grid-template-areas: 'title' 'meta' 'tag' 'link'; }
+  .work-link { justify-self: start; }
+}
+
 .hits {
   display: flex;
   flex-direction: column;

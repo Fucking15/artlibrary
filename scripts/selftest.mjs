@@ -175,6 +175,28 @@ const cases = [
       fs.writeFileSync(file, yaml.dump(doc));
     },
   },
+  {
+    name: 'an object_source pointing at an image file is rejected',
+    expect: /object_source must point at the object page, not an image file/,
+    mutate(dir) {
+      const sourcesFile = path.join(dir, 'data/registry/sources.yaml');
+      const sources = yaml.load(fs.readFileSync(sourcesFile, 'utf8'));
+      const target = sources.sources.find((s) => s.id === 'src.met.483434');
+      target.url = 'https://images.metmuseum.org/CRDImages/ep/original/DT1234.jpg';
+      fs.writeFileSync(sourcesFile, yaml.dump(sources));
+    },
+  },
+  {
+    name: 'an unknown object_source is rejected',
+    expect: /object_source: unknown source src.nope/,
+    mutate(dir) {
+      const file = path.join(dir, 'data/registry/works.yaml');
+      const doc = yaml.load(fs.readFileSync(file, 'utf8'));
+      const work = doc.works.find((w) => w.object_source);
+      work.object_source = 'src.nope';
+      fs.writeFileSync(file, yaml.dump(doc));
+    },
+  },
 ];
 
 /* --- baseline: the shipped dataset must pass -------------------------------------------- */

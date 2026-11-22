@@ -172,6 +172,7 @@ function buildDossier(doc) {
     dimensions,
     works: (doc.works ?? []).map((id) => {
       const w = works.get(id);
+      const objectSrc = w?.object_source ? sources.get(w.object_source) : null;
       return {
         id,
         title: w?.title ?? { zh: id, en: '' },
@@ -182,6 +183,17 @@ function buildDossier(doc) {
         collection: w?.collection ?? null,
         attribution: w?.attribution ?? null,
         iiif: w?.iiif ?? null,
+        // 作品自己的馆方对象页：读者从这里看高清图。只给链接，图像字节永不入库、不重托管。
+        object: objectSrc
+          ? {
+              sourceId: objectSrc.id,
+              url: objectSrc.url ?? null,
+              grade: objectSrc.grade ?? null,
+              citation: citation(objectSrc),
+              institution: w?.collection?.institution ?? null,
+              city: w?.collection?.city ?? null,
+            }
+          : null,
       };
     }),
     media: { declared: declaredMedia, counts: mediaCounts },

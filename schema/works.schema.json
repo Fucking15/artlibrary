@@ -99,6 +99,10 @@
               }
             ]
           },
+          "object_source": {
+            "$ref": "common.schema.json#/$defs/id",
+            "description": "Optional pointer to a source entry in sources.yaml that IS this work's own object page (e.g. the museum record). The site links readers out to it; image bytes are never stored or re-hosted. Must resolve, be https, and not be a direct image file link."
+          },
           "notes_zh": { "type": "string", "maxLength": 600 }
         }
       }

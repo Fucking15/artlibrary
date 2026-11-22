@@ -144,6 +144,36 @@ for (const source of registry.sources.values()) {
   }
 }
 
+/* ------------------------------------------- works → 馆方对象页（只用于跳转） */
+
+/**
+ * object_source 指向 sources.yaml 里「这件作品自己的馆方记录」。
+ * 页面只拿它做「原馆高清图 ↹」的跳转，所以：
+ *   - 必须解析得到，不能指向不存在的来源；
+ *   - 必须是 https；
+ *   - 不能是图片直链（.jpg/.png/… 或 IIIF Image API /full/ 请求）——
+ *     链图片文件等于把读者送到可下载的复制件上，也会绕过馆方的访问条件。
+ */
+const DIRECT_IMAGE = /\.(?:jpe?g|png|gif|webp|tiff?|bmp|svg)(?:[?#]|$)/i;
+for (const work of registry.works.values()) {
+  if (!work.object_source) continue;
+  const where = `data/registry/works.yaml#${work.id}`;
+  const source = registry.sources.get(work.object_source);
+  if (!source) {
+    err(where, `object_source: unknown source ${work.object_source}`);
+    continue;
+  }
+  const url = String(source.url ?? '');
+  if (!url) {
+    err(where, `object_source ${work.object_source} has no url — 没有 url 就不能当跳转目标`);
+    continue;
+  }
+  if (!/^https:\/\//.test(url)) err(where, `object_source url must be https (got ${url})`);
+  if (DIRECT_IMAGE.test(url) || /\/full\/|\/image\/|\/iiif\/[^/]+\/full/i.test(url)) {
+    err(where, `object_source must point at the object page, not an image file: ${url}`);
+  }
+}
+
 /* ---------------------------------------------------------------- dossiers */
 
 const dossiers = [];
