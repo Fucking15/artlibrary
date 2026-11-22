@@ -172,7 +172,20 @@ function buildDossier(doc) {
     dimensions,
     works: (doc.works ?? []).map((id) => {
       const w = works.get(id);
-      const objectSrc = w?.object_source ? sources.get(w.object_source) : null;
+      const resolveLink = (ref) => {
+        const src = ref ? sources.get(ref) : null;
+        if (!src) return null;
+        return {
+          sourceId: src.id,
+          url: src.url ?? null,
+          grade: src.grade ?? null,
+          class: src.class ?? null,
+          citation: citation(src),
+          license: src.rights?.license ?? null,
+          institution: w?.collection?.institution ?? null,
+          city: w?.collection?.city ?? null,
+        };
+      };
       return {
         id,
         title: w?.title ?? { zh: id, en: '' },
@@ -183,17 +196,10 @@ function buildDossier(doc) {
         collection: w?.collection ?? null,
         attribution: w?.attribution ?? null,
         iiif: w?.iiif ?? null,
-        // 作品自己的馆方对象页：读者从这里看高清图。只给链接，图像字节永不入库、不重托管。
-        object: objectSrc
-          ? {
-              sourceId: objectSrc.id,
-              url: objectSrc.url ?? null,
-              grade: objectSrc.grade ?? null,
-              citation: citation(objectSrc),
-              institution: w?.collection?.institution ?? null,
-              city: w?.collection?.city ?? null,
-            }
-          : null,
+        // 两种跳转都只是链接，图像字节永不入库、不重托管：
+        //   object = 作品自己的馆方对象页；image = 能看图的免费图片页（无对象页或打不开时用）。
+        object: resolveLink(w?.object_source),
+        image: resolveLink(w?.image_source),
       };
     }),
     media: { declared: declaredMedia, counts: mediaCounts },

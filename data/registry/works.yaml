@@ -23,7 +23,8 @@ works:
     public_domain: true
     iiif:
       status: pending
-    notes_zh: 示例记录。材质、尺寸与馆藏编号待核验；IIIF manifest 尚未登记。
+    image_source: src.commons.eremiten
+    notes_zh: 示例记录。材质、尺寸与馆藏编号待核验；IIIF manifest 尚未登记。Leopold 官网没有稳定的作品页，图片页用 Wikimedia Commons。
 
   - id: work.schiele.1912.laternenbluete-selbstbildnis
     artist: schiele
@@ -43,7 +44,8 @@ works:
     public_domain: true
     iiif:
       status: pending
-    notes_zh: 示例记录。构造为半身、正面、双手举起的对称构图，是此期"取景收缩"的典型样本。
+    image_source: src.commons.laternenbluete
+    notes_zh: 示例记录。构造为半身、正面、双手举起的对称构图，是此期"取景收缩"的典型样本。Leopold 官网没有稳定的作品页，图片页用 Wikimedia Commons。
 
   - id: work.schiele.1914.tote-mutter
     artist: schiele
@@ -63,7 +65,8 @@ works:
     public_domain: true
     iiif:
       status: pending
-    notes_zh: 示例记录。此期结束处的关键作品，母子构图规模重新出现。
+    image_source: src.commons.tote-mutter
+    notes_zh: 示例记录。此期结束处的关键作品，母子构图规模重新出现。Leopold 官网没有稳定的作品页，图片页用 Wikimedia Commons。
 
   # ---- 2026-10-25 新增：多分期档案所用的纸上作品（材质与尺寸取自馆方对象记录） ----
 
@@ -112,8 +115,10 @@ works:
     public_domain: true
     iiif:
       status: pending
-    object_source: src.thyssen.737
-    notes_zh: 馆方材质记录为「Watercolor and charcoal on paper」，45 × 31.5 cm；馆藏号 737 (1972.19)。IIIF manifest 尚未登记。
+    image_source: src.commons.selbstbildnis-1910
+    notes_zh: 馆方材质记录为「Watercolor and charcoal on paper」，45 × 31.5 cm；馆藏号 737 (1972.19)。
+      馆方页面（museothyssen.org）对自动化访问返回 403，读者常打不开，所以跳转改用 Wikimedia Commons 的图片页；
+      IIIF manifest 尚未登记。
 
   - id: work.schiele.1911.selbstbildnis-met
     artist: schiele
@@ -159,6 +164,7 @@ works:
     iiif:
       status: pending
     object_source: src.artic.1916.prisoner
+    image_source: src.commons.kriegsgefangener
     notes_zh: 馆方材质记录为「Opaque watercolor, over graphite, on cream wove paper」，43.8 × 30.8 cm。IIIF manifest 尚未登记。
 
   - id: work.schiele.1917.sitzendefrau-rueckenansicht
@@ -182,4 +188,5 @@ works:
     iiif:
       status: pending
     object_source: src.met.483434
+    image_source: src.commons.sitzendefrau
     notes_zh: 馆方材质记录为「Watercolor, gouache, and graphite on paper」，18 1/8 × 11 3/4 in.（46.4 × 29.8 cm）；Scofield Thayer 遗赠，1982。

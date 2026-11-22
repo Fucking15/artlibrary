@@ -177,7 +177,7 @@ const cases = [
   },
   {
     name: 'an object_source pointing at an image file is rejected',
-    expect: /object_source must point at the object page, not an image file/,
+    expect: /object_source must point at a page, not an image file/,
     mutate(dir) {
       const sourcesFile = path.join(dir, 'data/registry/sources.yaml');
       const sources = yaml.load(fs.readFileSync(sourcesFile, 'utf8'));

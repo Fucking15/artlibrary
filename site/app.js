@@ -885,9 +885,18 @@ function renderWorksBlock(dossier) {
   const items = rows
     .map(({ work, cited, mentions }) => {
       const objectUrl = work.object?.url ?? null;
+      const imageUrl = work.image?.url ?? null;
       const manifest = work.iiif?.manifest ?? null;
-      const href = objectUrl || manifest;
-      const label = objectUrl ? '原馆高清图' : manifest ? 'IIIF 清单' : '原馆链接待补';
+      // 主链接：馆方对象页 → 免费图片页 → IIIF 清单。次链接只在「馆方页也在、图片页也在」时出现，
+      // 因为有些馆方站会对读者地区/付费/自动化访问设限，多给一条能打开的。
+      const primary = objectUrl
+        ? { href: objectUrl, label: '原馆对象页' }
+        : imageUrl
+          ? { href: imageUrl, label: '图片页' }
+          : manifest
+            ? { href: manifest, label: 'IIIF 清单' }
+            : null;
+      const secondary = objectUrl && imageUrl ? { href: imageUrl, label: '图片页' } : null;
       const meta = [work.year, MEDIA_LABELS[work.medium_category] ?? work.medium_category, work.collection?.institution]
         .filter(Boolean)
         .join(' · ');
@@ -895,15 +904,23 @@ function renderWorksBlock(dossier) {
       const inner = `<span class="work-title">${esc(work.title.zh)}<em>${esc(work.title.en)}</em></span>
         <span class="work-meta">${esc(meta)}</span>
         <span class="work-tag">${esc(tags)}</span>`;
-      return href
-        ? `<a class="work-row" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${inner}<span class="work-link">${esc(label)} ↗</span></a>`
-        : `<div class="work-row is-missing">${inner}<span class="work-link">${esc(label)}</span></div>`;
+      if (!primary) {
+        return `<div class="work-row is-missing">${inner}<span class="work-link">图片链接待补</span></div>`;
+      }
+      const links = [primary, secondary]
+        .filter(Boolean)
+        .map(
+          (link, index) =>
+            `<a class="work-link${index ? ' is-alt' : ''}" href="${esc(link.href)}" target="_blank" rel="noopener noreferrer">${esc(link.label)} ↗</a>`,
+        )
+        .join('');
+      return `<div class="work-row">${inner}<span class="work-links">${links}</span></div>`;
     })
     .join('');
 
   return `<p class="section-title">本页提到的作品 · ${rows.length}</p>
     <div class="works-block">${items}</div>
-    <p class="filter-note">作品名后的链接只跳馆方对象页或 IIIF 清单：图像不入库、不重托管，高清图的版权与访问条件由馆方决定。</p>`;
+    <p class="filter-note">作品名后的链接只跳馆方对象页或免费图片页：图像不入库、不重托管；打不开或要付费的馆方页会另给一条图片页。</p>`;
 }
 
 /** 六维档案：时期 / 师从与影响 / 对比与创新 / 媒介与材料 / 画面构成 / 题材，六个板块共用一页。 */

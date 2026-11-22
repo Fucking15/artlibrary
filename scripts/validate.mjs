@@ -154,23 +154,44 @@ for (const source of registry.sources.values()) {
  *   - 不能是图片直链（.jpg/.png/… 或 IIIF Image API /full/ 请求）——
  *     链图片文件等于把读者送到可下载的复制件上，也会绕过馆方的访问条件。
  */
-const DIRECT_IMAGE = /\.(?:jpe?g|png|gif|webp|tiff?|bmp|svg)(?:[?#]|$)/i;
+/**
+ * 「图片直链」的判定：看 URL 最后一段是不是图片文件名，而不是看整串。
+ * Wikimedia Commons 的文件描述页（/wiki/File:xxx.jpg）是 HTML 页面，不是图片本体，必须放行；
+ * IIIF Image API 的 /full/ 请求才是真正在取像素，一律拒绝。
+ */
+function isDirectImageLink(url) {
+  const clean = String(url).split(/[?#]/)[0];
+  const lastSegment = clean.split('/').pop() ?? '';
+  const isWikiPage = /\/wiki\//i.test(clean) || /[?&]title=/i.test(String(url));
+  const endsWithImageExt = /\.(?:jpe?g|png|gif|webp|tiff?|bmp|svg)$/i.test(lastSegment);
+  if (endsWithImageExt && !isWikiPage) return true;
+  if (/\/full\/(?:!?\d|max|pct:)/i.test(clean)) return true; // IIIF Image API
+  if (/\/(?:iiif)\/[^/]+\/full/i.test(clean)) return true;
+  return false;
+}
+
 for (const work of registry.works.values()) {
-  if (!work.object_source) continue;
-  const where = `data/registry/works.yaml#${work.id}`;
-  const source = registry.sources.get(work.object_source);
-  if (!source) {
-    err(where, `object_source: unknown source ${work.object_source}`);
-    continue;
+  for (const field of ['object_source', 'image_source']) {
+    const ref = work[field];
+    if (!ref) continue;
+    const where = `data/registry/works.yaml#${work.id}`;
+    const source = registry.sources.get(ref);
+    if (!source) {
+      err(where, `${field}: unknown source ${ref}`);
+      continue;
+    }
+    const url = String(source.url ?? '');
+    if (!url) {
+      err(where, `${field} ${ref} has no url — 没有 url 就不能当跳转目标`);
+      continue;
+    }
+    if (!/^https:\/\//.test(url)) err(where, `${field} url must be https (got ${url})`);
+    if (isDirectImageLink(url)) {
+      err(where, `${field} must point at a page, not an image file: ${url}`);
+    }
   }
-  const url = String(source.url ?? '');
-  if (!url) {
-    err(where, `object_source ${work.object_source} has no url — 没有 url 就不能当跳转目标`);
-    continue;
-  }
-  if (!/^https:\/\//.test(url)) err(where, `object_source url must be https (got ${url})`);
-  if (DIRECT_IMAGE.test(url) || /\/full\/|\/image\/|\/iiif\/[^/]+\/full/i.test(url)) {
-    err(where, `object_source must point at the object page, not an image file: ${url}`);
+  if (work.object_source && work.image_source && work.object_source === work.image_source) {
+    err(`data/registry/works.yaml#${work.id}`, 'object_source and image_source point at the same source — 留一个就够');
   }
 }
 

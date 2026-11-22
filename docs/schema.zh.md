@@ -174,6 +174,14 @@ registry（共享）           dossier（一期一份）
   - 必须解析得到该来源；来源必须带 `url`，且是 `https`；
   - **不能是图片直链**（`.jpg/.png/.tif/…` 或 IIIF Image API 的 `/full/` 请求）—— 校验器会报 `object_source must point at the object page, not an image file`；
   - 没有对象页就留空：页面显示「原馆链接待补」，不编 URL。当前 5 件有对象页（ArtIC 29424 / 25342、Met 483438 / 483434、Thyssen 737），Leopold 三件暂缺。
+- **`image_source`（可选）**：指向一张「能看图的免费页面」（Wikimedia Commons 文件页、馆方看图器…）。
+  - 用在两种情况：馆方对象页打不开（地区限制 / 403 / 付费墙），或者根本没有对象页；
+  - 判定口径与 `object_source` 相同：必须解析、https、不能是图片文件本身。
+    **注意**：Commons 的 `https://commons.wikimedia.org/wiki/File:xxx.jpg` 是**页面**，不是图片直链，校验器放行；
+    `https://images.metmuseum.org/.../DT1234.jpg` 与 IIIF Image API 的 `/full/…` 才是直链，一律报错；
+  - 两个字段同时存在时，页面给两个链接（主：原馆对象页；次：图片页），指向同一来源会被判为重复。
+- 现在 6 件作品带 `image_source`（Commons 文件页，许可写在来源的 `rights.license`：PD 或 CC0），
+  其中「自画像（蒂森藏）」的馆方页对读者常返回 403，所以只留图片页；`notes_zh` 里已注明对应关系待核。
 
 ---
 

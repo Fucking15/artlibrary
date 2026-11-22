@@ -213,3 +213,96 @@ sources:
     accessed: "2026-10-25"
     lang: fr
     notes_zh: 法文条目的「Aspects techniques」「Compositions récurrentes」两节转述了 Kallir 等研究者的技术描述，是目前唯一成段的技法通述；因载体是维基，仍按 C 级使用。
+
+  # ---- 2026-11-22：作品图片页。只给读者「看这张画」的跳转，不参与任何技法判断 ----
+  # 选 Commons 文件页而不是馆方：免费、不用登录、没有地区限制；许可状态写在 rights.license 里。
+  - id: src.commons.eremiten
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele — Die Eremiten (The Hermits), 1912"
+      container: Wikimedia Commons
+      year: 2026
+    url: https://commons.wikimedia.org/wiki/File:Egon_Schiele_-_Eremiten.jpg
+    accessed: "2026-11-22"
+    lang: en
+    rights:
+      license: Public domain
+    notes_zh: 图片页，仅用于跳转看图；不参与技法判断。
+
+  - id: src.commons.laternenbluete
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele — Self-Portrait with Physalis (Chinese Lantern Plant), 1912"
+      container: Wikimedia Commons
+      year: 2026
+    url: https://commons.wikimedia.org/wiki/File:Egon_Schiele_-_Self-Portrait_with_Physalis_-_Google_Art_Project.jpg
+    accessed: "2026-11-22"
+    lang: en
+    rights:
+      license: Public domain
+    notes_zh: 图片页，仅用于跳转看图；不参与技法判断。
+
+  - id: src.commons.tote-mutter
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele — Dead Mother I, 1914"
+      container: Wikimedia Commons
+      year: 2026
+    url: https://commons.wikimedia.org/wiki/File:Egon_Schiele_-_Dead_Mother_I_-_Google_Art_Project.jpg
+    accessed: "2026-11-22"
+    lang: en
+    rights:
+      license: Public domain
+    notes_zh: 图片页，仅用于跳转看图；不参与技法判断。
+
+  - id: src.commons.selbstbildnis-1910
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele — Selbstporträt, 1910"
+      container: Wikimedia Commons
+      year: 2026
+    url: https://commons.wikimedia.org/wiki/File:Egon_Schiele_-_Selbstportr%C3%A4t_(1910).jpg
+    accessed: "2026-11-22"
+    lang: de
+    rights:
+      license: Public domain
+    notes_zh: 图片页，仅用于跳转看图；文件描述只写 1910，与本库「自画像（蒂森藏）」的对应关系待核。
+
+  - id: src.commons.sitzendefrau
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele — Seated Woman, Back View, 1917"
+      container: Wikimedia Commons
+      year: 2026
+    url: https://commons.wikimedia.org/wiki/File:Seated_Woman,_Back_View_MET_DP279448.jpg
+    accessed: "2026-11-22"
+    lang: en
+    rights:
+      license: CC0
+    notes_zh: 该文件由 The Met 以 CC0 释放；图片页仅用于跳转看图。
+
+  - id: src.commons.kriegsgefangener
+    grade: C
+    class: C
+    kind: other
+    citation:
+      title: "Egon Schiele — Russischer Kriegsgefangener (Grigori Kladjischuili), 1916"
+      container: Wikimedia Commons
+      year: 2026
+    url: https://commons.wikimedia.org/wiki/File:Schiele_-_Russischer_Kriegsgefangener-_Grigori_Kladjischuili_-_1916.jpg
+    accessed: "2026-11-22"
+    lang: de
+    rights:
+      license: Public domain
+    notes_zh: 图片页，仅用于跳转看图；不参与技法判断。
+
