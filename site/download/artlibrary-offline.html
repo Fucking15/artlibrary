@@ -895,11 +895,13 @@ details.evidence[open] > summary::before { content: "▾ "; }
   margin: 8px auto 22px;
   padding: 0 24px;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: 15px;
+  font-weight: 600;
   letter-spacing: .08em;
 }
 
-.crumb a { border-bottom: none; }
+/* 返回索引 / 画家索引：箭头与文字一起放大并加半档粗，点起来更醒目。 */
+.crumb a { border-bottom: none; font-weight: 600; }
 
 .home-lede {
   max-width: 44em;
