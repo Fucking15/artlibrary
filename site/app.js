@@ -1254,6 +1254,13 @@ function buildMessages(query, hits) {
   ];
 }
 
+/**
+ * 静态托管（GitHub Pages）对 POST /api/ai 的典型拒绝：404 没有这个路径、
+ * 405 不允许多数方法、501 不支持、403 被网关拦。遇到这些说明「这里没有本地代理」，
+ * 应该退回浏览器直连，而不是把它当成代理报错。
+ */
+const NO_PROXY_STATUS = new Set([403, 404, 405, 501]);
+
 async function callDeepSeek(messages) {
   // 1) 本地预览服务器的代理：密钥留在服务端，浏览器看不到。
   let proxySaidNoKey = false;
@@ -1274,12 +1281,12 @@ async function callDeepSeek(messages) {
     }
     if (payload?.error === 'no-key') proxySaidNoKey = true;
     else if (response.ok) throw { code: 'EMPTY' };
-    else if (response.status !== 404) {
+    else if (!NO_PROXY_STATUS.has(response.status)) {
       // 把代理带上来的原因原样透出：502 多半是上游 DeepSeek 这次没答上来。
       const detail = payload?.detail ?? payload?.error ?? (payload ? '' : '代理返回的不是 JSON');
       throw { code: 'PROXY_ERROR', status: response.status, detail: typeof detail === 'string' ? detail : JSON.stringify(detail) };
     }
-    // 404 = 没起本地服务（静态托管），继续走直连
+    // 其余（404/405/501/403）= 这里没有本地代理，继续走直连
   } catch (error) {
     if (error?.code === 'PROXY_ERROR' || error?.code === 'EMPTY') throw error;
     // fetch 本身失败：在本机访问说明代理没起或被断开；静态托管上则继续尝试直连。
@@ -1292,7 +1299,7 @@ async function callDeepSeek(messages) {
 
   // 2) 浏览器直连：密钥由用户自己粘贴，只存本机 localStorage。
   const key = store.getItem(KEY_STORE);
-  if (!key) throw { code: 'NO_KEY', viaProxy: true };
+  if (!key) throw { code: 'NO_KEY', viaProxy: proxySaidNoKey };
 
   const response = await fetch(DEEPSEEK_URL, {
     method: 'POST',
@@ -1323,7 +1330,7 @@ function errorText(error) {
     case 'NO_KEY':
       return error?.viaProxy
         ? '本地预览服务没有读到 DEEPSEEK_KEY，浏览器里也还没存过 Key。'
-        : '还没有配置 API Key。';
+        : '这个页面没有服务端代理（线上静态托管就是这样）：粘贴一次你自己的 DeepSeek Key 就能提问，Key 只存这台浏览器。';
     case 'HTTP':
       return `DeepSeek 返回 HTTP ${error.status}${error.detail ? `：${asText(error.detail)}` : ''}`;
     case 'EMPTY':
@@ -1647,6 +1654,27 @@ function revealLocalTools() {
   if (link) link.hidden = false;
 }
 
+/**
+ * 问答的可用性在三种环境里不一样，先把话说清楚，省得读者点了才发现：
+ *   本机（preview.cmd）→ 密钥在服务端，直接用；
+ *   线上静态托管       → 没有 /api/ai（POST 会被回 405），要读者自己粘一次 Key；
+ *   离线单文件         → 完全没有网络代理。
+ */
+function markAiAvailability() {
+  if (!hint) return;
+  if (window.__TK_OFFLINE__) {
+    hint.textContent = '离线版 · AI 检索不可用';
+    return;
+  }
+  const host = location.hostname;
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  if (isLocal) {
+    hint.textContent = 'AI 检索 · DeepSeek';
+    return;
+  }
+  hint.textContent = store.getItem(KEY_STORE) ? 'AI 检索 · 浏览器直连（已备 Key）' : 'AI 检索 · 本页无代理，需自备 Key';
+}
+
 function load() {
   view.innerHTML = `<p class="loading">正在载入索引…</p>`;
   fetch('./data/index.json')
@@ -1669,6 +1697,7 @@ function load() {
       state.pendingAnchor = state.route.anchor || null;
       canonicalizeRoute();
       revealLocalTools();
+      markAiAvailability();
       render();
     })
     .catch((error) => {
