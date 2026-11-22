@@ -1522,7 +1522,7 @@ function renderAiPanel() {
     : '';
 
   if (ai.status === 'loading') {
-    return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+    return `<nav class="crumb"><a href="#/" data-back>← 返回首页</a></nav>
       <section class="ai-panel">
         <p class="ai-q">问题：${esc(ai.query)}</p>
         <p class="ai-status"><span class="pulse"></span>${esc(AI_STATUS.loading)}</p>
@@ -1530,7 +1530,7 @@ function renderAiPanel() {
   }
 
   if (ai.status === 'empty') {
-    return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+    return `<nav class="crumb"><a href="#/" data-back>← 返回首页</a></nav>
       <section class="ai-panel">
         <p class="ai-q">问题：${esc(ai.query)}</p>
         <p class="ai-status">这个库里没有能对上这句话的条目。它目前只有 ${DATA.counts.claims} 条 claim，
@@ -1547,7 +1547,7 @@ function renderAiPanel() {
            </form>
            <p class="filter-note">Key 只写进本机 localStorage，不会提交给这个站点。本地预览服务器已配置密钥时无需填写。</p>`
         : '';
-    return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+    return `<nav class="crumb"><a href="#/" data-back>← 返回首页</a></nav>
       <section class="ai-panel">
         <p class="ai-q">问题：${esc(ai.query)}</p>
         <p class="ai-error">${esc(ai.error || AI_STATUS[ai.status])}</p>
@@ -1566,7 +1566,7 @@ function renderAiPanel() {
   ]
     .filter(Boolean)
     .join(' + ');
-  return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+  return `<nav class="crumb"><a href="#/" data-back>← 返回首页</a></nav>
     <section class="ai-panel">
       <p class="ai-q">问题：${esc(ai.query)}</p>
       <div class="ai-answer">${aiAnswerHtml(ai.answer)}</div>
