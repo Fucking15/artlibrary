@@ -10,6 +10,7 @@
  *                           同上，直接落到某一个板块
  *   #/artist/<id>/sources   该画家引用的来源（单独一页）
  *   #/sources               全部来源登记
+ *   #/images                图片区：全站引用过的作品图片链接（独立一页）
  *
  * 旧链接 #/artist/<id>/<dim> 仍然可用：会被读成「六维档案」并滚到对应的板块。
  *
@@ -443,6 +444,7 @@ function parseHash(rawHash) {
   const parts = raw.split('/').filter(Boolean);
   if (!parts.length) return { name: 'home' };
   if (parts[0] === 'sources') return { name: 'sources' };
+  if (parts[0] === 'images') return { name: 'images' };
   if (parts[0] === 'artist' && parts[1]) {
     const id = decodeURIComponent(parts[1]);
     // #/artist/schiele/<period>/<tab>/<anchor>：第二段只有确实是这位画家的分期 slug 时才当分期，
@@ -551,7 +553,7 @@ function renderIndex() {
     <div class="stat"><span class="num">${c.works}</span><span class="lbl">作品</span></div>
     <div class="stat"><span class="num">${c.sources}</span><span class="lbl">来源</span></div>
   </div>
-  <p class="registry-links"><a href="#/sources">全部来源登记 →</a></p>
+  <p class="registry-links"><a href="#/sources">全部来源登记 →</a> · <a href="#/images">图片区 →</a></p>
 
   <p class="section-title" style="margin-top:44px">可以这样问 · ask</p>
   <div class="ask-samples">${samples.map((q) => `<button type="button" data-ask="${esc(q)}">${esc(q)}</button>`).join('')}</div>`;
@@ -921,6 +923,68 @@ function renderWorksBlock(dossier) {
   return `<p class="section-title">本页提到的作品 · ${rows.length}</p>
     <div class="works-block">${items}</div>
     <p class="filter-note">作品名后的链接只跳馆方对象页或免费图片页：图像不入库、不重托管；打不开或要付费的馆方页会另给一条图片页。</p>`;
+}
+
+/**
+ * 图片区（#/images）：站内所有板块引用过的作品图片链接，独立成一页。
+ * 只汇总指针——馆方对象页 / 免费图片页 / IIIF 清单；图像不入库、不重托管。
+ */
+function renderImageIndex() {
+  const groups = DATA.dossiers
+    .map((dossier) => ({
+      dossier,
+      works: (dossier.works ?? []).filter((work) => work.object?.url || work.image?.url || work.iiif?.manifest),
+    }))
+    .filter((group) => group.works.length);
+
+  const allWorks = groups.flatMap((group) => group.works);
+  const linkCount = allWorks.reduce(
+    (total, work) => total + (work.object?.url ? 1 : 0) + (work.image?.url ? 1 : 0) + (work.iiif?.manifest ? 1 : 0),
+    0,
+  );
+  const mediaCount = new Set(allWorks.map((work) => work.medium_category).filter(Boolean)).size;
+
+  const linksOf = (work) => {
+    const links = [];
+    if (work.object?.url) links.push({ href: work.object.url, label: '原馆对象页' });
+    if (work.image?.url) links.push({ href: work.image.url, label: '图片页' });
+    if (work.iiif?.manifest) links.push({ href: work.iiif.manifest, label: 'IIIF 清单' });
+    if (!links.length) return '<span class="work-link">图片链接待补</span>';
+    return links
+      .map(
+        (link, index) =>
+          `<a class="work-link${index ? ' is-alt' : ''}" href="${esc(link.href)}" target="_blank" rel="noopener noreferrer">${esc(link.label)} ↗</a>`,
+      )
+      .join('');
+  };
+
+  const blocks = groups
+    .map(({ dossier, works }) => {
+      const rows = works
+        .map((work) => {
+          const meta = [work.year, MEDIA_LABELS[work.medium_category] ?? work.medium_category, work.collection?.institution]
+            .filter(Boolean)
+            .join(' · ');
+          return `<div class="work-row">
+            <span class="work-title">${esc(work.title.zh)}<em>${esc(work.title.en)}</em></span>
+            <span class="work-meta">${esc(meta)}</span>
+            <span class="work-links">${linksOf(work)}</span>
+          </div>`;
+        })
+        .join('');
+      return `<p class="section-title">${esc(dossier.period.label.zh)} · ${esc(dossier.period.start_year)}–${esc(
+        dossier.period.end_year,
+      )} · ${works.length}</p>
+        <div class="works-block">${rows}</div>`;
+    })
+    .join('');
+
+  return `<section class="images-page">
+    <h2 class="page-title">图片区<span class="page-title-sub">Images</span></h2>
+    <p class="home-lede">这里汇总站内各板块引用过的全部作品图片链接：<b>${allWorks.length}</b> 件作品、<b>${linkCount}</b> 条链接、覆盖 ${mediaCount} 个画种。
+      点开即跳馆方对象页或免费图片页；图像不落库、不重托管，版权与访问条件由来源方决定。</p>
+    ${blocks || '<p class="empty-card">还没有任何作品图片链接。</p>'}
+  </section>`;
 }
 
 /** 六维档案：时期 / 师从与影响 / 对比与创新 / 媒介与材料 / 画面构成 / 题材，六个板块共用一页。 */
@@ -1743,6 +1807,12 @@ function render() {
 
   searchBox.hidden = !onHome;
   qs('.search-hint').hidden = !onHome;
+  const settingsButton = qs('#ai-settings-toggle');
+  if (settingsButton) settingsButton.hidden = !onHome;
+  if (!onHome) {
+    const box = qs('#ai-settings');
+    if (box) box.hidden = true;
+  }
   renderTabsFor(route);
   renderMediaBarFor(route);
 
@@ -1757,6 +1827,11 @@ function render() {
 
   if (route.name === 'sources') {
     view.innerHTML = `<nav class="crumb"><a href="#/">← 画家索引</a></nav>${renderSources(null)}`;
+    return;
+  }
+
+  if (route.name === 'images') {
+    view.innerHTML = `<nav class="crumb"><a href="#/" data-back>← 返回首页</a></nav>${renderImageIndex()}`;
     return;
   }
 

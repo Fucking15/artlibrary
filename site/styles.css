@@ -674,6 +674,41 @@ details.evidence[open] > summary::before { content: "▾ "; }
 
 .media-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
 
+/* 画种条最右侧的「图片区」入口：进独立页面看全站图片链接。 */
+.images-entry {
+  margin-left: auto;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  padding: 4px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  color: var(--ink-3);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.images-entry:hover { color: var(--ink); border-color: var(--ink-2); }
+
+/* 图片区独立页 */
+.page-title {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: 30px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.page-title-sub {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-left: 12px;
+  vertical-align: middle;
+}
+
 .media-tabs button {
   border: 1px solid rgba(244, 251, 247, .35);
   background: #0a6e4b;
