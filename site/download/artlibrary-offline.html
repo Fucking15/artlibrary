@@ -1,0 +1,3554 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>技法图谱 · technique-kb（离线版）</title>
+<meta name="theme-color" content="#0a6e4b" />
+<meta name="description" content="开源的画家技法知识库：六维分期、分级来源、每条结论可追溯。主页是画家索引，画家页里才是分期与六大维度。" />
+<style>
+:root {
+  color-scheme: dark;
+  --paper: #0a6e4b;
+  --paper-2: #0b7a55;
+  --ink: #f4fbf7;
+  --ink-2: #d3e7de;
+  --ink-3: #a5c6b9;
+  --rule: rgba(244, 251, 247, .18);
+  --accent: #d9fff0;
+  --accent-soft: rgba(217, 255, 240, .12);
+  --a: #8fe3bd;
+  --b: #f3cb83;
+  --c: #c9d6d0;
+  --serif: "Noto Serif SC", "Songti SC", "Source Han Serif SC", Georgia, "Times New Roman", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+  --mono: ui-monospace, "SFMono-Regular", "Cascadia Mono", Consolas, monospace;
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-size: 16px;
+  line-height: 1.7;
+  -webkit-font-smoothing: antialiased;
+}
+
+a { color: var(--accent); text-decoration: none; border-bottom: 1px solid rgba(217, 255, 240, .35); }
+a:hover { border-bottom-color: var(--accent); }
+
+::selection { background: var(--accent); color: var(--paper); }
+
+/* ---------------------------------------------------------------- masthead */
+
+.masthead {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 72px 24px 28px;
+}
+
+.eyebrow {
+  margin: 0 0 18px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+h1 {
+  margin: 0 0 18px;
+  font-family: var(--serif);
+  font-size: clamp(34px, 5.4vw, 56px);
+  font-weight: 600;
+  letter-spacing: .01em;
+  line-height: 1.15;
+}
+
+.h1-sub {
+  display: block;
+  margin-top: 10px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  font-weight: 400;
+}
+
+.lede {
+  margin: 0;
+  max-width: 40em;
+  font-family: var(--serif);
+  font-size: 18px;
+  color: var(--ink-2);
+}
+
+.lede em { font-style: normal; color: var(--accent); }
+
+.banner {
+  margin-top: 26px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.banner strong { color: var(--accent); }
+
+/* ----------------------------------------------------------------- toolbar */
+
+.toolbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: var(--paper);
+  background: color-mix(in srgb, var(--paper) 94%, transparent);
+  backdrop-filter: blur(6px);
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.toolbar-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 12px 24px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 20px;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.search { position: relative; flex: 1 1 300px; display: flex; align-items: center; gap: 8px; }
+
+.search input {
+  width: 100%;
+  min-width: 0;
+  padding: 9px 12px 9px 34px;
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  font-family: var(--sans);
+  font-size: 14px;
+  color: var(--ink);
+  border-radius: 2px;
+  outline: none;
+}
+
+.search input:focus { border-color: var(--ink-3); }
+
+.search input::placeholder { color: var(--ink-3); opacity: .9; }
+
+.search::before {
+  content: "⌕";
+  position: absolute;
+  left: 12px;
+  color: var(--ink-3);
+  font-size: 16px;
+  pointer-events: none;
+}
+
+.search .ask {
+  padding: 9px 16px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.search .ask:hover { background: var(--accent); border-color: var(--accent); }
+
+.search-hint {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .08em;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+/* 读者自己的 LLM 设置：一个按钮 + 一条可折叠的表单，不挡阅读。
+   注意这一块在深绿外壳里，文字色要用 --ink（近白），不能用 --paper（这里是外壳底色）。 */
+.settings-toggle {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-toggle:hover { border-color: var(--ink-2); color: var(--accent); }
+.settings-toggle.is-set { border-color: var(--ink-2); background: var(--accent-soft); color: var(--accent); }
+
+.ai-settings {
+  max-width: 960px;
+  margin: 4px auto 0;
+  padding: 14px 24px 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.llm-form { display: flex; flex-direction: column; gap: 10px; }
+
+.llm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: flex-end;
+}
+
+.llm-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+}
+
+.llm-row input {
+  min-width: 200px;
+  padding: 7px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, .22);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.llm-row input::placeholder { color: var(--ink-3); }
+
+.llm-actions button {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 7px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.llm-actions button[type="submit"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.llm-actions button:hover { border-color: var(--ink-2); color: var(--accent); }
+.llm-actions button[type="submit"]:hover { color: var(--paper); }
+
+.llm-msg {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-2);
+}
+
+.ai-settings .llm-note {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+.ai-settings .llm-note b { color: var(--ink); }
+.ai-settings .llm-note a { color: var(--accent); text-decoration: underline; }
+.ai-settings .llm-note code { font-family: var(--mono); font-size: 10px; color: var(--ink-2); }
+
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.tabs button {
+  border: 1px solid transparent;
+  background: none;
+  padding: 6px 10px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+  border-radius: 2px;
+}
+
+.tabs button:hover { background: rgba(244, 251, 247, .10); }
+
+.tabs button[aria-selected="true"] {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.tabs .count { font-family: var(--mono); font-size: 10px; opacity: .6; margin-left: 5px; }
+
+/* -------------------------------------------------------------------- main */
+
+main { max-width: 960px; margin: 0 auto; padding: 40px 24px 80px; }
+
+/* 页面外壳是 #0a6e4b 深绿；正文阅读区是一张白纸，文字回到深色，
+   这样既有全站绿色主题，正文也保持长文可读性。 */
+main#view {
+  background: #fff;
+  color: var(--ink);
+  --paper: #fff;
+  --paper-2: #fffdf8;
+  --ink: #1b1917;
+  --ink-2: #4a453e;
+  --ink-3: #7d766c;
+  --rule: #ded7c9;
+  --accent: #0a6e4b;
+  --accent-soft: #e3f0ea;
+  --a: #2f6b4f;
+  --b: #9a6b1f;
+  --c: #7b7468;
+}
+
+.loading { color: var(--ink-3); font-family: var(--mono); font-size: 13px; }
+
+.section-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin: 0 0 18px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--rule);
+}
+
+/* --------------------------------------------------- 六维档案（同一页六个板块） */
+
+.doc-jump {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 44px;
+  padding: 14px 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+
+.doc-jump-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  margin-right: 8px;
+}
+
+.doc-jump .jump {
+  border: 1px solid var(--rule);
+  background: var(--paper-2);
+  padding: 4px 10px 4px 8px;
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.doc-jump .jump:hover { border-color: var(--ink-3); }
+
+.doc-jump .jump.is-on {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+
+.doc-jump .jump .n { font-family: var(--mono); font-size: 10px; opacity: .65; }
+
+.dim-section {
+  scroll-margin-top: 96px;
+  padding-top: 4px;
+  margin-bottom: 72px;
+}
+
+.dim-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 18px;
+  padding-bottom: 12px;
+  margin-bottom: 24px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.dim-head h2 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 26px;
+  font-weight: 600;
+}
+
+.dim-head .dim-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+.dim-head .dim-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+
+.dim-head .dim-en {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.dim-head .dim-n {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--accent);
+}
+
+/* --------------------------------------------------------------- overview */
+
+.artist-card { margin-bottom: 48px; }
+.artist-card h2 {
+  font-family: var(--serif);
+  font-size: clamp(24px, 3.4vw, 34px);
+  margin: 0 0 6px;
+  font-weight: 600;
+}
+
+.artist-card .romanised { font-family: var(--mono); font-size: 12px; color: var(--ink-3); letter-spacing: .1em; }
+
+.period-line {
+  margin: 18px 0 0;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.period-line b { font-family: var(--mono); font-weight: 500; }
+
+.dim-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 48px;
+}
+
+.dim-cell {
+  background: var(--paper-2);
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  cursor: pointer;
+  transition: background .15s ease;
+}
+
+.dim-cell:hover {
+  background: var(--paper);
+  background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
+}
+
+.dim-cell .dim-name { font-family: var(--serif); font-size: 17px; }
+.dim-cell .dim-en { font-family: var(--mono); font-size: 10px; letter-spacing: .14em; color: var(--ink-3); text-transform: uppercase; }
+.dim-cell .dim-count { font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+
+.anchors { list-style: none; padding: 0; margin: 0 0 48px; }
+.anchors li { display: grid; grid-template-columns: 92px 1fr; gap: 16px; padding: 12px 0; border-bottom: 1px dotted var(--rule); }
+.anchors .year { font-family: var(--mono); font-size: 13px; color: var(--accent); }
+
+/* ------------------------------------------------------------------ claim */
+
+.claims { display: flex; flex-direction: column; gap: 18px; }
+
+.claim {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--rule);
+  padding: 20px 22px;
+}
+
+.claim[data-grade="A"] { border-left-color: var(--a); }
+.claim[data-grade="B"] { border-left-color: var(--b); }
+.claim[data-grade="C"] { border-left-color: var(--c); }
+
+.claim .statement {
+  margin: 0 0 14px;
+  font-family: var(--serif);
+  font-size: 17px;
+  line-height: 1.65;
+}
+
+.chips { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin-bottom: 12px; }
+
+.chip {
+  display: inline-block;
+  padding: 2px 7px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  border: 1px solid var(--rule);
+  color: var(--ink-2);
+  background: var(--paper);
+  border-radius: 2px;
+  white-space: nowrap;
+}
+
+.chip.grade-A { color: var(--paper); background: var(--a); border-color: var(--a); }
+.chip.grade-B { color: var(--paper); background: var(--b); border-color: var(--b); }
+.chip.grade-C { color: var(--paper); background: var(--c); border-color: var(--c); }
+.chip.status-signed { color: var(--paper); background: var(--ink); border-color: var(--ink); }
+.chip.chip-class { background: var(--accent); border-color: var(--accent); color: var(--paper); }
+.chip.status-verified { border-color: var(--a); color: var(--a); }
+.chip.status-draft { color: var(--ink-3); }
+.chip.conf-high { border-color: var(--a); color: var(--a); }
+.chip.conf-medium { border-color: var(--b); color: var(--b); }
+.chip.conf-low { border-color: var(--c); color: var(--c); }
+.chip.warn { border-color: var(--accent); color: var(--paper); background: var(--accent); }
+
+.claim .note {
+  margin: 0 0 12px;
+  padding-left: 12px;
+  border-left: 2px solid var(--rule);
+  font-size: 13px;
+  color: var(--ink-3);
+}
+
+details.evidence { border-top: 1px solid var(--rule); padding-top: 10px; }
+
+details.evidence > summary {
+  cursor: pointer;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  list-style: none;
+}
+
+details.evidence > summary::-webkit-details-marker { display: none; }
+details.evidence > summary::before { content: "▸ "; }
+details.evidence[open] > summary::before { content: "▾ "; }
+
+.evidence ol { margin: 14px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 16px; }
+
+.evidence li { display: grid; grid-template-columns: 26px 1fr; gap: 12px; }
+
+.evidence .citation { margin: 0; font-size: 13px; color: var(--ink-2); }
+.evidence .locator { margin: 2px 0 6px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.evidence blockquote {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--paper);
+  border-left: 2px solid var(--rule);
+  font-family: var(--serif);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.evidence .translation { margin: 6px 0 0; font-size: 13px; color: var(--ink-3); }
+.evidence .src-link { font-size: 12px; font-family: var(--mono); }
+
+.iiif-note {
+  margin-top: 12px;
+  padding: 10px 12px;
+  background: var(--paper);
+  border: 1px dashed var(--rule);
+  font-size: 12px;
+  color: var(--ink-3);
+  font-family: var(--mono);
+}
+
+/* --------------------------------------------------------------- entries */
+
+.entry { margin: 0 0 40px; }
+
+.entry-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.entry-head h3 { font-family: var(--serif); font-size: 19px; margin: 0; font-weight: 600; }
+.entry-head .pair { font-family: var(--mono); font-size: 11px; color: var(--ink-3); letter-spacing: .08em; }
+
+.pair-block {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin: 12px 0 16px;
+}
+
+.pair-block > div { background: var(--paper-2); padding: 14px 16px; }
+.pair-block dt { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 4px; }
+.pair-block dd { margin: 0; font-size: 14px; }
+
+.summary-zh { margin: 0 0 16px; font-size: 15px; color: var(--ink-2); }
+
+.open-q { border-top: 1px solid var(--rule); padding: 16px 0; }
+.open-q h4 { margin: 0 0 6px; font-family: var(--serif); font-size: 16px; font-weight: 600; }
+.open-q p { margin: 0; font-size: 14px; color: var(--ink-2); }
+
+.stat-row { display: flex; flex-wrap: wrap; gap: 22px; margin: 0 0 40px; padding: 16px 0; border-top: 1px solid var(--rule); border-bottom: 1px solid var(--rule); }
+.stat { display: flex; flex-direction: column; }
+.stat .num { font-family: var(--serif); font-size: 26px; line-height: 1.1; }
+.stat .lbl { font-family: var(--mono); font-size: 10px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); }
+
+/* ---------------------------------------------------------------- footer */
+
+.site-footer {
+  border-top: 1px solid var(--rule);
+  background: var(--paper-2);
+  padding: 48px 24px 56px;
+}
+
+.footer-grid {
+  max-width: 960px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 32px;
+}
+
+.footer-grid h3 { font-family: var(--mono); font-size: 10px; letter-spacing: .16em; text-transform: uppercase; color: var(--ink-3); margin: 0 0 10px; }
+.footer-grid p, .footer-grid ul { margin: 0; font-size: 13px; color: var(--ink-2); }
+.footer-grid ul { list-style: none; padding: 0; display: flex; flex-direction: column; gap: 6px; }
+
+.colophon {
+  max-width: 960px;
+  margin: 36px auto 0;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------- responsive */
+
+@media (max-width: 640px) {
+  .masthead { padding-top: 44px; }
+  .dim-grid { grid-template-columns: 1fr 1fr; }
+  .pair-block { grid-template-columns: 1fr; }
+  .anchors li { grid-template-columns: 70px 1fr; gap: 10px; }
+  .search-hint { display: none; }
+  .doc-jump { margin-bottom: 32px; }
+  .dim-section { scroll-margin-top: 120px; margin-bottom: 56px; }
+  .dim-head { align-items: flex-start; }
+  .dim-head h2 { font-size: 22px; }
+  .dim-head .dim-meta { align-items: flex-start; text-align: left; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  * { transition: none !important; }
+}
+
+/* -------------------------------------------------------------- 画种 filter */
+
+.media-inner {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 24px 10px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.media-caption {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+.media-tabs { display: flex; flex-wrap: wrap; gap: 6px; }
+
+.media-tabs button {
+  border: 1px solid rgba(244, 251, 247, .35);
+  background: #0a6e4b;
+  padding: 4px 10px 4px 8px;
+  font-family: var(--sans);
+  font-size: 12px;
+  color: var(--ink-2);
+  cursor: pointer;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.media-tabs button:hover {
+  background: #0a6e4b;
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* 画种这一行（全部 + 四个画种）统一用主题绿 #0a6e4b；选中靠薄荷色描边区分。 */
+.media-tabs button.is-blank {
+  border-style: dashed;
+  background: #0a6e4b;
+  color: var(--ink-2);
+}
+
+.media-tabs button[aria-pressed="true"] {
+  background: #0a6e4b;
+  border-color: var(--accent);
+  border-style: solid;
+  color: var(--accent);
+  box-shadow: inset 0 0 0 1px var(--accent-soft);
+}
+
+.media-tabs button[aria-pressed="true"] .n { color: var(--accent); opacity: .9; }
+
+.media-tabs button .n {
+  font-family: var(--mono);
+  font-size: 10px;
+  opacity: .55;
+}
+
+.chip.medium {
+  border-color: var(--ink-3);
+  color: var(--ink-2);
+  background: transparent;
+}
+
+.chip.medium.is-period-level {
+  font-style: normal;
+  border-style: dashed;
+}
+
+.chip.medium.is-blank {
+  border-style: dashed;
+  color: var(--ink-3);
+  background: var(--paper);
+}
+
+.blank-banner {
+  margin: 0 0 24px;
+  padding: 12px 14px;
+  border: 1px dashed var(--accent);
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+}
+
+/* an explicit "this dimension does not apply to this 画种" */
+.claim.is-na {
+  border-left-style: dotted;
+  border-left-color: var(--ink-3);
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--paper-2),
+    var(--paper-2) 10px,
+    var(--paper) 10px,
+    var(--paper) 20px
+  );
+}
+
+.claim.is-na .statement {
+  font-family: var(--sans);
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.claim.is-na .na-label {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  display: block;
+  margin-bottom: 6px;
+}
+
+.filter-note {
+  margin: 0 0 20px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------- per-画种 blocks (overview) */
+
+.media-block { margin: 0 0 34px; }
+
+/* 概览里的五个画种板块（全部 + 四个画种）整块用主题绿 #0a6e4b；
+   格子用同色系浅一档，文字切回深绿主题的浅色。 */
+.media-block {
+  padding: 18px 20px 20px;
+  background: #0a6e4b;
+  color: #f4fbf7;
+  --paper: #0a6e4b;
+  --paper-2: #0b7a55;
+  --ink: #f4fbf7;
+  --ink-2: #d3e7de;
+  --ink-3: #a5c6b9;
+  --rule: rgba(244, 251, 247, .18);
+  --accent: #d9fff0;
+  --accent-soft: rgba(217, 255, 240, .12);
+}
+
+.media-block-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 8px;
+  margin-bottom: 10px;
+  border-bottom: 1px solid var(--rule);
+}
+
+.media-block-head h3 {
+  margin: 0;
+  font-family: var(--serif);
+  font-size: 19px;
+  font-weight: 600;
+}
+
+/* 概览里被选中的画种行：标题反黑，和顶部筛选按钮的选中态一致 */
+.media-block.is-on .media-block-head h3 {
+  background: var(--ink);
+  color: var(--paper);
+  padding: 2px 10px;
+  border-radius: 2px;
+}
+
+.media-block.is-on .media-block-head { border-bottom-color: var(--ink); }
+
+.media-block-sub {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .12em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+.media-block .dim-grid { margin-bottom: 0; grid-template-columns: repeat(3, 1fr); }
+
+/* 这一期完全没有这个画种的条目：整块标空白，不藏起来 */
+.media-block.is-blank .media-block-head { border-bottom-style: dashed; }
+.media-block.is-blank .media-block-head h3 { color: var(--ink-3); font-weight: 500; }
+.media-block.is-blank .dim-grid { border-style: dashed; }
+
+.media-blank {
+  margin: -2px 0 12px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+}
+
+.dim-cell.is-blank {
+  background: var(--paper-2);
+}
+
+.dim-cell.is-blank .dim-name { color: var(--ink-3); }
+.dim-cell.is-blank .dim-count { color: var(--ink-3); }
+.dim-cell.is-blank:hover {
+  background: var(--paper);
+  background: color-mix(in srgb, var(--paper-2) 55%, var(--paper));
+}
+
+.dim-cell.is-empty .dim-name { color: var(--ink-3); }
+.dim-cell.is-empty .dim-count { color: var(--ink-3); }
+
+.dim-cell.is-static {
+  cursor: default;
+  background: var(--paper-2);
+}
+
+.dim-cell.is-static:hover { background: var(--paper-2); }
+
+/* 空白画种的「时期」格也保持同一个面底色；整块已经用虚线边框和「空白」标注 */
+.dim-cell.is-static.is-blank,
+.dim-cell.is-static.is-blank:hover { background: var(--paper-2); }
+
+/* ------------------------------------------------- 索引 / 画家页 / AI 检索 */
+
+/* .tabs 和 .media-inner 都是 flex，[hidden] 的 UA 规则会被 display 覆盖掉 */
+[hidden] { display: none !important; }
+
+.crumb {
+  max-width: 960px;
+  margin: 8px auto 22px;
+  padding: 0 24px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .08em;
+}
+
+.crumb a { border-bottom: none; }
+
+.home-lede {
+  max-width: 44em;
+  margin: 0 0 24px;
+  font-size: 15px;
+  color: var(--ink-2);
+}
+
+.index-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.artist-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 20px 20px 18px;
+  background: var(--paper-2);
+  color: var(--ink);
+  border-bottom: none;
+  transition: background .15s ease;
+}
+
+.artist-tile:hover { background: var(--paper); border-bottom: none; }
+
+.artist-tile h3 {
+  margin: 6px 0 0;
+  font-family: var(--serif);
+  font-size: 21px;
+  font-weight: 600;
+}
+
+.artist-tile .tile-dates {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .06em;
+  color: var(--accent);
+}
+
+.artist-tile .tile-en {
+  margin: 2px 0 8px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  color: var(--ink-3);
+  text-transform: uppercase;
+}
+
+.artist-tile .tile-meta { margin: 0; font-size: 13px; color: var(--ink-2); }
+
+.artist-tile .tile-status {
+  margin: 10px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+}
+
+.artist-tile.is-pending {
+  background: repeating-linear-gradient(-45deg, var(--paper-2), var(--paper-2) 9px, var(--paper) 9px, var(--paper) 18px);
+}
+
+.artist-tile.is-pending h3 { color: var(--ink-2); }
+
+.registry-links { margin: -22px 0 0; font-size: 13px; }
+
+.ask-samples { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.ask-samples button {
+  padding: 6px 14px;
+  border: 1px dashed var(--rule);
+  background: var(--paper-2);
+  border-radius: 999px;
+  font-family: var(--sans);
+  font-size: 13px;
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.ask-samples button:hover { border-style: solid; border-color: var(--ink-3); color: var(--ink); }
+
+.artist-hero {
+  max-width: 960px;
+  margin: 0 auto 34px;
+  padding: 0 24px;
+}
+
+.hero-eyebrow {
+  margin: 0 0 6px;
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: .1em;
+  color: var(--ink-3);
+}
+
+.artist-hero h2 {
+  margin: 0 0 4px;
+  font-family: var(--serif);
+  font-size: clamp(26px, 3.6vw, 40px);
+  font-weight: 600;
+}
+
+.artist-hero .romanised {
+  margin: 0;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .1em;
+  color: var(--ink-3);
+}
+
+.hero-note {
+  max-width: 40em;
+  margin: 14px 0 0;
+  padding-left: 12px;
+  border-left: 2px solid var(--rule);
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.work-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+  margin-bottom: 40px;
+}
+
+.work { background: var(--paper-2); padding: 16px 18px; }
+
+.work-year { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+
+.work h4 { margin: 4px 0 6px; font-family: var(--serif); font-size: 16px; font-weight: 600; }
+
+.work-meta { margin: 0; font-size: 12px; color: var(--ink-3); }
+
+.work-flag { margin: 8px 0 0; font-family: var(--mono); font-size: 10px; color: var(--accent); }
+
+.empty-card {
+  max-width: 46em;
+  padding: 22px 24px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--accent);
+}
+
+.empty-card h3 { margin: 0 0 10px; font-family: var(--serif); font-size: 18px; font-weight: 600; }
+
+.empty-card p { margin: 0 0 10px; font-size: 14px; color: var(--ink-2); }
+
+.empty-card code { font-family: var(--mono); font-size: 12px; }
+
+/* AI ------------------------------------------------------------------ */
+
+.ai-panel {
+  max-width: 960px;
+  margin: 0 auto 26px;
+  padding: 20px 24px;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-left: 2px solid var(--ink);
+}
+
+.ai-q {
+  margin: 0 0 12px;
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+}
+
+.ai-status {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  font-size: 14px;
+  color: var(--ink-2);
+}
+
+.pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent);
+  animation: pulse 1.1s ease-in-out infinite;
+  flex: none;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: .2; }
+  50% { opacity: 1; }
+}
+
+.ai-error {
+  margin: 0 0 14px;
+  font-size: 14px;
+  color: var(--accent);
+}
+
+.ai-answer {
+  font-family: var(--serif);
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+.ai-answer p { margin: 0 0 12px; }
+
+.ai-answer ul, .ai-answer ol { margin: 0 0 12px; padding-left: 22px; }
+
+.ai-answer li { margin-bottom: 6px; }
+
+.ai-answer strong { font-weight: 600; }
+
+.ai-meta {
+  margin: 16px 0 0;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+}
+
+.ai-disclaimer {
+  max-width: 960px;
+  margin: -8px auto 40px;
+  padding: 0 24px;
+  font-size: 12px;
+  color: var(--ink-3);
+}
+
+.cite {
+  display: inline-block;
+  padding: 0 4px;
+  margin: 0 3px 0 0;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-2);
+  vertical-align: 1px;
+}
+
+.cite:hover { border-color: var(--ink-3); color: var(--ink); }
+
+/* 模型把「出处待核验」写进了编号里时的附注：链接照点，附注小一号跟在后头。 */
+.cite-note {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-3);
+  margin: 0 4px 0 1px;
+}
+
+/* 出错时给一个重试入口，别让人只能刷新页面。 */
+.ai-actions { margin: 12px 0 0; }
+
+.retry {
+  font: inherit;
+  font-size: 12px;
+  padding: 6px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+
+.retry:hover { border-color: var(--ink-3); color: var(--ink); }
+
+.hits {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  max-width: 960px;
+  margin: 0 auto 22px;
+  background: var(--rule);
+  border: 1px solid var(--rule);
+}
+
+.hit {
+  display: grid;
+  grid-template-columns: 34px 200px 1fr 40px;
+  gap: 12px;
+  align-items: baseline;
+  padding: 10px 14px;
+  background: var(--paper-2);
+  color: var(--ink);
+  border-bottom: none;
+}
+
+.hit:hover { background: var(--paper-2); border-bottom: none; }
+
+.hit-ref { font-family: var(--mono); font-size: 10px; color: var(--accent); }
+
+.hit-dim { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+
+.hit-text { font-size: 14px; }
+
+.hit-grades { font-family: var(--mono); font-size: 10px; color: var(--ink-3); text-align: right; }
+
+.keyform { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+
+.keyform input {
+  flex: 1 1 260px;
+  min-width: 0;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  font-family: var(--mono);
+  font-size: 12px;
+  color: var(--ink);
+  outline: none;
+}
+
+.keyform input:focus { border-color: var(--ink-3); }
+
+.keyform button {
+  padding: 8px 16px;
+  border: 1px solid var(--ink);
+  background: var(--ink);
+  color: var(--paper);
+  font-family: var(--sans);
+  font-size: 13px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.keyform button:hover { background: var(--accent); border-color: var(--accent); }
+
+@media (max-width: 640px) {
+  .hit { grid-template-columns: 30px 1fr; }
+  .hit-dim { display: none; }
+  .hit-grades { display: none; }
+  .ai-panel { padding: 16px 18px; }
+}
+
+/* ============================================================
+   examine — 审查台（本地工具页）
+   ============================================================ */
+.examine-page .masthead { padding-bottom: 26px; }
+.examine-page .masthead .eyebrow a { color: var(--ink-3); text-decoration: none; border-bottom: 1px solid var(--rule); }
+.examine-page .masthead .eyebrow a:hover { color: var(--accent); }
+.h1-sub {
+  font-family: var(--mono); font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--ink-3); margin-left: 12px; vertical-align: middle;
+}
+.examine-page .banner[data-kind="ok"] { border-left-color: var(--a); color: var(--ink-2); background: var(--accent-soft); }
+.examine-page .banner[data-kind="error"] { border-left-color: var(--accent); background: var(--accent-soft); }
+
+.examine-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.examine-actions .ask {
+  font: inherit; font-size: 13px; padding: 8px 16px; border-radius: 999px; cursor: pointer;
+  background: var(--ink); color: var(--paper); border: 1px solid var(--ink);
+}
+.examine-actions .ask:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
+.examine-actions .ask:disabled { opacity: .55; cursor: progress; }
+.ghost {
+  font: inherit; font-size: 12px; padding: 7px 14px; border-radius: 999px; cursor: pointer;
+  background: transparent; color: var(--ink-2); border: 1px solid var(--rule);
+}
+.ghost:hover { border-color: var(--ink-3); color: var(--ink); }
+
+.examine-filters { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.examine-filters button {
+  font: inherit; font-size: 12px; padding: 6px 12px; border-radius: 999px; cursor: pointer;
+  background: var(--paper-2); color: var(--ink-2); border: 1px solid var(--rule);
+}
+.examine-filters button:hover { border-color: var(--ink-3); }
+.examine-filters button[aria-pressed="true"] { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+
+.run-line {
+  font-family: var(--mono); font-size: 11.5px; line-height: 1.7; color: var(--ink-3);
+  margin: 0 0 22px; padding-bottom: 14px; border-bottom: 1px solid var(--rule);
+}
+.run-line b { color: var(--ink-2); font-weight: 600; }
+.callout {
+  font-size: 13.5px; color: var(--ink-2); background: var(--paper-2);
+  border: 1px solid var(--rule); border-left: 3px solid var(--b);
+  padding: 12px 16px; margin: 0 0 26px; border-radius: 0 4px 4px 0;
+}
+.callout code { font-family: var(--mono); font-size: 12px; }
+.empty-line { font-size: 13.5px; color: var(--ink-3); padding: 28px 0; border-top: 1px dashed var(--rule); }
+
+.review-list { display: flex; flex-direction: column; gap: 16px; }
+.review-card {
+  border: 1px solid var(--rule); background: var(--paper-2);
+  padding: 18px 20px 16px; border-radius: 4px;
+}
+.review-card > header { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 10px; }
+.review-card h3 { margin: 0 0 4px; font-family: var(--serif); font-size: 17px; font-weight: 600; line-height: 1.4; }
+.review-card h3 a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+.review-card h3 a:hover { border-bottom-color: var(--accent); color: var(--accent); }
+.review-card .publisher { margin: 0 0 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.review-card .excerpt { margin: 0 0 12px; font-size: 13.5px; line-height: 1.7; color: var(--ink-2); }
+
+.tag {
+  display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+  padding: 2px 7px; border-radius: 2px; border: 1px solid var(--rule); color: var(--ink-3); background: var(--paper);
+}
+.tag-class { border-color: var(--ink-3); color: var(--ink-2); }
+.tag-T { background: #eaf1e9; border-color: #b9cdb7; color: var(--a); }
+.tag-S { background: #f6efe0; border-color: #dcc9a1; color: var(--b); }
+.tag-F { background: var(--accent-soft); border-color: #b7d3c7; color: var(--accent); }
+
+.ai-note {
+  margin: 0 0 12px; padding: 8px 12px; font-size: 12.5px; line-height: 1.65;
+  background: var(--paper); border-left: 2px solid var(--rule); color: var(--ink-2);
+}
+.ai-note.dim { color: var(--ink-3); font-style: italic; }
+.ai-note .by { display: block; font-family: var(--mono); font-size: 10px; color: var(--ink-3); margin-top: 2px; }
+
+.review-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.review-actions .note {
+  flex: 1 1 200px; min-width: 0; font: inherit; font-size: 12.5px; padding: 7px 10px;
+  border: 1px solid var(--rule); border-radius: 3px; background: var(--paper); color: var(--ink);
+}
+.review-actions .note:focus { outline: none; border-color: var(--ink-3); }
+.review-actions button {
+  font: inherit; font-size: 12px; padding: 7px 12px; border-radius: 3px; cursor: pointer;
+  background: transparent; border: 1px solid var(--rule); color: var(--ink-2);
+}
+.review-actions button:hover:not(:disabled) { border-color: var(--ink); color: var(--ink); }
+.review-actions button[data-tag="T"]:hover:not(:disabled) { border-color: var(--a); color: var(--a); }
+.review-actions button.danger:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+.review-actions button:disabled { opacity: .5; cursor: progress; }
+
+/* 译 · 摘要 */
+.gloss-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 0 0 10px; }
+.gloss-bar button {
+  font: inherit; font-size: 12px; padding: 6px 12px; border-radius: 3px; cursor: pointer;
+  background: var(--paper); border: 1px solid var(--ink-3); color: var(--ink);
+}
+.gloss-bar button:hover:not(:disabled) { background: var(--ink); border-color: var(--ink); color: var(--paper); }
+.gloss-bar button:disabled { opacity: .55; cursor: progress; }
+.gloss-hint { font-family: var(--mono); font-size: 10.5px; color: var(--ink-3); }
+
+.gloss { margin: 0 0 14px; padding: 12px 14px; background: var(--paper); border: 1px solid var(--rule); border-radius: 3px; }
+.gloss-body > p { margin: 0 0 8px; }
+.gloss-flag {
+  display: inline-block; font-family: var(--mono); font-size: 10px; letter-spacing: .08em;
+  padding: 2px 7px; border-radius: 2px; background: var(--accent-soft); border: 1px solid #b7d3c7; color: var(--accent);
+}
+.gloss-title { font-family: var(--serif); font-size: 15px; font-weight: 600; color: var(--ink); line-height: 1.5; }
+.gloss-summary { font-size: 13.5px; line-height: 1.8; color: var(--ink); }
+.gloss-facts { margin: 0 0 8px; padding-left: 18px; font-size: 12.5px; line-height: 1.75; color: var(--ink-2); }
+.gloss-facts li { margin-bottom: 2px; }
+.gloss-caveat { font-size: 12px; color: var(--b); }
+.gloss-trans { margin: 0 0 8px; font-size: 12.5px; line-height: 1.75; color: var(--ink-2); }
+.gloss-trans summary { cursor: pointer; font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em; color: var(--ink-3); }
+.gloss-trans p { margin: 6px 0 0; }
+.gloss-meta { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+.gloss-wait { font-size: 12.5px; color: var(--ink-3); font-style: italic; }
+.gloss-error { font-size: 12.5px; color: var(--accent); }
+
+.recent-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.recent-table th {
+  text-align: left; font-family: var(--mono); font-size: 10px; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); font-weight: 400; padding: 0 12px 8px 0; border-bottom: 1px solid var(--rule);
+}
+.recent-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--rule); color: var(--ink-2); vertical-align: top; }
+.recent-table td a { color: var(--ink); text-decoration: none; border-bottom: 1px solid transparent; }
+.recent-table td a:hover { border-bottom-color: var(--accent); color: var(--accent); }
+
+.dropped-panel {
+  margin-top: 34px; border-top: 1px solid var(--rule); padding-top: 14px;
+  font-size: 13px; color: var(--ink-2);
+}
+.dropped-panel summary {
+  cursor: pointer; font-family: var(--mono); font-size: 11px; letter-spacing: .06em;
+  color: var(--ink-3); list-style: none;
+}
+.dropped-panel summary::-webkit-details-marker { display: none; }
+.dropped-panel summary::before { content: '▸ '; }
+.dropped-panel[open] summary::before { content: '▾ '; }
+.dropped-panel summary:hover { color: var(--accent); }
+.dropped-list { list-style: none; margin: 12px 0 0; padding: 0; }
+.dropped-row {
+  display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 4px 10px;
+  padding: 9px 0; border-bottom: 1px solid var(--rule);
+}
+.dropped-row .tag-class { grid-row: span 2; align-self: start; }
+.dropped-title { color: var(--ink); font-size: 13px; line-height: 1.45; }
+.dropped-title a { color: inherit; text-decoration: none; border-bottom: 1px solid transparent; }
+.dropped-title a:hover { border-bottom-color: var(--accent); color: var(--accent); }
+.dropped-reason { font-size: 12px; color: var(--ink-3); line-height: 1.5; }
+
+@media (max-width: 640px) {
+  .examine-page .masthead h1 { font-size: 28px; }
+  .h1-sub { display: block; margin: 6px 0 0; }
+  .review-card { padding: 14px 14px 12px; }
+  .recent-table th:nth-child(4), .recent-table td:nth-child(4) { display: none; }
+}
+
+/* ------------------------------------------------ 分期切换 / AI 翻译（文档页） */
+
+.period-switch { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+.period-chip {
+  display: inline-flex; flex-direction: column; gap: 2px;
+  padding: 7px 12px 8px; border: 1px solid var(--rule); border-radius: 2px;
+  background: var(--paper-2); color: var(--ink-2); text-decoration: none;
+  font-size: 13px; line-height: 1.35; transition: border-color .15s, color .15s;
+}
+.period-chip b {
+  font-family: var(--mono); font-size: 10.5px; letter-spacing: .06em;
+  font-weight: 400; color: var(--ink-3);
+}
+.period-chip .n { font-family: var(--mono); font-size: 10px; color: var(--ink-3); }
+.period-chip:hover { border-color: var(--ink-3); color: var(--ink); }
+.period-chip.is-on {
+  border-color: var(--accent); color: var(--ink);
+  box-shadow: inset 0 0 0 1px var(--accent-soft); background: var(--paper);
+}
+.period-chip.is-on b { color: var(--accent); }
+
+.translate-bar {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px;
+  margin: 18px 0 0; padding-top: 14px; border-top: 1px solid var(--rule);
+}
+.tr-run {
+  font-family: var(--sans); font-size: 12.5px; letter-spacing: .02em;
+  padding: 6px 13px; border: 1px solid var(--ink); border-radius: 2px;
+  background: var(--ink); color: var(--paper); cursor: pointer;
+}
+.tr-run:hover:not(:disabled) { background: var(--accent); border-color: var(--accent); }
+.tr-run:disabled { opacity: .4; cursor: not-allowed; }
+.tr-pick { font-size: 12px; color: var(--ink-3); }
+.tr-pick select {
+  font-family: var(--sans); font-size: 12px; padding: 5px 6px;
+  border: 1px solid var(--rule); border-radius: 2px; background: var(--paper-2); color: var(--ink);
+}
+.tr-status { font-size: 12px; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+
+.tr-result {
+  margin: 7px 0 0; padding-left: 10px; border-left: 2px solid var(--accent-soft);
+  font-size: 13px; line-height: 1.6; color: var(--ink-2);
+}
+.tr-tag {
+  display: inline-block; margin-right: 7px; padding: 1px 5px;
+  font-family: var(--mono); font-size: 9.5px; letter-spacing: .08em;
+  color: var(--accent); border: 1px solid var(--accent-soft); border-radius: 2px;
+  vertical-align: 1px;
+}
+
+@media (max-width: 640px) {
+  .period-switch { gap: 6px; }
+  .period-chip { font-size: 12px; padding: 6px 10px; }
+}
+
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <p class="eyebrow">technique-kb · 开源 / open source</p>
+  <h1>画家技法图谱<span class="h1-sub">Technique Atlas</span></h1>
+  <p class="lede">
+    每一句话都是一条 <em>claim</em>：可证伪、带分级来源、挂在六个维度之下。
+    空的维度不是编辑选择，是校验错误。
+  </p>
+  <div id="banner" class="banner" hidden></div>
+</header>
+
+<section class="toolbar">
+  <div class="toolbar-inner">
+    <div class="search">
+      <input id="q" type="search" placeholder="问一个问题：席勒 1912 年的线条为什么是断的？" autocomplete="off" aria-label="向知识库提问" />
+      <button id="ask" class="ask" type="button">问</button>
+    </div>
+    <span class="search-hint" id="qhint">AI 检索 · DeepSeek</span>
+    <button id="ai-settings-toggle" class="settings-toggle" type="button" aria-expanded="false" aria-controls="ai-settings">设置 Key</button>
+    <nav id="tabs" class="tabs" aria-label="次级目录" hidden></nav>
+  </div>
+  <div class="ai-settings" id="ai-settings" hidden></div>
+  <div class="media-inner" id="media-row" hidden>
+    <span class="media-caption">画种</span>
+    <nav id="media" class="media-tabs" aria-label="画种筛选"></nav>
+  </div>
+</section>
+
+<main id="view" aria-live="polite">
+  <p class="loading">正在载入索引…</p>
+</main>
+
+<footer class="site-footer">
+  <div class="footer-grid">
+    <div>
+      <h3>这是什么</h3>
+      <p>一个「画家技法」的结构化事实库。数据在 YAML 里，每次推送由 GitHub Actions 校验并生成这个站点。</p>
+    </div>
+    <div>
+      <h3>怎么读一条结论</h3>
+      <ul>
+        <li><span class="chip grade-A">A</span> 学术：catalogue raisonné、论文</li>
+        <li><span class="chip grade-B">B</span> 机构：馆藏官网、档案</li>
+        <li><span class="chip grade-C">C</span> 次级：展览页、媒体</li>
+        <li>全是 C 级证据的结论，置信度必须为低</li>
+        <li>来源另分 A–E 五类：D 书籍、E 评论区只进候选池，须人审</li>
+      </ul>
+    </div>
+    <div>
+      <h3>链接</h3>
+      <ul>
+        <li><a href="https://github.com/Fucking15/artlibrary">源码与数据</a></li>
+        <li><a href="https://github.com/Fucking15/artlibrary/blob/main/docs/schema.zh.md">字段说明</a></li>
+        <li><a href="https://github.com/Fucking15/artlibrary/blob/main/schema/dossier.schema.json">Schema</a></li>
+        <li id="examine-link" hidden><a href="/examine">审查台（仅本机）</a></li>
+      </ul>
+    </div>
+  </div>
+  <p class="colophon">代码 MIT · 数据许可待定 · 图像不落库，只存 IIIF 指针 · AI 检索由 DeepSeek 提供，密钥只存本机</p>
+</footer>
+
+<script>
+/* 离线版：内联站点数据，拦截 app.js 对 ./data/index.json 的 fetch */
+window.__TK_OFFLINE__ = true;
+window.__TK_PAYLOAD__ = {"generated_at":"2026-11-21T17:05:41.262Z","schema_version":"0.1.0","dims":["period","lineage","comparison","material","composition","subject_matter"],"composition_fields":["structure_proportion","color","framing","light_shadow","brushwork"],"counts":{"artists":3,"works":8,"sources":14,"dossiers":4,"claims":66},"artists":[{"id":"schiele","zh":"埃贡·席勒","en":"Egon Schiele","birth_year":1890,"death_year":1918,"birth_place_zh":"下奥地利图尔恩","death_place_zh":"维也纳","nationality":["Austria"],"roles":["painter","draughtsman","printmaker"],"wikidata":"Q44032","notes_zh":"本库第一个纵深对象。死亡证明记载为西班牙流感，与其妻艾迪特相隔三日去世。","hasDossier":true,"dossierIds":["schiele.1906-1909","schiele.1909-1911","schiele.1911-1914","schiele.1914-1918"]},{"id":"klimt","zh":"古斯塔夫·克林姆","en":"Gustav Klimt","birth_year":1862,"death_year":1918,"birth_place_zh":null,"death_place_zh":null,"nationality":["Austria"],"roles":["painter"],"wikidata":"Q34661","notes_zh":"对照层人物。席勒 1907 年结识，1911-14 期的影响已退到材料与用色层面。","hasDossier":false,"dossierIds":[]},{"id":"kokoschka","zh":"奥斯卡·柯克施卡","en":"Oskar Kokoschka","birth_year":1886,"death_year":1980,"birth_place_zh":null,"death_place_zh":null,"nationality":["Austria","United Kingdom"],"roles":["painter","draughtsman"],"wikidata":"Q154260","notes_zh":"对照层人物。与席勒同期、同城、同被视作奥地利表现主义代表。","hasDossier":false,"dossierIds":[]}],"sources":[{"id":"src.kallir.1990","grade":"A","class":"A","kind":"catalogue_raisonne","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"lang":"en","note_zh":"席勒作品全集目录（catalogue raisonné）的第一版，是所有分期与作品信息的基础参照。"},{"id":"src.leopold.schiele","grade":"B","class":"B","kind":"museum_object_page","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","lang":"en","note_zh":"全球最大的席勒收藏（44 幅油画、200 余件纸上作品）。此处用其藏品总述页，作品级条目另立。"},{"id":"src.albertina.schiele","grade":"B","class":"B","kind":"museum_research_document","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","lang":"de","note_zh":"席勒纸上作品的收藏与研究重镇，是\"笔法\"一维最可靠的机构来源。"},{"id":"src.neuegalerie.graff.2026","grade":"C","class":"C","kind":"exhibition_page","citation":"Egon Schiele: Portrait of Dr. Erwin von Graff · Neue Galerie New York, 2026","url":"https://www.neuegalerie.org/exhibitions","lang":"en","note_zh":"展览专题页，用于佐证 von Graff 诊所见闻与母题来源；按规则只能作 C 级旁证。"},{"id":"src.schielemuseum.rivals.2026","grade":"C","class":"C","kind":"exhibition_page","citation":"Egon Schiele und Oskar Kokoschka. Rivalen · Egon Schiele Museum, Tulln, 2026","url":"https://www.schielemuseum.at/en/your-visit/exhibition","lang":"de","note_zh":"用于同期对比关系的旁证；对比维度的 A 级来源仍需补图录。"},{"id":"src.artic.1907.mother","grade":"B","class":"B","kind":"museum_object_page","citation":"The Artist's Mother · Art Institute of Chicago, 1907","url":"https://www.artic.edu/artworks/29424","lang":"en","note_zh":"1907 年 crayon 纸本肖像，是 1906–1909 期少有的带完整材质记录的机构对象。"},{"id":"src.thyssen.737","grade":"B","class":"B","kind":"museum_object_page","citation":"Self-Portrait · Museo Nacional Thyssen-Bornemisza, Madrid, 1910","url":"https://www.museothyssen.org/en/collection/artists/schiele-egon/self-portrait","lang":"en","note_zh":"1910 年水彩加炭笔纸本自画像，Inv. no. 737 (1972.19)。"},{"id":"src.met.483438","grade":"B","class":"B","kind":"museum_object_page","citation":"Self-Portrait · The Metropolitan Museum of Art, 1911","url":"https://www.metmuseum.org/art/collection/search/483438","lang":"en","note_zh":"1911 年水彩、石墨与水粉纸本；Scofield Thayer 遗赠。材质与尺寸取自官方 API 记录。"},{"id":"src.artic.1916.prisoner","grade":"B","class":"B","kind":"museum_object_page","citation":"Russian War Prisoner · Art Institute of Chicago, 1916","url":"https://www.artic.edu/artworks/25342","lang":"en","note_zh":"1916 年不透明水彩覆盖石墨的纸本作品，属 1914–1918 期。"},{"id":"src.met.483434","grade":"B","class":"B","kind":"museum_object_page","citation":"Seated Woman, Back View · The Metropolitan Museum of Art, 1917","url":"https://www.metmuseum.org/art/collection/search/483434","lang":"en","note_zh":"1917 年水彩、水粉与石墨纸本；Scofield Thayer 遗赠。"},{"id":"src.leopold.2025.late","grade":"B","class":"B","kind":"press_article","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","lang":"en","note_zh":"2025 年「Changing Times」展览的馆方新闻稿，展陈文字由策展人 Jane Kallir、Kerstin Jesse 撰写。按\"机构出品\"归 B 级；但它是展览宣传文本，措辞带评价色彩，引用时逐条给出原句，不作独立学术依据。"},{"id":"src.wp.en.schiele","grade":"C","class":"C","kind":"other","citation":"Egon Schiele · Wikipedia (English), 2026","url":"https://en.wikipedia.org/wiki/Egon_Schiele","lang":"en","note_zh":"通述性条目，用于生平常年与展览年份的交叉核对；不能单独支撑技法判断。"},{"id":"src.wp.de.schiele","grade":"C","class":"C","kind":"other","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","lang":"de","note_zh":"德文条目对学院时期、新艺术团体与 1909 年 Kunstschau 的记述较英文条更细，仍属 C 级。"},{"id":"src.wp.fr.schiele","grade":"C","class":"C","kind":"other","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","lang":"fr","note_zh":"法文条目的「Aspects techniques」「Compositions récurrentes」两节转述了 Kallir 等研究者的技术描述，是目前唯一成段的技法通述；因载体是维基，仍按 C 级使用。"}],"dossiers":[{"id":"schiele.1906-1909","artist":{"id":"schiele","zh":"埃贡·席勒","en":"Egon Schiele"},"artistMeta":{"birth":1890,"death":1918,"birthPlace":"下奥地利图尔恩","corpus":14},"period":{"label":{"zh":"学院时期（格里彭克尔班与克林姆）","en":"Academy years (Griepenkerl class, Klimt's mentorship)"},"start_year":1906,"end_year":1909,"basis_zh":"分期依据是教学环境的起止：1906 年 10 月入维也纳美术学院，随 Christian Griepenkerl 学画； 1909 年 4 月退学并另组新艺术团体。这三年共享同一套学院训练、同一批同学与同一个庇护人网络， 此后他的工作条件（独立画室、团体展览、画商）全部换了。","anchors":[{"year":1906,"month_day":null,"event_zh":"入维也纳美术学院，进入 Christian Griepenkerl 的绘画班。","evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection page, para. 1","quote":"His early knack for drawing led Schiele to the Vienna Academy as early as 1906, to a class led by Christian Griepenkerl, whose rigid structures did not speak to Schiele's own ideas.","quote_lang":"en","translation_zh":"他早年画得一手好画，1906 年就进了维也纳美术学院，入 Christian Griepenkerl 的班；后者僵硬的结构不合席勒自己的想法。","unverified":false}]},{"year":1907,"month_day":null,"event_zh":"主动结识克林姆，自此获得模特、主顾与交换作品的提携。","evidence":[{"sourceId":"src.wp.en.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (English), 2026","url":"https://en.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Biography, Klimt and first exhibitions, para. 1","quote":"In 1907, Schiele sought out Gustav Klimt, who generously mentored younger artists. Klimt took a particular interest in the young Schiele, buying his drawings, offering to exchange them for some of his own, arranging models for him, and introducing him to potential patrons.","quote_lang":"en","translation_zh":"1907 年席勒主动找到克林姆，后者一向乐于提携年轻画家。克林姆对年轻的席勒格外有兴趣：买他的素描、提出用自己的画交换、替他安排模特，还把他介绍给潜在主顾。","unverified":false}]},{"year":1908,"month_day":null,"event_zh":"在克洛斯特新堡修道院皇帝厅首次参加公开展览。","evidence":[{"sourceId":"src.wp.en.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (English), 2026","url":"https://en.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Biography, Klimt and first exhibitions, para. 3","quote":"In 1908, Schiele had his first exhibition, in Klosterneuburg.","quote_lang":"en","translation_zh":"1908 年，席勒在克洛斯特新堡第一次参加展览。","unverified":false}]},{"year":1909,"month_day":"04-00","event_zh":"退学，与不满学院的同学另组\"新艺术团体\"（Neukunstgruppe）。","evidence":[{"sourceId":"src.wp.en.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (English), 2026","url":"https://en.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Biography, Klimt and first exhibitions, para. 4","quote":"Schiele left the academy in 1909, after completing his third year, and founded the Neukunstgruppe (\"New Art Group\") with other dissatisfied students.","quote_lang":"en","translation_zh":"1909 年读完第三年后，席勒离开学院，与其他不满的学生一起创立了「新艺术团体」。","unverified":false},{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 2","quote":"Zunehmende Spannungen zwischen Lehrer und Schüler führten schließlich nach zwei Jahren, im April 1909, zum freiwilligen Austritt Schieles aus der Akademie.","quote_lang":"de","translation_zh":"师生间日益加剧的紧张关系，最终导致席勒在两年之后的 1909 年 4 月自愿退学。","unverified":false}]}]},"dimensions":{"period":[{"statement_zh":"本期以学院训练的起止划界，而不是以风格变化划界。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection page, para. 1","quote":"His early knack for drawing led Schiele to the Vienna Academy as early as 1906, to a class led by Christian Griepenkerl, whose rigid structures did not speak to Schiele's own ideas.","quote_lang":"en","translation_zh":"他早年画得一手好画，1906 年就进了维也纳美术学院，入 Christian Griepenkerl 的班；后者僵硬的结构不合席勒自己的想法。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"学院的教学以历史主义传统为基础，与席勒当时的取向不合。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"low","status":"draft","note_zh":"目前只有 C 级（百科）表述支撑，需补入学院档案或同时代人的回忆。","signed_by":null,"evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 2","quote":"In der Akademie kam Schiele in die Malklasse Christian Griepenkerls, eines konservativen, in der Tradition des Historismus verwurzelten Künstlers.","quote_lang":"de","translation_zh":"在学院里，席勒进了 Christian Griepenkerl 的绘画班；格氏是一位保守的、扎根于历史主义传统的画家。","unverified":false}],"grades":["C"],"iiif":[]}],"lineage":[{"id":"lin.schiele.klimt","relation":"teacher_mentor","counterpart":"古斯塔夫·克林姆","counterpartType":"artist","window":{"from_year":1907,"to_year":1909},"elements":["brushwork","structure_proportion"],"summary_zh":"克林姆在这三年给的不只是名声，而是能立刻上手的几件事：素描被当作可交换的硬通货、模特与主顾由他引荐、构图沿用他的平面分割。","claims":[{"statement_zh":"1907 至 1909 年的作品在构图上与克林姆高度接近，并带有新艺术的影响。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"该判断来自 C 级通述；本期尚无作品级对照（见 open_questions）。","signed_by":null,"evidence":[{"sourceId":"src.wp.en.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (English), 2026","url":"https://en.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Biography, Klimt and first exhibitions, para. 2","quote":"Schiele's earliest works between 1907 and 1909 contain strong similarities with those of Klimt, as well as influences from Art Nouveau.","quote_lang":"en","translation_zh":"席勒 1907 至 1909 年间最早的作品与克林姆的作品高度相似，同时受新艺术运动影响。","unverified":false}],"grades":["C"],"iiif":[]},{"statement_zh":"克林姆的提携是具体的：买下素描、以己作交换、安排模特、介绍主顾。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"这一条记录的是关系事实，不是技法判断；若要作技法论断，需补克林姆与席勒作品的技术对比。","signed_by":null,"evidence":[{"sourceId":"src.wp.en.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (English), 2026","url":"https://en.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Biography, Klimt and first exhibitions, para. 1","quote":"Klimt took a particular interest in the young Schiele, buying his drawings, offering to exchange them for some of his own, arranging models for him, and introducing him to potential patrons.","quote_lang":"en","translation_zh":"克林姆对年轻的席勒格外有兴趣：买他的素描、提出用自己的画交换、替他安排模特，还把他介绍给潜在主顾。","unverified":false}],"grades":["C"],"iiif":[]}]},{"id":"lin.schiele.academy","relation":"institution","counterpart":"维也纳美术学院（格里彭克尔绘画班）","counterpartType":"institution","window":{"from_year":1906,"to_year":1909},"elements":["structure_proportion"],"summary_zh":"学院给的是可被检验的造型底子：先石膏、后人体，先男后女，最后才到衣褶与构图；这一整套程序决定了他早期素描的比例感。","claims":[{"statement_zh":"学院的素描课按石膏、人体、衣褶、构图的顺序推进，比例训练来自这一程序。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"转述自法文维基对学院课程的描述，属 C 级；需补学院课程档案。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 1（学院课程部分）","quote":"l'enseignement à l'académie des beaux-arts de Vienne consiste la première année en un apprentissage du dessin très progressif (d'après plâtres à l'antique puis d'après nature, nus puis portraits, modèles masculins puis féminins, étude du drapé puis de la composition)","quote_lang":"fr","translation_zh":"维也纳美术学院第一年的教学是一套循序渐进的素描训练：先画古代石膏，再画写生，先人体后肖像，先男模特后女模特，先衣褶研究再进入构图。","unverified":false}],"grades":["C"],"iiif":[]}]}],"comparison":[{"id":"cmp.schiele.klimt.color","counterpart":"古斯塔夫·克林姆","axis":"color","their_practice_zh":"克林姆让装饰性平面与色彩本身承担画面功能，背景往往是一整片金或花纹，不服从透视。","his_difference_zh":"席勒把背景压成中性底，颜色只留在人物内部；装饰性从画面表面移到姿态上。","claims":[{"statement_zh":"与克林姆相反，席勒把背景简化到近乎消失，让纸或底色直接充当背景。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"原文描述的是他整体的做法，不是专指本期；放在此处作为本期与克林姆分野的说明。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 3","quote":"En réaction au foisonnement ornemental de l'Art nouveau et de Klimt en particulier, Egon Schiele simplifie l'arrière-plan, le réduisant à un fond anodin jusqu'à l'éliminer complètement","quote_lang":"fr","translation_zh":"作为对新艺术、尤其对克林姆那种繁复装饰的反弹，席勒简化背景，把它压成不起眼的底色，直至完全去掉。","unverified":false}],"grades":["C"],"iiif":[]}]}],"material":{"supports":["paper"],"mediums":["crayon"],"ground_zh":null,"process_zh":"纸面直接落笔，不施底；浅色部分留纸，深色部分靠蜡笔层层叠加。","claims":[{"statement_zh":"1907 年《艺术家的母亲》以黑色蜡笔画在奶白机制纸上，尺寸 42.5 × 29.5 厘米。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.artic.1907.mother","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"The Artist's Mother · Art Institute of Chicago, 1907","url":"https://www.artic.edu/artworks/29424","kind":"museum_object_page","locator":"object page, Medium / Dimensions 字段","quote":"Various black crayons on cream wove paper; 42.5 × 29.5 cm (16 3/4 × 11 5/8 in.)","quote_lang":"en","translation_zh":"多种黑色蜡笔，画在奶白机制纸上；42.5 × 29.5 厘米。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"本期纸本多为单色线描，纸的白色或奶白色直接留作画面底色。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"C 级通述；与上一条的馆方材质记录方向一致。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 3","quote":"Ses dessins laissent visible la couleur blanche ou crème du papier.","quote_lang":"fr","translation_zh":"他的素描让纸张的白色或奶白色留在画面里。","unverified":false}],"grades":["C"],"iiif":[]}]},"composition":{"structure_proportion":{"summary_zh":"比例感来自课堂写生，人物多取半身；画面重心放在头与手，躯干常被画幅截断。","claims":[{"statement_zh":"本期人物素描以半身与胸像为主，构图重心落在头部。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"由单件作品的形制推断，样本量不足，需补同期多件作品。","signed_by":null,"evidence":[{"sourceId":"src.artic.1907.mother","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"The Artist's Mother · Art Institute of Chicago, 1907","url":"https://www.artic.edu/artworks/29424","kind":"museum_object_page","locator":"object page, title 与 dimensions 字段","quote":"The Artist's Mother; Various black crayons on cream wove paper; 42.5 × 29.5 cm","quote_lang":"en","translation_zh":"《艺术家的母亲》；多种黑色蜡笔画于奶白机制纸；42.5 × 29.5 厘米。","unverified":false}],"grades":["B"],"iiif":[]}]},"color":{"summary_zh":"纸本几乎不给颜色，深浅只靠同一种黑蜡笔的轻重。","claims":[{"statement_zh":"1907 年的肖像只用黑色系蜡笔，没有第二种颜色参与。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.artic.1907.mother","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"The Artist's Mother · Art Institute of Chicago, 1907","url":"https://www.artic.edu/artworks/29424","kind":"museum_object_page","locator":"object page, Medium 字段","quote":"Various black crayons on cream wove paper","quote_lang":"en","translation_zh":"多种黑色蜡笔，画在奶白机制纸上。","unverified":false}],"grades":["B"],"iiif":[]}]},"framing":{"summary_zh":"取景贴着人物，背景留给纸本身；没有室内陈设，也没有风景。","claims":[{"statement_zh":"画面不画环境，背景由未上色的纸面承担。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"这一条只讲\"背景由纸面承担\"，未区分本期前后的取景变化，需以多件作品核对。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 3","quote":"Ses dessins laissent visible la couleur blanche ou crème du papier.","quote_lang":"fr","translation_zh":"他的素描让纸张的白色或奶白色留在画面里。","unverified":false}],"grades":["C"],"iiif":[]}]},"light_shadow":{"summary_zh":"学院练习把纸白当作高光，暗部靠排线累积，不用擦笔。","claims":[{"statement_zh":"明暗靠排线与纸白对比完成，练习中不允许用颜色或橡皮修补。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"描述的是学院课程的限制，不是席勒本人的选择；作为本期明暗习惯的背景证据。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 1（学院课程部分）","quote":"crayon sans couleurs, craie sans crayon, rehauts obtenus par le blanc du papier","quote_lang":"fr","translation_zh":"铅笔不许上色，粉笔不许配铅笔，高光靠纸的白。","unverified":false}],"grades":["C"],"iiif":[]}]},"brushwork":{"summary_zh":"线是主角：一笔到底、不擦、模特一动就叠加新线。这套习惯他此后一直保留。","claims":[{"statement_zh":"席勒把\"连续而精准的一笔\"当作目标，画时不使用橡皮，模特移动就直接叠加新线。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"两条均转引自法文维基所引的 Benesch 回忆，属 C 级；需回到 Benesch 原文核校。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 1","quote":"Il a toujours ambitionné « la ligne parfaite, le trait continu qui allie de façon inséparable rapidité et précision »","quote_lang":"fr","translation_zh":"他一直追求「完美的线，把迅速与精确不可分割地结合起来的连续笔触」。","unverified":false},{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 1（引 Otto Benesch）","quote":"Il ne connaissait pas la gomme et, si le modèle bougeait, les nouvelles lignes s'ajoutaient aux anciennes avec la même sûreté","quote_lang":"fr","translation_zh":"他不用橡皮；模特一动，新的线就同样笃定地叠在旧的线上。","unverified":false}],"grades":["C"],"iiif":[]}]}},"subject_matter":{"motifs":["portrait","self_portrait","figure_study"],"rationale_zh":"学院阶段能接触到的模特只有家人、同学与课堂人体；题材因此被环境限定，而不是被趣味选择。","claims":[{"statement_zh":"本期题材集中在家人肖像、自画像与课堂人体习作。","not_applicable":false,"reason_zh":null,"medium":["drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":"自画像的\"无数\"是通述说法；本期具体件数待以作品目录核对。","signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection page, para. 2","quote":"At the center of his artistic interest was the contemplation of his own existence, as reflected in countless self-portraits as well as landscapes and cityscapes.","quote_lang":"en","translation_zh":"他的艺术兴趣中心是对自身存在的凝视，这体现在无数自画像以及风景与城市景观中。","unverified":false},{"sourceId":"src.artic.1907.mother","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"The Artist's Mother · Art Institute of Chicago, 1907","url":"https://www.artic.edu/artworks/29424","kind":"museum_object_page","locator":"object page, title 字段","quote":"The Artist's Mother","quote_lang":"en","translation_zh":"《艺术家的母亲》。","unverified":false}],"grades":["B"],"iiif":[]}]}},"works":[{"id":"work.schiele.1907.kuenstlerinnemutter","title":{"zh":"艺术家的母亲","en":"The Artist's Mother"},"year":1907,"medium_category":"drawing_on_paper","support":"paper","mediums":["crayon"],"collection":{"institution":"Art Institute of Chicago","city":"Chicago"},"attribution":"autograph","iiif":{"status":"pending"}}],"media":{"declared":["drawing_on_paper"],"counts":{"drawing_on_paper":12}},"sourceIds":["src.artic.1907.mother","src.leopold.schiele","src.wp.de.schiele","src.wp.en.schiele","src.wp.fr.schiele"],"open_questions":[{"question_zh":"1906–1907 年的油画（如 1907 年 Czihaczek 肖像）用什么支撑与颜料？","why_open_zh":"目前只见于二手图注（布面油画、42.5 × 62.5 cm），未取得馆方对象记录，故本期不声明油画覆盖。","needs":["B"]},{"question_zh":"本期素描里\"连续线\"的具体形态能否用图像核对？","why_open_zh":"本期登记的纸上作品尚无 IIIF manifest，无法把 claim 指到具体笔画的区域。","needs":["B"]}],"stats":{"claims":14,"signed":0,"notApplicable":0,"grades":{"A":0,"B":5,"C":9},"unverifiedLocators":0},"meta":{"status":"draft","version":"0.1.0","updated":"2026-10-25","example":false,"notes_zh":"2026-10-25 新建。本期只用纸上素描一个画种立档：可核的材质记录来自芝加哥艺术博物馆 1907 年《艺术家的母亲》， 其余技法表述依赖百科通述（C 级），已逐条标为 confidence low 并写明缺口。不是示例档案，citation 均可复查。","signers":[]}},{"id":"schiele.1909-1911","artist":{"id":"schiele","zh":"埃贡·席勒","en":"Egon Schiele"},"artistMeta":{"birth":1890,"death":1918,"birthPlace":"下奥地利图尔恩","corpus":14},"period":{"label":{"zh":"表现主义突破期（离校、Kunstschau 与搬离维也纳）","en":"Expressionist breakthrough (leaving the Academy, Kunstschau, leaving Vienna)"},"start_year":1909,"end_year":1911,"basis_zh":"本期从 1909 年退学、参加维也纳「国际艺术展」并另组新艺术团体开始，到 1911 年搬离维也纳为止。 这三年他的工作条件连续变了三次：先是学院与团体并置，然后是完全靠展览与画商，最后是离开首都、 迁往克鲁毛与新伦巴赫。1910 年被他自己与后来的研究共同当作转折年。","anchors":[{"year":1909,"month_day":null,"event_zh":"在维也纳「国际艺术展」上看到梵高，此后作品明显转向表现主义。","evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 4","quote":"Für Schieles Kenntnis der Kunst van Goghs war die »Internationale Kunstschau« von 1909 von ausschlaggebender Wichtigkeit.","quote_lang":"de","translation_zh":"对席勒认识梵高的艺术来说，1909 年的「国际艺术展」具有决定性意义。","unverified":false}]},{"year":1909,"month_day":null,"event_zh":"与马克斯·奥本海默短暂交往，开始远离装饰性的青年风格。","evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 3","quote":"Durch die kurze Freundschaft mit Max Oppenheimer, den er 1909 kennenlernte, entfernte sich Schiele vom dekorativen Jugendstil.","quote_lang":"de","translation_zh":"通过与 1909 年结识的马克斯·奥本海默的短暂友谊，席勒远离了装饰性的青年风格。","unverified":false}]},{"year":1910,"month_day":null,"event_zh":"完成向表现主义的突破，被后来的研究定为他艺术的转折点。","evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 5","quote":"Das Jahr 1910 markierte mit dem Durchbruch zum Expressionismus einen entscheidenden Wendepunkt in Schieles Kunst.","quote_lang":"de","translation_zh":"1910 年随表现主义突破，成为席勒艺术中决定性的转折点。","unverified":false}]},{"year":1911,"month_day":null,"event_zh":"在维也纳 Miethke 画廊首次个展。","evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 6","quote":"Eine erste Einzelausstellung von Schieles Arbeiten wurde 1911 in der Wiener Galerie Miethke gezeigt.","quote_lang":"de","translation_zh":"席勒作品的首次个展于 1911 年在维也纳 Miethke 画廊举办。","unverified":false}]},{"year":1911,"month_day":null,"event_zh":"厌倦首都的喧闹，搬离维也纳。","evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 6","quote":"Vom Rummel in der Hauptstadt übersättigt, zog Schiele 1911 aus Wien weg.","quote_lang":"de","translation_zh":"对首都的喧闹感到餍足之后，席勒于 1911 年搬离维也纳。","unverified":false}]}]},"dimensions":{"period":[{"statement_zh":"1910 年是可断代的转折点，此后他的线条与用色都不再回到学院期。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"low","status":"draft","note_zh":"C 级通述；具体到哪一件作品完成转折，需按作品目录逐件定年。","signed_by":null,"evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 5","quote":"Das Jahr 1910 markierte mit dem Durchbruch zum Expressionismus einen entscheidenden Wendepunkt in Schieles Kunst.","quote_lang":"de","translation_zh":"1910 年随表现主义突破，成为席勒艺术中决定性的转折点。","unverified":false}],"grades":["C"],"iiif":[]},{"statement_zh":"本期的终点是搬离维也纳，而不是某一种风格的完成。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"low","status":"draft","note_zh":"以生活史事件划界，属编辑上的取舍；换用风格标准可切成 1909–1910 与 1910–1911 两段。","signed_by":null,"evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 6","quote":"Vom Rummel in der Hauptstadt übersättigt, zog Schiele 1911 aus Wien weg.","quote_lang":"de","translation_zh":"对首都的喧闹感到餍足之后，席勒于 1911 年搬离维也纳。","unverified":false}],"grades":["C"],"iiif":[]}],"lineage":[{"id":"lin.schiele.klimt.late","relation":"teacher_mentor","counterpart":"古斯塔夫·克林姆","counterpartType":"artist","window":{"from_year":1909,"to_year":1911},"elements":["color","structure_proportion"],"summary_zh":"到 1909 年，克林姆的影响已经从\"方法\"退成\"外观\"：批评者一眼就能看出像，而席勒正在把它拆掉。","claims":[{"statement_zh":"1909 年新艺术团体展出的作品仍被评论认为\"很像克林姆的风格\"。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"引的是当时评论的口径（\"alle sehr ... erinnern\"），不是今天的风格分析。","signed_by":null,"evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 3","quote":"Erste Erfolge feierte Schiele 1909 mit der Ausstellung seiner Werke, die alle sehr an Gustav Klimts Stil erinnern, im Rahmen der Neukunstgruppe in der „Großen Internationalen Kunstschau“ in Wien.","quote_lang":"de","translation_zh":"1909 年，席勒在新艺术团体于维也纳「大国际艺术展」的展览上首次获得成功，那些作品都还很像古斯塔夫·克林姆的风格。","unverified":false}],"grades":["C"],"iiif":[]}]},{"id":"lin.schiele.vangogh","relation":"movement","counterpart":"梵高（经 1909 年维也纳国际艺术展传入）","counterpartType":"movement","window":{"from_year":1909,"to_year":1911},"elements":["color","brushwork"],"summary_zh":"梵高给的不是题材，而是\"颜色可以不听物象的话\"这条许可；席勒接过去之后立刻用在自己的身体画上。","claims":[{"statement_zh":"1909 年的国际艺术展是席勒认识梵高作品的决定性场合。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"只证明\"看过并受影响\"，未证明具体哪一幅梵高作品被引用。","signed_by":null,"evidence":[{"sourceId":"src.wp.de.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipedia (Deutsch), 2026","url":"https://de.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Leben, Abs. 4","quote":"Für Schieles Kenntnis der Kunst van Goghs war die »Internationale Kunstschau« von 1909 von ausschlaggebender Wichtigkeit.","quote_lang":"de","translation_zh":"对席勒认识梵高的艺术来说，1909 年的「国际艺术展」具有决定性意义。","unverified":false}],"grades":["C"],"iiif":[]}]}],"comparison":[{"id":"cmp.schiele.1910.line","counterpart":"古斯塔夫·克林姆","axis":"brushwork","their_practice_zh":"克林姆的线是装饰性的、连续的，围绕形体走一圈就把人包进图案里。","his_difference_zh":"1910 年前后的席勒改用棱角分明的断线，线的转折直接就是情绪的转折；圆润的轮廓要到更晚才回来。","claims":[{"statement_zh":"1910 年代初的棱角线条，到后期才逐渐被更圆、更肉感的轮廓取代。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"这条同时是本期与后期的分界依据；单独使用不足以定位到某一年。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 2","quote":"Le trait anguleux du début des années 1910 cède progressivement à des contours plus ronds, plus voluptueux, agrémentés parfois de « déviations expressives » ou de hachures et petites boucles transposées peut-être de la gravure.","quote_lang":"fr","translation_zh":"1910 年代初的棱角笔触，逐渐让位于更圆、更丰润的轮廓，有时还加上「表现性的偏移」，或可能是从版画移植来的排线与小环。","unverified":false}],"grades":["C"],"iiif":[]}]}],"material":{"supports":["paper"],"mediums":["watercolor","gouache","charcoal","graphite"],"ground_zh":null,"process_zh":"先以铅笔或炭笔起形，再上水彩；需要压住纸白处加水粉，水粉有时掺胶增稠以拉大对比。","claims":[{"statement_zh":"1910 年自画像为水彩加炭笔，纸本，45 × 31.5 厘米。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.thyssen.737","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Self-Portrait · Museo Nacional Thyssen-Bornemisza, Madrid, 1910","url":"https://www.museothyssen.org/en/collection/artists/schiele-egon/self-portrait","kind":"museum_object_page","locator":"object page, Technical details 字段","quote":"Watercolor and charcoal on paper. 45 x 31.5 cm","quote_lang":"en","translation_zh":"水彩与炭笔，纸本。45 × 31.5 厘米。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"1911 年自画像用不透明水彩、石墨与水粉三种媒介叠在同一张纸上。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.met.483438","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Self-Portrait · The Metropolitan Museum of Art, 1911","url":"https://www.metmuseum.org/art/collection/search/483438","kind":"museum_object_page","locator":"object page, Medium 字段","quote":"Watercolor, graphite, and gouache on paper","quote_lang":"en","translation_zh":"水彩、石墨与水粉，纸本。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"水粉比水彩更\"听话\"，席勒会在里面掺胶把它变稠，用来强行拉开明暗对比。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"工艺描述来自 C 级通述，未经颜料分析核实。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 3","quote":"Dans ses dessins, Schiele use de l'aquarelle et de la gouache, plus maniable, parfois épaissie à la colle pour forcer le contraste.","quote_lang":"fr","translation_zh":"在素描里，席勒使用水彩与水粉；水粉更易操控，有时掺胶增稠以强化对比。","unverified":false}],"grades":["C"],"iiif":[]}]},"composition":{"structure_proportion":{"summary_zh":"人体被画成扭曲、悬空的姿态，多数取俯视；比例服务于姿态的紧张，而不是解剖的准确。","claims":[{"statement_zh":"他的人物像被吊起来一样悬着，并且常从上方俯看。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"通述，未限定年份；本期是否已普遍如此，需按作品逐件核对。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 1","quote":"À l'instar de ses sujets non vivants, ses figures contorsionnées sont comme suspendues et saisies en plongée.","quote_lang":"fr","translation_zh":"与他画的无生命对象一样，他那些扭曲的人物像是悬着，并且是从上方俯拍下来的。","unverified":false}],"grades":["C"],"iiif":[]}]},"color":{"summary_zh":"1910 年之后酸性色退场，棕、黑、深蓝、紫成为主调；颜色不再描述对象，而是加压。","claims":[{"statement_zh":"1910 年起，刺眼与不谐的颜色减少，代之以褐、黑、蓝与深紫。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"原文紧接着还说明他并未排除白与鲜艳色；这一条只讲趋势。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 4","quote":"À partir de 1910, les couleurs acides ou discordantes s'atténuent au profit de bruns, noirs, bleus, violets foncés","quote_lang":"fr","translation_zh":"从 1910 年起，酸性或不谐的颜色减弱，代之以褐色、黑色、蓝色与深紫色。","unverified":false}],"grades":["C"],"iiif":[]}]},"framing":{"summary_zh":"线性透视被弃用，取景抬高到俯视；背景压成一片中性色，直到彻底空掉。","claims":[{"statement_zh":"他放弃文艺复兴以来的线性透视，改用不寻常的俯视视角。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"通述覆盖其全部创作，不专指本期；本期只取俯视这一条作为可核对项。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 2","quote":"Faisant table rase de la perspective linéaire en vigueur depuis la Renaissance et de l'illusion spatiale qu'elle induit, Schiele adopte sur ses sujets un point de vue surplombant inhabituel.","quote_lang":"fr","translation_zh":"他把文艺复兴以来通行的线性透视及其造成的空间错觉一并推翻，对笔下对象采用不寻常的俯视视角。","unverified":false}],"grades":["C"],"iiif":[]}]},"light_shadow":{"summary_zh":"亮部就是纸本身；暗部靠浓度与叠加，而不是靠灰调过渡。","claims":[{"statement_zh":"画面亮部直接由纸的白或奶白色承担，不用白颜料提亮。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"与 1906–1909 期同一条引文；本期需另找能证明\"不用白颜料\"的馆方技术记录。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 3","quote":"Ses dessins laissent visible la couleur blanche ou crème du papier.","quote_lang":"fr","translation_zh":"他的素描让纸张的白色或奶白色留在画面里。","unverified":false}],"grades":["C"],"iiif":[]}]},"brushwork":{"summary_zh":"轮廓用脂笔加重，成为纸面与体积之间的界线；这一手法在本期定型，此后一直保留。","claims":[{"statement_zh":"除 1911 至 1912 年短暂例外，轮廓线都用脂笔压重，作为纸面的平面与人体体积之间的分界。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"原文点明 1911–1912 是例外，正好横跨本期与下一期的边界，需注意归属。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 2","quote":"Hormis entre 1911 et 1912 où le tracé à la mine de plomb très dure se voit à peine, les contours à la mine grasse sont appuyés. Ils marquent une frontière entre la planéité de la feuille et les volumes du sujet","quote_lang":"fr","translation_zh":"除了 1911 至 1912 年间用极硬铅笔、几乎看不见痕迹的那一段，轮廓都用脂笔加重。它们在纸的平面与对象的体积之间划出一道边界。","unverified":false}],"grades":["C"],"iiif":[]}]}},"subject_matter":{"motifs":["self_portrait","nude","portrait"],"rationale_zh":"自画像与裸体是他把\"看自己\"和\"看身体\"合成一件事的地方；本期数量激增，与水彩技法成熟同步。","claims":[{"statement_zh":"纸上作品里最多的题材是自画像与男女裸体，姿态与细节常常直白到冒犯。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"概括其全部纸本创作；本期占比更高是推断，需以作品目录统计。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 1 Œuvre, para. 3","quote":"natures mortes, paysages, portraits, allégories et surtout autoportraits et nus féminins et masculins innombrables, aux postures ou détails parfois crus","quote_lang":"fr","translation_zh":"静物、风景、肖像、寓意画，尤其是数不清的自画像与男女裸体，姿态或细节有时相当直露。","unverified":false}],"grades":["C"],"iiif":[]}]}},"works":[{"id":"work.schiele.1910.selbstbildnis-thyssen","title":{"zh":"自画像（蒂森藏）","en":"Self-Portrait"},"year":1910,"medium_category":"colored_on_paper","support":"paper","mediums":["watercolor","charcoal"],"collection":{"institution":"Museo Nacional Thyssen-Bornemisza","city":"Madrid","inventory_no":"737 (1972.19)"},"attribution":"autograph","iiif":{"status":"pending"}},{"id":"work.schiele.1911.selbstbildnis-met","title":{"zh":"自画像（大都会藏）","en":"Self-Portrait"},"year":1911,"medium_category":"colored_on_paper","support":"paper","mediums":["watercolor","graphite","gouache"],"collection":{"institution":"The Metropolitan Museum of Art","city":"New York"},"attribution":"autograph","iiif":{"status":"pending"}}],"media":{"declared":["colored_on_paper"],"counts":{"colored_on_paper":12}},"sourceIds":["src.met.483438","src.thyssen.737","src.wp.de.schiele","src.wp.fr.schiele"],"open_questions":[{"question_zh":"1910 年的\"突破\"能否用单件作品的技法变化来定位？","why_open_zh":"现有材料都是通述（\"1910 年是转折点\"），没有逐件定年的技术记录，无法把转折点钉到某一张画上。","needs":["A"]},{"question_zh":"本期水彩与水粉的实际配比能否被检测？","why_open_zh":"掺胶增稠的说法来自 C 级通述，尚无颜料分析或修复报告佐证。","needs":["A","B"]}],"stats":{"claims":14,"signed":0,"notApplicable":0,"grades":{"A":0,"B":2,"C":12},"unverifiedLocators":0},"meta":{"status":"draft","version":"0.1.0","updated":"2026-10-25","example":false,"notes_zh":"2026-10-25 新建。本期只用纸上彩色作品立档：材质记录来自提森-博内米萨（1910 自画像）与大都会（1911 自画像）， 其余为德/法文百科通述（C 级），已逐条标 low 并写缺口。分期边界取\"退学—搬离维也纳\"，属编辑取舍，另在 open_questions 标注。","signers":[]}},{"id":"schiele.1911-1914","artist":{"id":"schiele","zh":"埃贡·席勒","en":"Egon Schiele"},"artistMeta":{"birth":1890,"death":1918,"birthPlace":"下奥地利图尔恩","corpus":24},"period":{"label":{"zh":"自我风格成形期（新伦巴赫）","en":"Formation of an individual manner (Neulengbach)"},"start_year":1911,"end_year":1914,"basis_zh":"分期依据不是年份整齐，而是三件事同时发生：1911 年迁离维也纳使观看距离从展厅变成室内一臂之内； 1912 年新伦巴赫事件后他放弃此前的装饰性用色与展览性姿态；1914 年母子/双人构图规模重新出现，此期收束。","anchors":[{"year":1911,"month_day":null,"event_zh":"迁往维也纳近郊新伦巴赫，工作与生活合一，模特来自当地。","evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, s.v. 1911（待核验）","quote":"Schiele moved to Neulengbach in 1911, where studio and living space were one and the same.","quote_lang":"en","translation_zh":"1911 年席勒迁往新伦巴赫，画室与居所合一。","unverified":true}]},{"year":1912,"month_day":"04-13","event_zh":"因涉及未成年模特的指控被捕，被关押二十余天，后被判\"有伤风化\"。","evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"online collection, biography section（待核验）","quote":"Im April 1912 wurde Schiele in Neulengbach verhaftet und für 24 Tage in Haft gehalten.","quote_lang":"de","translation_zh":"1912 年 4 月，席勒在新伦巴赫被捕并关押 24 天。","unverified":true}]}]},"dimensions":{"period":[{"statement_zh":"此期分期以取景距离的收缩为准，而非以年份或展览活动为准。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"The Neulengbach years mark a shift from exhibition-scale figures to bodies seen at close range.","quote_lang":"en","translation_zh":"新伦巴赫时期标志着从展览尺度的全身像转向近距离观看的身体。","unverified":true}],"grades":["A"],"iiif":[]},{"statement_zh":"1912 年的牢狱经历改变了画面容量，但没有构成分期断点。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"low","status":"draft","note_zh":"此判断目前只有单一 A 级来源支撑，需再补一条独立证据。","signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, s.v. 1912（待核验）","quote":"After the Neulengbach arrest the narrative apparatus disappears; what remains is the body and the wall.","quote_lang":"en","translation_zh":"新伦巴赫事件后，叙述性装置消失，留下的是身体与墙。","unverified":true}],"grades":["A"],"iiif":[]}],"lineage":[{"id":"lin.schiele.klimt","relation":"teacher_mentor","counterpart":"古斯塔夫·克林姆","counterpartType":"artist","window":{"from_year":1907,"to_year":1911},"elements":["color","structure_proportion"],"summary_zh":"到 1911 年，克林姆留下的主要不是题材，而是平面切割的构图习惯与低饱和的装饰性配色；金箔式的表面处理已被弃用。","claims":[{"statement_zh":"克林姆的影响在此期收缩到\"平面切割 + 低饱和用色\"，不再是构图母题。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"By 1911 Klimt's example survived in Schiele's flat compositional cutting rather than in subject matter.","quote_lang":"en","translation_zh":"到 1911 年，克林姆的示范留存在席勒的平面式构图切割里，而不在题材上。","unverified":true}],"grades":["A"],"iiif":[]},{"statement_zh":"他明确放弃了克林姆式的装饰表面，把装饰性从画面表面移到了姿态上。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper"],"confidence":"low","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection note on the 1912 self-portraits（待核验）","quote":"Die ornamentale Oberfläche tritt zurück; die Gebärdensprache übernimmt die dekorative Funktion.","quote_lang":"de","translation_zh":"装饰性表面退居其次，姿态语言承担了装饰功能。","unverified":true}],"grades":["B"],"iiif":[]}]},{"id":"lin.schiele.prior-period","relation":"self_prior_period","counterpart":"分离派时期（1909–1911）","counterpartType":"self_prior_period","window":{"from_year":1909,"to_year":1911},"elements":["brushwork","color"],"summary_zh":"与前一期真正连续的是用线习惯；断裂的是色彩策略与画面密度。","claims":[{"statement_zh":"用线方式与前一期连续，一笔定形的习惯没有中断。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, 1909–1912 comparative entry（待核验）","quote":"Die Kontur bleibt von 1909 bis 1912 nahezu unverändert, während die Farbigkeit radikal reduziert wird.","quote_lang":"de","translation_zh":"1909 至 1912 年间轮廓线几乎未变，而色彩被大幅削减。","unverified":true}],"grades":["B"],"iiif":[]},{"statement_zh":"色彩策略与前一期断裂，色域被压到三四色。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"The palette of 1911–1914 is narrowed to flesh, ochre, black and white.","quote_lang":"en","translation_zh":"1911 至 1914 年的色域被压缩到肉色、赭、黑与白。","unverified":true}],"grades":["A"],"iiif":[]}]}],"comparison":[{"id":"cmp.schiele.kokoschka.brushwork","counterpart":"奥斯卡·柯克施卡","axis":"brushwork","their_practice_zh":"柯克施卡用宽笔、厚涂与可见的涂抹速度制造动势，笔触本身承担情绪。","his_difference_zh":"席勒用干硬轮廓线定形，再用薄色填到边界内侧；动势被压进姿态与关节角度，不放任在笔触里。","claims":[{"statement_zh":"同时期两人处理动势的位置不同：柯克施卡在笔触，席勒在身体姿态。","not_applicable":false,"reason_zh":null,"medium":["oil"],"confidence":"medium","status":"draft","note_zh":"展览文本为 C 级来源，已叠加一条 A 级来源，故整体不降级。","signed_by":null,"evidence":[{"sourceId":"src.schielemuseum.rivals.2026","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele und Oskar Kokoschka. Rivalen · Egon Schiele Museum, Tulln, 2026","url":"https://www.schielemuseum.at/en/your-visit/exhibition","kind":"exhibition_page","locator":"exhibition text, section Rivalität（待核验）","quote":"Kokoschka malt die Bewegung, Schiele zeichnet die Haltung.","quote_lang":"de","translation_zh":"柯克施卡画的是动势，席勒画的是姿态。","unverified":true},{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, comparative note（待核验）","quote":"Where Kokoschka's handling is loaded with paint, Schiele's line stays dry and the colour stays inside it.","quote_lang":"en","translation_zh":"柯克施卡的处理充满颜料，席勒的线保持干涩，颜色被限制在线的内侧。","unverified":true}],"grades":["A","C"],"iiif":[]}]},{"id":"cmp.schiele.klimt.framing","counterpart":"古斯塔夫·克林姆","axis":"framing","their_practice_zh":"克林姆用画框内外的连续纹样把人物包进装饰场，取景服从于整体图案。","his_difference_zh":"席勒把取景当切割工具：人物被画幅边缘截断（头、手、脚出画），留白直接当空白场使用。","claims":[{"statement_zh":"取景从\"装饰场的容器\"变成\"切割身体的工具\"。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection note, framing（待核验）","quote":"Der Bildrand wird zum Schneideinstrument: Köpfe, Hände und Füße fallen aus dem Bild.","quote_lang":"de","translation_zh":"画幅边缘成为切割工具：头部、手与脚被切出画面。","unverified":true}],"grades":["B"],"iiif":[]}]},{"id":"cmp.schiele.prior-period.color-paper","counterpart":"分离派时期（1909–1911）","axis":"color","their_practice_zh":"前期纸上作品以色块并置取得张力，底材基本画满。","his_difference_zh":"此期纸上作品大面积留出未涂的纸白，让空白承担画面分量。","claims":[{"statement_zh":"纸上的张力从色彩并置换成了纸白与未涂区域。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, colour note（待核验）","quote":"Der unbemalte Grund wird zum aktiven Bildelement.","quote_lang":"de","translation_zh":"未涂的底材成为主动的画面元素。","unverified":true}],"grades":["B"],"iiif":[]}]},{"id":"cmp.schiele.prior-period.color-oil","counterpart":"分离派时期（1909–1911）","axis":"color","their_practice_zh":"前期的油画靠色块并置与较厚的颜料层建立画面。","his_difference_zh":"此期油画里所谓的空白其实是薄涂与刮薄，仍有一层颜料，不是未涂的画布。","claims":[{"statement_zh":"油画的空白是刮薄的色层，与纸上的未涂底材性质不同。","not_applicable":false,"reason_zh":null,"medium":["oil"],"confidence":"low","status":"draft","note_zh":"单条 B 级来源，需补图录核对笔层。","signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection note, paint handling（待核验）","quote":"Die hellen Partien der Ölbilder sind dünn ausgestrichene Farbschichten, kein unbemalter Grund.","quote_lang":"de","translation_zh":"油画中的亮部是薄薄刮开的色层，不是未涂的底子。","unverified":true}],"grades":["B"],"iiif":[]}]},{"id":"cmp.schiele.self.other-medium","counterpart":"他自己的纸上素描（同期）","axis":"brushwork","their_practice_zh":"纸上素描用铅笔或黑粉笔单线定形，只有极薄的局部点染，纸白即亮部。","his_difference_zh":"同期油画仍用单线起形，但体积交给薄涂的色层深浅，空白是刮薄而非空缺。","claims":[{"statement_zh":"同一时期他把纸上作品压成线加留白，却给油画留了一层可刮薄的颜料。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, comparative note on oils and works on paper（待核验）","quote":"The works on paper stop at line and bare paper; the oils go one layer further, however thin.","quote_lang":"en","translation_zh":"纸上作品止于线条与纸底，油画则多走一层，尽管很薄。","unverified":true}],"grades":["A"],"iiif":[]}]}],"material":{"supports":["paper","canvas"],"mediums":["pencil","watercolor","gouache","oil"],"ground_zh":"纸上作品多不加底，直接用纸本色作为亮部；油画布上仅做薄底。","process_zh":"铅笔或黑粉笔一笔起形，不做修改；纸上水彩、水粉局部点染在轮廓内侧，最后才补少量高饱和的局部（唇、伤口、衣物边缘）。油画同一起形逻辑，但色层可继续覆盖与刮薄。","claims":[{"statement_zh":"纸上作品的工序是\"线先定形、色后退填\"。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper","drawing_on_paper"],"confidence":"high","status":"signed","note_zh":"示例数据。原先指向布面油画的一条 IIIF 局部已移除——画种不符，待登记该期纸上作品的 manifest 再补。","signed_by":{"reviewer":"example-reviewer","role":"author","date":"2026-10-25","note_zh":"示例签字，仅演示签署结构与校验规则，不代表已真实核验。"},"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, technique note（待核验）","quote":"Zuerst die Kontur, dann die Farbe — und die Farbe bleibt innerhalb der Linie.","quote_lang":"de","translation_zh":"先轮廓，后颜色——而且颜色留在轮廓线之内。","unverified":true},{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"The drawing is built line first; colour is applied afterwards and stays inside the contour.","quote_lang":"en","translation_zh":"素描先立线，颜色随后施上并留在轮廓之内。","unverified":true}],"grades":["A","B"],"iiif":[]},{"statement_zh":"油画几乎不用罩染，体积靠薄涂深浅而非透明层。","not_applicable":false,"reason_zh":null,"medium":["oil"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection note on technique（待核验）","quote":"Auf Lasieren verzichtet Schiele weitgehend; die Modellierung entsteht aus dünnen, deckenden Schichten.","quote_lang":"de","translation_zh":"席勒基本放弃罩染，体积感来自薄薄的覆盖层。","unverified":true}],"grades":["B"],"iiif":[]},{"statement_zh":"纸上的体积感来自线条密度，不来自颜料层次。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, modelling note（待核验）","quote":"Die Modellierung entsteht aus der Liniendichte, nicht aus der Farbschicht.","quote_lang":"de","translation_zh":"体积感来自线条密度，而非色层。","unverified":true}],"grades":["B"],"iiif":[]}]},"composition":{"structure_proportion":{"summary_zh":"人体比例被主动改写：躯干压缩、四肢拉长，关节（手、锁骨、髋）被放大成视觉重心。这一层在油画与纸上作品里一致。","claims":[{"statement_zh":"比例不是失真，而是把权重从躯干转移到关节。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"The torso is shortened so that hands, shoulders and hips can carry the weight of the figure.","quote_lang":"en","translation_zh":"躯干被缩短，以便手、肩与髋承担人物重量。","unverified":true}],"grades":["A"],"iiif":[{"work":"work.schiele.1912.laternenbluete-selbstbildnis","region":"pct:20,45,60,40","note_zh":"双手与锁骨占据画面重心，躯干被压扁。","workTitle":"带中国灯笼花的自画像"}]}]},"color":{"summary_zh":"油画的色域收窄到肉色、赭、黑、白，高饱和只留极小的点；纸上彩色作品沿用同一套色域，但以纸白替代白色。素描不谈颜色。","claims":[{"statement_zh":"高饱和色被限制在不超过画面百分之几的局部，用作视觉钩子。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, colour note（待核验）","quote":"Kräftige Farbe erscheint nur punktuell — an Lippen, Wunden, Kleiderkanten.","quote_lang":"de","translation_zh":"强烈色彩只以点状出现——在唇、伤口与衣缘。","unverified":true}],"grades":["B"],"iiif":[]},{"statement_zh":null,"not_applicable":true,"reason_zh":"此期纸上素描一律为黑白（铅笔、炭笔、黑色粉笔），不存在色彩处理可写，因此颜色一项对素描不适用。","medium":["drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, 1911–1914 holdings（待核验）","quote":"Die Zeichnungen dieser Jahre sind durchgehend schwarzweiß gearbeitet.","quote_lang":"de","translation_zh":"这一时期的素描通篇以黑白完成。","unverified":true}],"grades":["B"],"iiif":[]}]},"framing":{"summary_zh":"近距离裁切，人物常被画幅边缘切断，视点略高；纸上的裁切比油画更激进，常常只留半个身体。","claims":[{"statement_zh":"取景高度被压到一臂之内，画面里几乎不出现完整站姿。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — collection holdings · Leopold Museum, 2026","url":"https://www.leopoldmuseum.org/en/collection/egon-schiele","kind":"museum_object_page","locator":"collection note, framing（待核验）","quote":"Die Ganzfigur verschwindet; der Bildausschnitt rückt auf Armeslänge heran.","quote_lang":"de","translation_zh":"全身像消失，取景逼近到一臂距离。","unverified":true}],"grades":["B"],"iiif":[]}]},"light_shadow":{"summary_zh":"明暗在两套媒介里由不同东西承担：纸上靠线条密度，油画靠薄色层的深浅，两者都没有连续过渡。","claims":[{"statement_zh":"纸上的灰褐只作辅助，体积主要由线条疏密给出。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.albertina.schiele","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Egon Schiele — graphic works, online collection · Albertina, 2026","url":"https://www.albertina.at/","kind":"museum_research_document","locator":"graphic works, modelling note（待核验）","quote":"Die Schattierung bleibt dünn und lokal; das Volumen entsteht aus der Linie.","quote_lang":"de","translation_zh":"阴影薄而局部，体积由线条产生。","unverified":true}],"grades":["B"],"iiif":[]},{"statement_zh":"油画的体积由薄色层深浅给出，不靠排线。","not_applicable":false,"reason_zh":null,"medium":["oil"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, technique note on the oils（待核验）","quote":"In the oils the volume comes from a shallow tonal build-up, not from hatching.","quote_lang":"en","translation_zh":"油画里体积来自很浅的色调层次，而不是排线。","unverified":true}],"grades":["A"],"iiif":[]}]},"brushwork":{"summary_zh":"轮廓一笔到底、不重复修改，边缘干硬；线与色的先后关系在两套媒介里一致，笔触本身不作表现手段。","claims":[{"statement_zh":"他的识别特征是\"一笔到底\"：轮廓不重描，错误留在画面上。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"high","status":"verified","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"Schiele rarely corrected a contour; the first line stays visible as the final line.","quote_lang":"en","translation_zh":"席勒很少修改轮廓，第一根线就作为最终的线留在画面上。","unverified":true}],"grades":["A"],"iiif":[{"work":"work.schiele.1912.die-eremiten","region":"pct:10,20,40,60","note_zh":"看两人之间的空隙：轮廓单线，无复线修补。","workTitle":"隐士（双重自画像）"}]},{"statement_zh":"笔触不承担情绪，情绪由姿态与视线承担。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, introduction（待核验）","quote":"The handling stays neutral; the expression is carried by pose and gaze.","quote_lang":"en","translation_zh":"处理方式保持中性，表现力由姿态与目光承担。","unverified":true}],"grades":["A"],"iiif":[]}]}},"subject_matter":{"motifs":["self_portrait","double_portrait","nude","figure_study","portrait"],"rationale_zh":"迁居后模特来源变成身边人（情人、妻子、当地少女），题材从\"我\"扩展到\"我与另一个人的关系\"，孕妇、病床、死者随之出现。","claims":[{"statement_zh":"题材重心从单人的自我转向双人关系，并在 1914 年前后回到母子构图。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"medium","status":"draft","note_zh":"仅覆盖油画、纸上彩色与素描；版画与水彩本期未纳入，因此不主张为跨全部画种的通例。","signed_by":null,"evidence":[{"sourceId":"src.kallir.1990","grade":"A","gradeLabel":"学术 catalogue raisonné / 论文","citation":"Jane Kallir · Egon Schiele: The Complete Works · Harry N. Abrams · New York, 1990","url":null,"kind":"catalogue_raisonne","locator":"cat. raisonné, s.v. 1911–1914（待核验）","quote":"Between 1911 and 1914 the single figure gives way to pairs, and the pair gives way to mother and child.","quote_lang":"en","translation_zh":"1911 至 1914 年间，单人让位于双人，双人又让位于母子。","unverified":true}],"grades":["A"],"iiif":[]},{"statement_zh":"孕妇与病床题材的来源是可指认的：von Graff 的诊所见闻，而非象征性想象。","not_applicable":false,"reason_zh":null,"medium":["oil","colored_on_paper","drawing_on_paper"],"confidence":"low","status":"draft","note_zh":"仅 C 级来源，需补 A 级研究文献后方可提升。","signed_by":null,"evidence":[{"sourceId":"src.neuegalerie.graff.2026","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele: Portrait of Dr. Erwin von Graff · Neue Galerie New York, 2026","url":"https://www.neuegalerie.org/exhibitions","kind":"exhibition_page","locator":"exhibition text（待核验）","quote":"Dr. Erwin von Graff gave Schiele direct access to patients: newborns, pregnant women, and the infirm.","quote_lang":"en","translation_zh":"埃尔温·冯·格拉夫医生让席勒直接接触病人：新生儿、孕妇与病弱者。","unverified":true}],"grades":["C"],"iiif":[]}]}},"works":[{"id":"work.schiele.1912.die-eremiten","title":{"zh":"隐士（双重自画像）","en":"The Hermits (Double Self-Portrait)","de":"Die Eremiten"},"year":1912,"medium_category":"oil","support":"canvas","mediums":["oil"],"collection":{"institution":"Leopold Museum","city":"Vienna"},"attribution":"autograph","iiif":{"status":"pending"}},{"id":"work.schiele.1912.laternenbluete-selbstbildnis","title":{"zh":"带中国灯笼花的自画像","en":"Self-Portrait with Chinese Lantern Plant","de":"Selbstbildnis mit chinesischem Laternenblüten"},"year":1912,"medium_category":"oil","support":"canvas","mediums":["oil"],"collection":{"institution":"Leopold Museum","city":"Vienna"},"attribution":"autograph","iiif":{"status":"pending"}},{"id":"work.schiele.1914.tote-mutter","title":{"zh":"死去的母亲","en":"Dead Mother","de":"Tote Mutter"},"year":1914,"medium_category":"oil","support":"canvas","mediums":["oil"],"collection":{"institution":"Leopold Museum","city":"Vienna"},"attribution":"autograph","iiif":{"status":"pending"}}],"media":{"declared":["oil","colored_on_paper","drawing_on_paper"],"counts":{"oil":17,"colored_on_paper":17,"drawing_on_paper":14}},"sourceIds":["src.albertina.schiele","src.kallir.1990","src.leopold.schiele","src.neuegalerie.graff.2026","src.schielemuseum.rivals.2026"],"open_questions":[{"question_zh":"1911–14 期他与维也纳分离派的形式关系是否已完全切断？","why_open_zh":"缺少同期展览目录的 A 级证据，现有材料只能证明他没有再以群体身份参展。","needs":["A"]},{"question_zh":"本期纸上作品与油画的分期节奏是否一致？","why_open_zh":"目前沿用同一套 1911–1914 分期，但纸上的裁切变化似乎早于油画半年到一年，需逐件定年才能确认。","needs":["A","B"]}],"stats":{"claims":24,"signed":1,"notApplicable":1,"grades":{"A":12,"B":12,"C":2},"unverifiedLocators":26},"meta":{"status":"draft","version":"0.2.0","updated":"2026-10-25","example":true,"notes_zh":"结构示例：六维按三个画种全部填满，引用为示意，locator 待核验。不得作为对外发布内容。","signers":["example-reviewer"]}},{"id":"schiele.1914-1918","artist":{"id":"schiele","zh":"埃贡·席勒","en":"Egon Schiele"},"artistMeta":{"birth":1890,"death":1918,"birthPlace":"下奥地利图尔恩","corpus":14},"period":{"label":{"zh":"晚期（战争、婚姻与写实转向）","en":"Late period (war, marriage, turn to realism)"},"start_year":1914,"end_year":1918,"basis_zh":"本期从 1914 年战争爆发开始，到 1918 年他死于西班牙流感为止。这四年里外部现实强行进入画面： 1915 年结婚、随即被征入伍，1917 年回到维也纳并开始经营自己的名声。分期依据是这些外部事件， 而非某一种笔法的完成——晚期笔法本身就是逐步变\"安静\"的。","anchors":[{"year":1914,"month_day":null,"event_zh":"战争爆发，私人生活与历史环境同时剧变，作品的重心从内省转向外部现实。","evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 1","quote":"From 1914, Schiele faced dramatic changes both of a private and historical nature, which he was forced to adapt to and which impacted on his oeuvre. His introspection gave way to a new focus on external realities and novel themes, altering his artistic style.","quote_lang":"en","translation_zh":"从 1914 年起，席勒面对私人生活与历史环境的剧烈变化，不得不适应这些变化，它们也影响了他的创作。他的内省让位于对外部现实与新题材的关注，其艺术风格随之改变。","unverified":false}]},{"year":1915,"month_day":null,"event_zh":"入伍，此后三年间画了四十余幅士兵与军官肖像。","evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 5","quote":"His heightened sense of empathy is reflected in numerous portraits of soldiers and officers he created from 1915; today, we are aware of more than 40 such likenesses he executed until 1918.","quote_lang":"en","translation_zh":"他增强的同理心体现在 1915 年起创作的众多士兵与军官肖像中；今天我们所知他直到 1918 年画了四十余幅这类肖像。","unverified":false}]},{"year":1917,"month_day":null,"event_zh":"回到维也纳，着手在艺术界取得领导地位；版画集很快售罄。","evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, section 'Success, Late Nudes and Last Works'","quote":"In 1917, Schiele was able to return to Vienna, and was determined to assume a leading position in the art world. A portfolio of prints he issued, featuring reproductions of his drawings, soon sold out, and the artist was asked to help with the realization of exhibitions.","quote_lang":"en","translation_zh":"1917 年席勒得以回到维也纳，并决意要在艺术界取得领导地位。他发行的一册版画集（收录其素描的复制品）很快售罄，他还被邀请参与展览的筹办。","unverified":false}]},{"year":1918,"month_day":null,"event_zh":"参加分离派第 49 届展览并设计海报；同年秋死于西班牙流感。","evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ Biographie, para. 5","quote":"C'est alors qu'il succombe, ainsi que son épouse enceinte, à la grippe espagnole.","quote_lang":"fr","translation_zh":"就在那时，他与怀孕的妻子都死于西班牙流感。","unverified":false}]}]},"dimensions":{"period":[{"statement_zh":"本期以 1914 年战争爆发为起点，此后他的题材与笔法同时转向外部世界。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 1","quote":"His introspection gave way to a new focus on external realities and novel themes, altering his artistic style.","quote_lang":"en","translation_zh":"他的内省让位于对外部现实与新题材的关注，其艺术风格随之改变。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"晚期风格不是\"变弱\"，而是线条更流畅、人物更有实体感、共情更强。","not_applicable":false,"reason_zh":null,"medium":["period_level"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 2","quote":"is characterized by calmer, more fluent and organic strokes, more realistic figures with an increased physical presence, as well as greater empathy","quote_lang":"en","translation_zh":"其特征是更平静、更流畅而有机的笔触，更写实、实体感更强的人物，以及更强的共情。","unverified":false}],"grades":["B"],"iiif":[]}],"lineage":[{"id":"lin.schiele.self.1911-1914","relation":"self_prior_period","counterpart":"前一时期（1911–1914 的棱角线）","counterpartType":"self_prior_period","window":{"from_year":1914,"to_year":1918},"elements":["brushwork","structure_proportion"],"summary_zh":"晚期是\"接着自己往下走\"：把 1910 年代初的断续棱角磨成连续而有机的线，同时保留俯视与裁切。","claims":[{"statement_zh":"与前一时期相比，晚期的线条更有机、更少躁动，姿态经过推敲，透视缩短更讲究。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, section 'Success, Late Nudes and Last Works'","quote":"Schiele’s lines became more organic and less erratic, and he demonstrated his artistic prowess in well-considered poses and sophisticated foreshortening.","quote_lang":"en","translation_zh":"席勒的线条变得更有机、更少躁动，他在经过推敲的姿态与讲究的透视缩短中展示了功力。","unverified":false}],"grades":["B"],"iiif":[]}]},{"id":"lin.schiele.war","relation":"institution","counterpart":"奥匈帝国军队（1915–1918 服役）","counterpartType":"institution","window":{"from_year":1915,"to_year":1918},"elements":["subject_matter"],"summary_zh":"军队把陌生人推到他面前：战俘、军官、医院里的人。这些面孔取代了他早年只画身边人的题材结构。","claims":[{"statement_zh":"服役期间他画了大量士兵与军官肖像，共四十余幅。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 5","quote":"numerous portraits of soldiers and officers he created from 1915; today, we are aware of more than 40 such likenesses he executed until 1918","quote_lang":"en","translation_zh":"他 1915 年起创作了众多士兵与军官肖像；今天我们所知他直到 1918 年画了四十余幅这类肖像。","unverified":false}],"grades":["B"],"iiif":[]}]}],"comparison":[{"id":"cmp.schiele.landscape.late","counterpart":"他自己早期的风景（1907–1910）","axis":"structure_proportion","their_practice_zh":"早期风景常被风格化，房屋与树被拉长、拟人化，地平线服从构图。","his_difference_zh":"晚期风景转向自然主义：他要画的是\"看到的城\"，而不是\"感到的城\"。","claims":[{"statement_zh":"晚期风景越来越自然主义，与早期那种常带拟人元素的风格化风景形成对照。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 4","quote":"Schiele’s later landscapes are also testament to his increasing naturalistic approach – much in contrast to his early, often stylized landscape motifs, which at times featured anthropomorphic elements.","quote_lang":"en","translation_zh":"席勒晚期的风景也印证了他日益增强的自然主义取向——这与他早期往往风格化、有时带拟人元素的风景母题形成鲜明对比。","unverified":false}],"grades":["B"],"iiif":[]}]}],"material":{"supports":["paper"],"mediums":["watercolor","gouache","graphite","charcoal","mixed_media"],"ground_zh":null,"process_zh":"石墨或炭笔起形，再以水彩铺底、不透明水彩压暗；纸的底色常被保留为中间调。","claims":[{"statement_zh":"1916 年《俄国战俘》用不透明水彩覆盖在石墨上，画在奶白机制纸上，43.8 × 30.8 厘米。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.artic.1916.prisoner","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Russian War Prisoner · Art Institute of Chicago, 1916","url":"https://www.artic.edu/artworks/25342","kind":"museum_object_page","locator":"object page, Medium / Dimensions 字段","quote":"Opaque watercolor, over graphite, on cream wove paper","quote_lang":"en","translation_zh":"不透明水彩，覆于石墨之上，画在奶白机制纸上。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"1917 年《坐着的女子（背影）》用水彩、水粉与石墨，46.4 × 29.8 厘米。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.met.483434","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Seated Woman, Back View · The Metropolitan Museum of Art, 1917","url":"https://www.metmuseum.org/art/collection/search/483434","kind":"museum_object_page","locator":"object page, Medium 字段","quote":"Watercolor, gouache, and graphite on paper","quote_lang":"en","translation_zh":"水彩、水粉与石墨，纸本。","unverified":false}],"grades":["B"],"iiif":[]},{"statement_zh":"1914 年之后，他的纸上作品获得了此前只有油画才有的绘画性。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"转引自法文维基所引 Kallir 的判断，属 C 级；需回到 Kallir 原文核校。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 4（引 Jane Kallir）","quote":"ses œuvres sur papier acquièrent à partir de 1914 l'expressivité picturale de ses tableaux","quote_lang":"fr","translation_zh":"从 1914 年起，他的纸上作品获得了其油画的绘画表现力。","unverified":false}],"grades":["C"],"iiif":[]}]},"composition":{"structure_proportion":{"summary_zh":"人体获得了体积与重量，但女性形象反而被类型化——这是晚期最矛盾的一处。","claims":[{"statement_zh":"晚期人体更有体积感，女性形象却失去个性、变成类型。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, section 'Success, Late Nudes and Last Works'","quote":"While the bodies won plasticity, his female figures lost their personality and became generic types.","quote_lang":"en","translation_zh":"人体获得了体积感，而他的女性形象却失去了个性，变成了类型化的形象。","unverified":false}],"grades":["B"],"iiif":[]}]},"color":{"summary_zh":"调色板在战争年代整体变闷：从酸性色转向更暗、更土的色阶，颜色让位给造型。","claims":[{"statement_zh":"一战前后他的调色板变得沉闷——对他来说，造型的可塑性比颜色更重要。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"C 级通述；原文把时间范围写作\"从战前到战争结束\"，与本期大致重合但更宽。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.3 Compositions récurrentes, para. 4","quote":"la palette de Schiele, qui lui importe moins que la qualité sculpturale du dessin, s'assourdit","quote_lang":"fr","translation_zh":"席勒的调色板——对他而言，它不如素描的雕塑感重要——变得沉闷。","unverified":false}],"grades":["C"],"iiif":[]}]},"framing":{"summary_zh":"取景不再靠裁切制造紧张，而是让整个人站进画面；姿态被完整交代。","claims":[{"statement_zh":"晚期人物的姿态经过推敲，透视缩短更讲究，画面允许人完整地站进来。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, section 'Success, Late Nudes and Last Works'","quote":"he demonstrated his artistic prowess in well-considered poses and sophisticated foreshortening","quote_lang":"en","translation_zh":"他在经过推敲的姿态与讲究的透视缩短中展示了功力。","unverified":false}],"grades":["B"],"iiif":[]}]},"light_shadow":{"summary_zh":"炭笔阴影变得更\"学院\"：不是情绪的涂抹，而是塑造体积的明暗。","claims":[{"statement_zh":"他晚年在肖像上用炭笔打阴影，方式近乎学院派的明暗塑造。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"low","status":"draft","note_zh":"C 级通述，且\"académique\"在此带贬义色彩，引用时应保留原文语气。","signed_by":null,"evidence":[{"sourceId":"src.wp.fr.schiele","grade":"C","gradeLabel":"次级 展览页 / 媒体","citation":"Egon Schiele · Wikipédia (français), 2026","url":"https://fr.wikipedia.org/wiki/Egon_Schiele","kind":"other","locator":"§ 2.1.2 Aspects techniques, para. 2","quote":"il finit par ombrer ses portraits au fusain d'une façon presque académique","quote_lang":"fr","translation_zh":"他最终用炭笔给他的肖像打阴影，方式几乎像学院派。","unverified":false}],"grades":["C"],"iiif":[]}]},"brushwork":{"summary_zh":"笔触从\"掐\"变成\"走\"：更平静、更流畅、更有机，一次性完成的线条增多。","claims":[{"statement_zh":"晚期笔触更平静、更流畅、更有机，与此前的躁动形成对比。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 2","quote":"calmer, more fluent and organic strokes, more realistic figures with an increased physical presence","quote_lang":"en","translation_zh":"更平静、更流畅而有机的笔触，更写实、实体感更强的人物。","unverified":false}],"grades":["B"],"iiif":[]}]}},"subject_matter":{"motifs":["portrait","double_portrait","nude","landscape","figure_study"],"rationale_zh":"战争与婚姻把\"关系\"变成主题：夫妻、母子、战友；同时他还得靠肖像谋生，题材因此被委托推动。","claims":[{"statement_zh":"1915 年前后起，他反复画夫妻题材，身体虽贴近，情感却常常疏离。","not_applicable":false,"reason_zh":null,"medium":["colored_on_paper"],"confidence":"medium","status":"draft","note_zh":null,"signed_by":null,"evidence":[{"sourceId":"src.leopold.2025.late","grade":"B","gradeLabel":"机构 馆藏官网 / 档案","citation":"Changing Times: Egon Schiele's Last Years · Leopold Museum, press release, 2025","url":"https://www.leopoldmuseum.org/en/press/news/1403/Changing-Times-Egon-Schieles-Last-Years","kind":"press_article","locator":"press release, para. 6","quote":"From around 1915, Schiele increasingly explored couple motifs. Despite their physical intimacy, his couples often seem to lack an emotional connection, while his puppet-like figures convey a sense of alienation","quote_lang":"en","translation_zh":"大约从 1915 年起，席勒越来越多地探索夫妻母题。尽管身体亲密，他笔下的夫妻往往显得缺乏情感联结，而那些木偶般的人物传达出一种疏离感。","unverified":false}],"grades":["B"],"iiif":[]}]}},"works":[{"id":"work.schiele.1916.russischer-kriegsgefangener","title":{"zh":"俄国战俘","en":"Russian War Prisoner"},"year":1916,"medium_category":"colored_on_paper","support":"paper","mediums":["watercolor","graphite"],"collection":{"institution":"Art Institute of Chicago","city":"Chicago"},"attribution":"autograph","iiif":{"status":"pending"}},{"id":"work.schiele.1917.sitzendefrau-rueckenansicht","title":{"zh":"坐着的女子（背影）","en":"Seated Woman, Back View"},"year":1917,"medium_category":"colored_on_paper","support":"paper","mediums":["watercolor","gouache","graphite"],"collection":{"institution":"The Metropolitan Museum of Art","city":"New York"},"attribution":"autograph","iiif":{"status":"pending"}}],"media":{"declared":["colored_on_paper"],"counts":{"colored_on_paper":12}},"sourceIds":["src.artic.1916.prisoner","src.leopold.2025.late","src.met.483434","src.wp.fr.schiele"],"open_questions":[{"question_zh":"1915–1918 的士兵肖像里，有多少是受委托、有多少是自发画的？","why_open_zh":"现有材料只说\"四十余幅\"，没有委托记录，无法判断题材转向在多大程度上由生计驱动。","needs":["A","B"]},{"question_zh":"晚期\"更写实\"是否与他在战地医院见到的东西有关？","why_open_zh":"策展文字只把它写成\"共情增强\"，没有给出他具体接触了哪些病例或场景的记录。","needs":["A"]}],"stats":{"claims":14,"signed":0,"notApplicable":0,"grades":{"A":0,"B":11,"C":3},"unverifiedLocators":0},"meta":{"status":"draft","version":"0.1.0","updated":"2026-10-25","example":false,"notes_zh":"2026-10-25 新建。本期只用纸上彩色作品立档：材质记录来自芝加哥艺术博物馆（1916 战俘）与大都会（1917 背影女子）， 分期与风格判断主要依据利奥波德博物馆 2025 年展览新闻稿（B 级）与法文维基（C 级），已逐条标 confidence。","signers":[]}}]};
+(function () {
+  const realFetch = window.fetch;
+  window.fetch = function (input, init) {
+    const url = String(input && input.url ? input.url : input);
+    if (url.indexOf('index.json') !== -1) {
+      return Promise.resolve({
+        ok: true,
+        status: 200,
+        json: function () { return Promise.resolve(window.__TK_PAYLOAD__); },
+        text: function () { return Promise.resolve(JSON.stringify(window.__TK_PAYLOAD__)); },
+      });
+    }
+    return realFetch ? realFetch.call(this, input, init) : Promise.reject(new Error('offline: ' + url));
+  };
+})();
+</script>
+<script>
+/* technique-kb — static viewer with per-artist pages and an AI-assisted search.
+ *
+ * Routes (hash only, so GitHub Pages needs no rewrites):
+ *   #/                      画家索引（主页）
+ *   #/artist/<id>           画家页 · 概览（一页）
+ *   #/artist/<id>/dimensions
+ *                           画家页 · 六维档案（时期 / 师从与影响 / 对比与创新 /
+ *                           媒介与材料 / 画面构成 / 题材，六个板块同一页）
+ *   #/artist/<id>/dimensions/<dim>
+ *                           同上，直接落到某一个板块
+ *   #/artist/<id>/sources   该画家引用的来源（单独一页）
+ *   #/sources               全部来源登记
+ *
+ * 旧链接 #/artist/<id>/<dim> 仍然可用：会被读成「六维档案」并滚到对应的板块。
+ *
+ * 数据只有 ./data/index.json 一处。AI 检索先打本地预览服务器的 /api/ai（密钥留在服务端），
+ * 没有代理时退回浏览器直连 DeepSeek，密钥只存在本机 localStorage。 */
+
+const DIM_LABELS = {
+  period: { zh: '时期', en: 'period' },
+  lineage: { zh: '师从与影响', en: 'lineage' },
+  comparison: { zh: '对比与创新', en: 'comparison' },
+  material: { zh: '媒介与材料', en: 'medium & material' },
+  composition: { zh: '画面构成', en: 'composition' },
+  subject_matter: { zh: '题材', en: 'subject matter' },
+};
+
+/** 六维在「六维档案」页里的固定顺序。 */
+const DIM_ORDER = ['period', 'lineage', 'comparison', 'material', 'composition', 'subject_matter'];
+
+/** 每个板块的一句导语，放在长页面里给人一个抓手。 */
+const DIM_NOTES = {
+  period: '分期依据与断点事件',
+  lineage: '他接过谁的做法，又改写了哪一段',
+  comparison: '同代人在做什么，他多出了什么',
+  material: '底材、媒介与工序',
+  composition: '结构、颜色、取景、光影、笔法',
+  subject_matter: '反复出现的母题与理由',
+};
+
+/** 画家页只有三个顶层页：概览 / 六维档案 / 来源。 */
+const TAB_LABELS = { overview: '概览', dimensions: '六维档案', sources: '来源' };
+
+const FIELD_LABELS = {
+  structure_proportion: '结构与比例',
+  color: '颜色',
+  framing: '取景',
+  light_shadow: '明暗光影',
+  brushwork: '笔法与技法',
+};
+
+const STATUS_LABELS = { draft: '草稿', verified: '已核来源', signed: '已签字', deprecated: '已废弃' };
+const CONF_LABELS = { high: '高', medium: '中', low: '低' };
+
+const MEDIA_LABELS = {
+  oil: '油画',
+  oil_on_panel: '木板油画',
+  watercolor: '水彩',
+  colored_on_paper: '纸上彩色',
+  drawing_on_paper: '纸上素描',
+  print: '版画',
+  period_level: '时期级',
+};
+
+/* 画面上一律先列这四类；没有条目的也列出来，标「空白」。
+   数据里若还声明了别的画种（水彩、木板油画…），排在四类之后，免得把已有内容藏掉。 */
+const MEDIA_CORE = ['oil', 'colored_on_paper', 'drawing_on_paper', 'print'];
+const MEDIA_ORDER = ['oil', 'oil_on_panel', 'watercolor', 'colored_on_paper', 'drawing_on_paper', 'print'];
+const BLANK = '空白';
+
+const mediaCount = (dossier, medium) => Number(dossier?.media?.counts?.[medium] ?? 0);
+
+/** 这一期要显示的全部画种：固定四类 + 数据里额外声明的。 */
+function mediaList(dossier) {
+  const extra = new Set(
+    [...(dossier?.media?.declared ?? []), ...Object.keys(dossier?.media?.counts ?? {})].filter(
+      (medium) => medium !== 'period_level',
+    ),
+  );
+  return [
+    ...MEDIA_CORE,
+    ...MEDIA_ORDER.filter((medium) => !MEDIA_CORE.includes(medium) && extra.has(medium)),
+  ].filter((medium) => MEDIA_LABELS[medium]);
+}
+
+const selectedMediaLabel = () => [...state.media].map((medium) => MEDIA_LABELS[medium] ?? medium).join(' / ');
+
+const SUPPORT_LABELS = {
+  paper: '纸本',
+  canvas: '布面',
+  panel: '木板',
+  wood: '木板',
+  cardboard: '卡纸',
+  board: '板',
+};
+
+const DRAWING_MEDIUM_LABELS = {
+  pencil: '铅笔',
+  charcoal: '炭笔',
+  crayon: '蜡笔',
+  ink: '墨水',
+  gouache: '水粉',
+  watercolor: '水彩',
+  tempera: '蛋彩',
+  chalk: '粉笔',
+  oil: '油画',
+};
+
+const RELATION_LABELS = {
+  teacher_mentor: '老师 / 引路人',
+  self_prior_period: '他本人的前一阶段',
+  peer: '同侪',
+  follower: '追随者',
+  rival: '对手',
+  patron: '赞助人',
+};
+
+const MOTIF_LABELS = {
+  self_portrait: '自画像',
+  double_portrait: '双人像',
+  portrait: '肖像',
+  nude: '裸体',
+  figure_study: '人体习作',
+  mother_and_child: '母子',
+  landscape: '风景',
+  still_life: '静物',
+  pregnant: '孕妇',
+  sick: '病人',
+};
+
+const KIND_LABELS = {
+  catalogue_raisonne: '作品全集目录',
+  monograph: '专著',
+  article: '论文',
+  museum_object_page: '馆藏对象页',
+  museum_research_document: '机构研究文档',
+  exhibition_page: '展览页',
+  archive: '档案',
+  database: '数据库',
+  interview: '访谈',
+};
+
+const LANG_LABELS = { zh: '中文', en: '英文', de: '德文', fr: '法文', it: '意大利文' };
+const DEFAULT_LLM_BASE = 'https://api.deepseek.com';
+const DEFAULT_LLM_MODEL = 'deepseek-chat';
+/** 兼容旧版本：早期只存一个 DeepSeek Key，没有 base/model。 */
+const KEY_STORE = 'tk_deepseek_key';
+const LLM_STORE = 'tk_llm_settings';
+
+/* file:// 打开的单文件版是 opaque origin，碰 localStorage 会抛 SecurityError，
+   所以统一走这层：能存就存，不能存就退回内存。 */
+const store = (() => {
+  try {
+    const probe = '__tk_probe__';
+    window.localStorage.setItem(probe, '1');
+    window.localStorage.removeItem(probe);
+    return window.localStorage;
+  } catch {
+    const mem = new Map();
+    return {
+      getItem: (key) => (mem.has(key) ? mem.get(key) : null),
+      setItem: (key, value) => mem.set(key, String(value)),
+      removeItem: (key) => mem.delete(key),
+    };
+  }
+})();
+
+const qs = (sel, root = document) => root.querySelector(sel);
+const esc = (value) =>
+  String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ------------------------------------------------------ 读者自己的 LLM 设置 */
+
+/**
+ * BYOK（bring your own key）：问答用的密钥只写进这台浏览器的 localStorage。
+ * 线上是 GitHub Pages，没有 /api/ai 这种服务端转发，所以直连是唯一通道；
+ * 本机跑 preview.cmd 时代理优先（密钥在服务端，浏览器里可以什么都不填）。
+ * base/model 都可改，于是 DeepSeek、OpenAI、Ollama、vLLM 这些 OpenAI 兼容端点都能用。
+ */
+function llmSettings() {
+  let saved = {};
+  try {
+    saved = JSON.parse(store.getItem(LLM_STORE) || '{}') || {};
+  } catch {
+    saved = {};
+  }
+  return {
+    baseUrl: String(saved.baseUrl || DEFAULT_LLM_BASE).trim().replace(/\/+$/, '') || DEFAULT_LLM_BASE,
+    model: String(saved.model || DEFAULT_LLM_MODEL).trim() || DEFAULT_LLM_MODEL,
+    key: String(store.getItem(KEY_STORE) || '').trim(),
+  };
+}
+
+function saveLlmSettings(next) {
+  store.setItem(
+    LLM_STORE,
+    JSON.stringify({ baseUrl: next.baseUrl?.trim() || DEFAULT_LLM_BASE, model: next.model?.trim() || DEFAULT_LLM_MODEL }),
+  );
+  if (next.key?.trim()) store.setItem(KEY_STORE, next.key.trim());
+  else store.removeItem(KEY_STORE);
+  markAiAvailability();
+  markSettingsButton();
+}
+
+function llmEndpoint(settings = llmSettings()) {
+  return `${settings.baseUrl}/chat/completions`;
+}
+
+const maskKey = (key) => (!key ? '' : key.length <= 8 ? '已存' : `${key.slice(0, 3)}…${key.slice(-4)}`);
+
+/* --------------------------------------------------------------- 译文缓存 */
+
+/* 文档页的「AI 翻译」：把页面上每条中文结论翻成英文/德文，或把英文条目翻回中文。
+   译文只存本机，按「目标语言 + 原文哈希」做键，换语言或改原文都不会串。 */
+const TR_STORE = 'tk.translate.v1';
+const TR_TARGETS = [
+  { key: 'en', label: 'English' },
+  { key: 'de', label: 'Deutsch' },
+  { key: 'zh', label: '中文' },
+];
+
+const trCache = (() => {
+  try {
+    return JSON.parse(store.getItem(TR_STORE) || '{}') || {};
+  } catch {
+    return {};
+  }
+})();
+
+const trHash = (text) => {
+  let h = 0;
+  for (let i = 0; i < text.length; i += 1) h = (h * 31 + text.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+};
+const trKey = (target, text) => `${target}:${trHash(text)}`;
+
+function trSave() {
+  try {
+    store.setItem(TR_STORE, JSON.stringify(trCache));
+  } catch {
+    /* 存满就算了，译文还在内存里 */
+  }
+}
+
+function trLookup(text) {
+  return trCache[trKey(state.translate.target, text)] ?? '';
+}
+
+/** 有译文就在原文下面挂一行；没有就什么都不渲染。 */
+function trLine(text) {
+  const value = typeof text === 'string' ? trLookup(text) : '';
+  if (!value) return '';
+  return `<p class="tr-result"><span class="tr-tag">${esc(state.translate.target.toUpperCase())}</span>${esc(value)}</p>`;
+}
+
+/* -------------------------------------------------------------------- state */
+
+let DATA = null;
+
+const state = {
+  route: { name: 'home' },
+  pendingAnchor: null, // 路由带板块锚点时，渲染完再滚过去
+  media: new Set(), // empty = 全部画种
+  ai: {
+    query: '',
+    status: 'idle', // idle | loading | done | empty | need-key | error
+    answer: '',
+    hits: [],
+    error: '',
+    via: '',
+    model: '',
+  },
+  translate: {
+    target: store.getItem('tk.translate.target') || 'en',
+    status: 'idle', // idle | loading | done | empty | error
+    message: '',
+  },
+};
+
+const view = qs('#view');
+const tabsEl = qs('#tabs');
+const mediaRow = qs('#media-row');
+const mediaBar = qs('#media');
+const searchBox = qs('.search');
+const hint = qs('#qhint');
+const input = qs('#q');
+const askButton = qs('#ask');
+
+/* ------------------------------------------------------------------ helpers */
+
+const mediumChip = (key, blank = false) =>
+  `<span class="chip medium${key === 'period_level' ? ' is-period-level' : ''}${blank ? ' is-blank' : ''}"${
+    blank ? ' title="此时期没有这类画种的技法描述"' : ''
+  }>${esc(MEDIA_LABELS[key] ?? key)}${blank ? ` · ${BLANK}` : ''}</span>`;
+
+/** A claim is visible when no filter is active, or when it speaks for a selected 画种. */
+const visible = (claim) => {
+  if (state.media.size === 0) return true;
+  if (claim.medium.includes('period_level')) return true; // periodization is above 画种
+  return claim.medium.some((medium) => state.media.has(medium));
+};
+
+function claimCard(claim, dimKey) {
+  const grade = claim.grades.includes('C') && claim.grades.length === 1 ? 'C' : claim.grades[0] ?? '';
+  const chips = [
+    dimKey ? `<span class="chip">${esc(DIM_LABELS[dimKey]?.zh ?? dimKey)}</span>` : '',
+    claim.medium.map((medium) => mediumChip(medium)).join(''),
+    claim.not_applicable ? '<span class="chip warn">不适用</span>' : '',
+    claim.grades.map((g) => `<span class="chip grade-${esc(g)}">${esc(g)} 级</span>`).join(''),
+    `<span class="chip status-${esc(claim.status)}">${esc(STATUS_LABELS[claim.status] ?? claim.status)}</span>`,
+    claim.confidence ? `<span class="chip conf-${esc(claim.confidence)}">置信 ${esc(CONF_LABELS[claim.confidence] ?? claim.confidence)}</span>` : '',
+    claim.evidence.some((e) => e.unverified) ? '<span class="chip warn">出处待核验</span>' : '',
+  ].join('');
+
+  const evidence = claim.evidence
+    .map(
+      (e) => `
+      <li>
+        <span class="chip grade-${esc(e.grade)}">${esc(e.grade)}</span>
+        <div>
+          <p class="citation">${esc(e.citation)}</p>
+          <p class="locator">${esc(e.locator)}${e.kind ? ` · ${esc(e.kind)}` : ''}</p>
+          <blockquote>${esc(e.quote)}</blockquote>
+          ${e.translation_zh ? `<p class="translation">${esc(e.translation_zh)}</p>` : ''}
+          ${e.url ? `<a class="src-link" href="${esc(e.url)}" target="_blank" rel="noopener">来源页 ↗</a>` : ''}
+        </div>
+      </li>`,
+    )
+    .join('');
+
+  const iiif = claim.iiif.length
+    ? claim.iiif
+        .map(
+          (ref) =>
+            `<div class="iiif-note">IIIF 局部 · ${esc(ref.workTitle)} · region ${esc(ref.region)}${ref.note_zh ? ` — ${esc(ref.note_zh)}` : ''}（manifest 待登记）</div>`,
+        )
+        .join('')
+    : '';
+
+  if (claim.not_applicable) {
+    return `
+    <article class="claim is-na">
+      <span class="na-label">不适用 · not applicable</span>
+      <p class="statement">${esc(claim.reason_zh)}</p>
+      ${trLine(claim.reason_zh)}
+      <div class="chips">${chips}</div>
+      <details class="evidence">
+        <summary>证据 ${claim.evidence.length} 条 · ${claim.evidence.map((e) => e.grade).join('')}</summary>
+        <ol>${evidence}</ol>
+      </details>
+    </article>`;
+  }
+
+  return `
+    <article class="claim" data-grade="${esc(grade)}">
+      <p class="statement">${esc(claim.statement_zh)}</p>
+      ${trLine(claim.statement_zh)}
+      <div class="chips">${chips}</div>
+      ${claim.note_zh ? `<p class="note">${esc(claim.note_zh)}</p>${trLine(claim.note_zh)}` : ''}
+      <details class="evidence">
+        <summary>证据 ${claim.evidence.length} 条 · ${claim.evidence.map((e) => e.grade).join('')}</summary>
+        <ol>${evidence}</ol>
+      </details>
+      ${iiif}
+    </article>`;
+}
+
+function claimList(list, dimKey) {
+  const shown = list.filter(visible);
+  if (!shown.length) {
+    const filter = selectedMediaLabel();
+    return `<p class="filter-note">${
+      filter ? `${esc(filter)}：` : ''
+    }这一项没有可显示的结论${filter ? `（${BLANK}）` : ''}。</p>`;
+  }
+  return `<div class="claims">${shown.map((claim) => claimCard(claim, dimKey)).join('')}</div>`;
+}
+
+function entryBlock(headline, pair, body) {
+  return `<section class="entry">
+    <div class="entry-head"><h3>${esc(headline)}</h3>${pair ? `<span class="pair">${esc(pair)}</span>` : ''}</div>
+    ${body}
+  </section>`;
+}
+
+function pairBlock(left, right) {
+  return `<dl class="pair-block">
+    <div><dt>对方在做什么</dt><dd>${esc(left)}</dd></div>
+    <div><dt>他多出了什么</dt><dd>${esc(right)}</dd></div>
+  </dl>`;
+}
+
+function flatten(dossier, dim) {
+  const d = dossier.dimensions;
+  switch (dim) {
+    case 'period':
+      return d.period;
+    case 'lineage':
+      return d.lineage.flatMap((e) => e.claims);
+    case 'comparison':
+      return d.comparison.flatMap((e) => e.claims);
+    case 'material':
+      return d.material.claims;
+    case 'composition':
+      return Object.values(d.composition).flatMap((f) => f.claims);
+    case 'subject_matter':
+      return d.subject_matter.claims;
+    default:
+      return [];
+  }
+}
+
+function countDim(dossier, dim) {
+  // 选中的画种在这一期完全没有条目：整页按空白处理，连「全期共用」的时期判断也不冒充该画种的内容。
+  if (state.media.size > 0 && ![...state.media].some((medium) => mediaCount(dossier, medium) > 0)) return 0;
+  return flatten(dossier, dim).filter(visible).length;
+}
+
+/** 概览页用的固定覆盖数：不跟当前画种筛选变，永远显示这一期的真实覆盖。 */
+function countDimAll(dossier, dim, medium = null) {
+  return flatten(dossier, dim).filter((claim) => (medium ? claim.medium.includes(medium) : true)).length;
+}
+
+function countCategory(dossier) {
+  return DATA.dims.reduce((total, dim) => total + countDim(dossier, dim), 0);
+}
+
+/* ------------------------------------------------------------------ routing */
+
+/** 旧路由里的单个维度（#/artist/<id>/composition）现在都落到「六维档案」页的对应板块。 */
+function resolveArtistTab(raw, anchorRaw) {
+  if (raw === 'sources') return { tab: 'sources', anchor: '' };
+  if (raw === 'dimensions') {
+    return { tab: 'dimensions', anchor: DIM_ORDER.includes(anchorRaw) ? anchorRaw : '' };
+  }
+  if (DIM_ORDER.includes(raw)) return { tab: 'dimensions', anchor: raw };
+  return { tab: 'overview', anchor: '' };
+}
+
+/** 解析一个 hash（不读 location），这样点击链接时可以先算好路由再决定地址怎么更新。 */
+function parseHash(rawHash) {
+  const raw = String(rawHash ?? '').replace(/^#/, '');
+  const parts = raw.split('/').filter(Boolean);
+  if (!parts.length) return { name: 'home' };
+  if (parts[0] === 'sources') return { name: 'sources' };
+  if (parts[0] === 'artist' && parts[1]) {
+    const id = decodeURIComponent(parts[1]);
+    // #/artist/schiele/<period>/<tab>/<anchor>：第二段只有确实是这位画家的分期 slug 时才当分期，
+    // 否则仍按旧链接理解成 tab，老书签不会失效。
+    const maybePeriod = parts[2] ? decodeURIComponent(parts[2]) : '';
+    const period = maybePeriod && dossierByPeriod(id, maybePeriod) ? maybePeriod : null;
+    const rest = (period ? parts.slice(3) : parts.slice(2)).map((part) => decodeURIComponent(part));
+    const { tab, anchor } = resolveArtistTab(rest[0] ?? 'overview', rest[1] ?? '');
+    return { name: 'artist', id, period, tab, anchor };
+  }
+  return { name: 'home' };
+}
+
+function parseRoute() {
+  return parseHash(location.hash);
+}
+
+const artistHref = (id, tab = 'overview', period = null, anchor = null) => {
+  const base = `#/artist/${encodeURIComponent(id)}${period ? `/${encodeURIComponent(period)}` : ''}`;
+  if (tab === 'overview') return base;
+  return `${base}/${encodeURIComponent(tab)}${anchor ? `/${encodeURIComponent(anchor)}` : ''}`;
+};
+
+/**
+ * 内部导航：先按目标 hash 直接渲染，再尽量把地址栏换成可分享的样子。
+ *
+ * 不把「改地址 → 等 hashchange」当成唯一通路：DSH 预览、file:// 单文件、带 sandbox 的 iframe
+ * 里，pushState / hashchange 可能被禁或失效，只靠它们会出现「点了没反应」。这里内容先切过去，
+ * 地址栏改不了也不影响阅读；浏览器里的前进 / 后退由 popstate 接。
+ */
+function go(hash) {
+  const next = String(hash ?? '').startsWith('#') ? String(hash) : `#${hash ?? ''}`;
+  if (location.hash !== next) {
+    try {
+      history.pushState(null, '', next);
+    } catch {
+      /* 地址栏改不了就只换内容 */
+    }
+  }
+  state.route = parseHash(next);
+  state.pendingAnchor = state.route.anchor || null;
+  canonicalizeRoute();
+  render();
+  if (!state.pendingAnchor) window.scrollTo({ top: 0 });
+}
+
+const artists = () => DATA?.artists ?? [];
+const artistById = (id) => artists().find((a) => a.id === id) ?? null;
+const dossiersOf = (id) => (DATA?.dossiers ?? []).filter((d) => d.artist.id === id);
+/* 默认打开哪一期：条目最多的那一期。分期切换条仍按时间顺序排。 */
+const primaryDossier = (id) =>
+  dossiersOf(id).reduce((best, d) => ((d.stats?.claims ?? 0) > (best?.stats?.claims ?? -1) ? d : best), null);
+
+/* 一位画家可以有多个分期档案。路由里用档案 id 去掉画家前缀后的那段当 slug。 */
+const periodSlug = (dossier) =>
+  dossier.id.startsWith(`${dossier.artist.id}.`) ? dossier.id.slice(dossier.artist.id.length + 1) : dossier.id;
+const dossierByPeriod = (artistId, slug) => dossiersOf(artistId).find((d) => periodSlug(d) === slug) ?? null;
+const currentDossier = (route) => (route?.period ? dossierByPeriod(route.id, route.period) : null) ?? primaryDossier(route?.id);
+
+/* -------------------------------------------------------------- home · index */
+
+function renderIndex() {
+  const withDossier = artists().filter((a) => a.hasDossier);
+  const pending = artists().filter((a) => !a.hasDossier);
+  const ordered = [...withDossier, ...pending];
+
+  const tiles = ordered
+    .map((artist) => {
+      const dossier = primaryDossier(artist.id);
+      const years = [artist.birth_year, artist.death_year].filter(Boolean).join('–');
+      const roles = (artist.roles ?? []).map((r) => ({ painter: '画家', draughtsman: '素描', printmaker: '版画' }[r] ?? r)).join(' / ');
+      const own = dossiersOf(artist.id);
+      const lines = dossier
+        ? `${own.length} 份档案 · ${own.reduce((n, d) => n + (d.stats?.claims ?? 0), 0)} 条结论 · ${new Set(own.flatMap((d) => d.media?.declared ?? [])).size} 个画种`
+        : '登记在册 · 档案建设中';
+      return `
+      <a class="artist-tile${dossier ? '' : ' is-pending'}" href="${artistHref(artist.id)}">
+        <span class="tile-dates">${esc(years || '—')}</span>
+        <h3>${esc(artist.zh)}</h3>
+        <p class="tile-en">${esc(artist.en)}</p>
+        <p class="tile-meta">${esc([artist.nationality?.[0], roles].filter(Boolean).join(' · '))}</p>
+        <p class="tile-status">${esc(lines)}</p>
+      </a>`;
+    })
+    .join('');
+
+  const c = DATA.counts;
+  const samples = [
+    '席勒的线条为什么是断的？',
+    '1912 年新伦巴赫发生了什么',
+    '他受过克林姆哪些影响',
+    '纸上素描和油画的取景差别',
+  ];
+
+  return `
+  <p class="section-title">画家索引 · artists</p>
+  <p class="home-lede">主页只放索引：这里是登记在册的画家，点进去才是他的分期与六维目录。
+    目前 ${c.dossiers} 份档案、${c.claims} 条 claim，每条都能追到来源。</p>
+  <div class="index-grid">${tiles}</div>
+
+  <p class="section-title" style="margin-top:44px">登记表 · registry</p>
+  <div class="stat-row">
+    <div class="stat"><span class="num">${c.artists}</span><span class="lbl">画家</span></div>
+    <div class="stat"><span class="num">${c.dossiers}</span><span class="lbl">档案</span></div>
+    <div class="stat"><span class="num">${c.claims}</span><span class="lbl">claims</span></div>
+    <div class="stat"><span class="num">${c.works}</span><span class="lbl">作品</span></div>
+    <div class="stat"><span class="num">${c.sources}</span><span class="lbl">来源</span></div>
+  </div>
+  <p class="registry-links"><a href="#/sources">全部来源登记 →</a></p>
+
+  <p class="section-title" style="margin-top:44px">可以这样问 · ask</p>
+  <div class="ask-samples">${samples.map((q) => `<button type="button" data-ask="${esc(q)}">${esc(q)}</button>`).join('')}</div>`;
+}
+
+/* --------------------------------------------------------------- artist page */
+
+function renderPeriodSwitch(artist, active, route) {
+  const periods = dossiersOf(artist.id);
+  if (periods.length < 2) return '';
+  const tab = route?.tab && route.tab !== 'overview' ? route.tab : 'overview';
+  const anchor = route?.anchor || null;
+  const items = periods
+    .map((dossier) => {
+      const slug = periodSlug(dossier);
+      const on = dossier.id === active?.id;
+      return `<a class="period-chip${on ? ' is-on' : ''}" href="${artistHref(artist.id, tab, slug, anchor)}"${
+        on ? ' aria-current="page"' : ''
+      }><b>${esc(dossier.period.start_year)}–${esc(dossier.period.end_year)}</b>${esc(dossier.period.label.zh)}
+        <span class="n">${dossier.stats?.claims ?? 0}</span></a>`;
+    })
+    .join('');
+  return `<nav class="period-switch" aria-label="分期">${items}</nav>`;
+}
+
+function trToolbar() {
+  const options = TR_TARGETS.map(
+    (item) => `<option value="${item.key}"${item.key === state.translate.target ? ' selected' : ''}>${esc(item.label)}</option>`,
+  ).join('');
+  const offline = Boolean(window.__TK_OFFLINE__);
+  const label = state.translate.status === 'loading' ? '翻译中…' : 'AI 翻译';
+  return `<div class="translate-bar">
+    <button type="button" class="tr-run" data-tr-run${offline ? ' disabled' : ''}${
+      offline ? ' title="离线单文件没有服务器，接不上翻译"' : ''
+    }>${esc(label)}</button>
+    <label class="tr-pick">译成 <select class="tr-lang" aria-label="译文语言">${options}</select></label>
+    <span class="tr-status" aria-live="polite">${esc(state.translate.message)}</span>
+  </div>`;
+}
+
+function renderArtistHero(artist, dossier, route) {
+  const years = [artist.birth_year, artist.death_year].filter(Boolean).join('–');
+  const places = [artist.birth_place_zh, artist.death_place_zh].filter(Boolean).join(' → ');
+  const roles = (artist.roles ?? []).map((r) => ({ painter: '画家', draughtsman: '素描', printmaker: '版画' }[r] ?? r)).join(' / ');
+  const period = dossier
+    ? `<p class="period-line"><b>${esc(dossier.period.start_year)}–${esc(dossier.period.end_year)}</b> ${esc(dossier.period.label.zh)}
+         <br />${esc(dossier.period.basis_zh)}</p>${trLine(dossier.period.basis_zh)}
+       <div class="chips" style="margin-top:14px">${mediaList(dossier)
+         .map((medium) => mediumChip(medium, mediaCount(dossier, medium) === 0))
+         .join(' ')}</div>`
+    : '';
+
+  return `
+  <nav class="crumb"><a href="#/">← 画家索引</a></nav>
+  <section class="artist-hero">
+    <p class="hero-eyebrow">${esc([years, places || '', artist.nationality?.join(' / ') ?? ''].filter(Boolean).join(' · '))}</p>
+    <h2>${esc(artist.zh)}</h2>
+    <p class="romanised">${esc(artist.en)}${roles ? ` · ${esc(roles)}` : ''}</p>
+    ${renderPeriodSwitch(artist, dossier, route)}
+    ${dossier ? trToolbar() : ''}
+    ${period}
+    ${artist.notes_zh ? `<p class="hero-note">${esc(artist.notes_zh)}</p>` : ''}
+  </section>`;
+}
+
+function renderPending(artist) {
+  const dossierHint = DATA.dossiers.length
+    ? `要建一份新档案，先看 <code>data/dossiers/</code> 里已有的一份，照它的六维结构写。`
+    : '';
+  return `
+  ${renderArtistHero(artist, null, state.route)}
+  <section class="empty-card">
+    <h3>档案尚未建立</h3>
+    <p>这位画家在 <code>data/registry/artists.yaml</code> 里登记了，但还没有写 dossier。
+       没有 dossier，就没有可引用的结论——这个库宁可不显示，也不拿模型记忆填格子。</p>
+    <p>${dossierHint}</p>
+    <p class="filter-note">需要：一份 <code>data/dossiers/${esc(artist.id)}/&lt;时期&gt;.yaml</code>，六维 × 每个声明的画种都要有答案。</p>
+  </section>`;
+}
+
+/** 档案还没建时，三个顶层页照样给一页，说清楚这一格为什么是空的。 */
+function renderPendingDimension(artist, tab) {
+  const label = TAB_LABELS[tab] ?? tab;
+  return `
+  ${renderArtistHero(artist, null, state.route)}
+  <section class="empty-card">
+    <h3>${esc(label)} · 暂无条目</h3>
+    <p>这一页要等 <code>data/dossiers/${esc(artist.id)}/&lt;时期&gt;.yaml</code> 建起来才有内容。
+       空着不是编辑偷懒：六个维度里任何一格没有证据支撑的结论，<code>scripts/validate.mjs</code> 都会报错。</p>
+    <p><a href="#/artist/${esc(artist.id)}">回到概览</a> · <a href="#/">看别的画家</a></p>
+  </section>`;
+}
+
+function renderOverview(dossier) {
+  const s = dossier.stats;
+  const anchors = dossier.period.anchors
+    .map((a) => `<li><span class="year">${esc(a.year)}${a.month_day ? `-${esc(a.month_day)}` : ''}</span><span>${esc(a.event_zh)}</span></li>`)
+    .join('');
+
+  const categories = [
+    { key: null, label: '全部', sub: 'all media', count: s.claims },
+    ...mediaList(dossier).map((medium) => ({
+      key: medium,
+      label: MEDIA_LABELS[medium] ?? medium,
+      sub: medium,
+      count: mediaCount(dossier, medium),
+    })),
+  ];
+
+  const blocks = categories
+    .map((category) => {
+      const blankMedium = Boolean(category.key) && category.count === 0;
+      const cells = DATA.dims
+        .map((dim) => {
+          const head = `<span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
+            <span class="dim-name">${esc(DIM_LABELS[dim].zh)}</span>`;
+          if (dim === 'period' && category.key) {
+            return `<div class="dim-cell is-static${blankMedium ? ' is-blank' : ''}"${
+              blankMedium ? '' : ` data-goto="dimensions" data-anchor="${dim}"`
+            }>
+              ${head}
+              <span class="dim-count">${blankMedium ? BLANK : `全期共用 · ${dossier.dimensions.period.length} 条`}</span>
+            </div>`;
+          }
+          const n = countDimAll(dossier, dim, category.key);
+          return `<div class="dim-cell${n ? '' : ' is-empty'}${blankMedium ? ' is-blank' : ''}" data-goto="dimensions" data-anchor="${dim}" data-medium="${esc(category.key ?? '')}">
+            ${head}
+            <span class="dim-count">${blankMedium ? BLANK : n ? `${n} 条结论` : '暂无'}</span>
+          </div>`;
+        })
+        .join('');
+
+      const selectedBlock = category.key ? state.media.has(category.key) : state.media.size === 0;
+      return `<section class="media-block${blankMedium ? ' is-blank' : ''}${selectedBlock ? ' is-on' : ''}">
+        <div class="media-block-head">
+          <h3>${esc(category.label)}</h3>
+          <span class="media-block-sub">${esc(category.sub)} · ${blankMedium ? BLANK : `${category.count} 条`}</span>
+        </div>
+        ${blankMedium ? `<p class="media-blank">此时期没有${esc(category.label)}的技法描述（${BLANK}）。</p>` : ''}
+        <div class="dim-grid">${cells}</div>
+      </section>`;
+    })
+    .join('');
+
+  const works = dossier.works?.length
+    ? `<p class="section-title">所引作品 · works</p>
+       <div class="work-grid">${dossier.works
+         .map(
+           (w) => `<div class="work">
+             <span class="work-year">${esc(w.year ?? '—')}</span>
+             <h4>${esc(w.title.zh)}</h4>
+             <p class="work-meta">${esc(
+               [
+                 MEDIA_LABELS[w.medium_category] ?? w.medium_category,
+                 SUPPORT_LABELS[w.support] ?? w.support,
+                 [w.collection?.institution, w.collection?.city].filter(Boolean).join(' · '),
+               ]
+                 .filter(Boolean)
+                 .join(' · '),
+             )}</p>
+             ${w.attribution && w.attribution !== 'autograph' ? `<p class="work-flag">归属：${esc(w.attribution)}</p>` : ''}
+           </div>`,
+         )
+         .join('')}</div>`
+    : '';
+
+  return `
+  <div class="stat-row">
+    <div class="stat"><span class="num">${s.claims}</span><span class="lbl">claims</span></div>
+    <div class="stat"><span class="num">${mediaList(dossier).filter((medium) => mediaCount(dossier, medium) > 0).length} / ${mediaList(dossier).length}</span><span class="lbl">画种覆盖</span></div>
+    <div class="stat"><span class="num">${s.signed}</span><span class="lbl">已签字</span></div>
+    <div class="stat"><span class="num">${s.grades.A ?? 0}</span><span class="lbl">A 级证据</span></div>
+    <div class="stat"><span class="num">${s.notApplicable ?? 0}</span><span class="lbl">不适用</span></div>
+    <div class="stat"><span class="num">${s.unverifiedLocators}</span><span class="lbl">出处待核验</span></div>
+  </div>
+
+  <p class="section-title">按画种分类 · by medium</p>
+  <p class="filter-note">固定列出油画 / 纸上彩色 / 纸上素描 / 版画；这一期没有这类条目的画种整块标「空白」，不隐藏。</p>
+  ${blocks}
+
+  <p class="section-title">分期锚点 · anchors</p>
+  <ul class="anchors">${anchors}</ul>
+
+  ${works}
+
+  ${
+    dossier.open_questions.length
+      ? `<p class="section-title">尚未回答 · open questions</p>${dossier.open_questions
+          .map(
+            (q) =>
+              `<div class="open-q"><h4>${esc(q.question_zh)}</h4><p>${esc(q.why_open_zh)}${q.needs?.length ? ` · 需要 ${esc(q.needs.join('/'))} 级来源` : ''}</p></div>`,
+          )
+          .join('')}`
+      : ''
+  }`;
+}
+
+/** 当前画种筛选命中的 claim 实际引用了哪些来源。没选画种时返回 null（= 整份档案）。 */
+function sourceIdsForSelection(dossier) {
+  if (!state.media.size) return null;
+  const ids = new Set();
+  for (const dim of DATA.dims) {
+    for (const claim of flatten(dossier, dim)) {
+      if (claim.medium.includes('period_level')) continue; // 时期判断不属于单一画种
+      if (!claim.medium.some((medium) => state.media.has(medium))) continue;
+      for (const evidence of claim.evidence) {
+        if (evidence.sourceId) ids.add(evidence.sourceId);
+      }
+    }
+  }
+  return [...ids].sort();
+}
+
+/** 单个维度的正文。板块标题由「六维档案」页统一给出，这里只出内容。 */
+function renderDimension(dossier, dim) {
+  const d = dossier.dimensions;
+
+  if (dim === 'period') {
+    return claimList(d.period, 'period');
+  }
+
+  if (dim === 'lineage') {
+    return d.lineage
+      .map((entry) =>
+        entryBlock(
+          `${entry.counterpart} → ${dossier.artist.zh}`,
+          `${RELATION_LABELS[entry.relation] ?? entry.relation}${entry.window ? ` · ${entry.window.from_year}–${entry.window.to_year ?? ''}` : ''}`,
+          `<p class="summary-zh">${esc(entry.summary_zh)}</p>${trLine(entry.summary_zh)}
+           <div class="chips">${entry.elements.map((el) => `<span class="chip">${esc(FIELD_LABELS[el] ?? el)}</span>`).join('')}</div>
+           ${claimList(entry.claims, 'lineage')}`,
+        ),
+      )
+      .join('');
+  }
+
+  if (dim === 'comparison') {
+    return d.comparison
+      .map((entry) =>
+        entryBlock(
+          `对比 · ${entry.counterpart}`,
+          `轴：${FIELD_LABELS[entry.axis] ?? entry.axis}`,
+          `${pairBlock(entry.their_practice_zh, entry.his_difference_zh)}${claimList(entry.claims, 'comparison')}`,
+        ),
+      )
+      .join('');
+  }
+
+  if (dim === 'material') {
+    const m = d.material;
+    return `<dl class="pair-block">
+        <div><dt>底材</dt><dd>${esc(m.supports.map((s) => SUPPORT_LABELS[s] ?? s).join(' / ') || '—')}</dd></div>
+        <div><dt>媒介</dt><dd>${esc((m.mediums ?? []).map((s) => DRAWING_MEDIUM_LABELS[s] ?? s).join(' / ') || '—')}</dd></div>
+      </dl>
+      ${m.process_zh ? `<p class="summary-zh">${esc(m.process_zh)}</p>${trLine(m.process_zh)}` : ''}
+      ${claimList(m.claims, 'material')}`;
+  }
+
+  if (dim === 'composition') {
+    return DATA.composition_fields
+      .map((field) => {
+        const block = d.composition[field];
+        return entryBlock(
+          FIELD_LABELS[field] ?? field,
+          `composition.${field}`,
+          `${block.summary_zh ? `<p class="summary-zh">${esc(block.summary_zh)}</p>${trLine(block.summary_zh)}` : ''}${claimList(block.claims, 'composition')}`,
+        );
+      })
+      .join('');
+  }
+
+  const sm = d.subject_matter;
+  return `<div class="chips">${sm.motifs.map((m) => `<span class="chip">${esc(MOTIF_LABELS[m] ?? m)}</span>`).join('')}</div>
+    ${sm.rationale_zh ? `<p class="summary-zh">${esc(sm.rationale_zh)}</p>${trLine(sm.rationale_zh)}` : ''}
+    ${claimList(sm.claims, 'subject_matter')}`;
+}
+
+/** 六维档案：时期 / 师从与影响 / 对比与创新 / 媒介与材料 / 画面构成 / 题材，六个板块共用一页。 */
+function renderDimensions(dossier, anchor) {
+  const blankFilter = state.media.size > 0 && [...state.media].every((medium) => mediaCount(dossier, medium) === 0);
+  const blankBanner = blankFilter
+    ? `<p class="blank-banner">此时期没有${esc(selectedMediaLabel())}的技法描述（${BLANK}）。下面的六个板块是空的。</p>`
+    : '';
+
+  const jumps = DIM_ORDER.map((dim) => {
+    const n = countDim(dossier, dim);
+    return `<button type="button" class="jump${anchor === dim ? ' is-on' : ''}" data-jump="${dim}" aria-current="${
+      anchor === dim ? 'true' : 'false'
+    }">${esc(DIM_LABELS[dim].zh)} <span class="n">${n}</span></button>`;
+  }).join('');
+
+  const sections = DIM_ORDER.map((dim) => {
+    const n = countDim(dossier, dim);
+    return `<section class="dim-section" id="dim-${dim}">
+      <header class="dim-head">
+        <div>
+          <h2>${esc(DIM_LABELS[dim].zh)}</h2>
+          <p class="dim-note">${esc(DIM_NOTES[dim])}</p>
+        </div>
+        <div class="dim-meta">
+          <span class="dim-en">${esc(DIM_LABELS[dim].en)}</span>
+          <span class="dim-n">${n} 条结论</span>
+        </div>
+      </header>
+      ${blankFilter ? '' : renderDimension(dossier, dim)}
+    </section>`;
+  }).join('');
+
+  return `${blankBanner}<nav class="doc-jump" aria-label="六维目录">
+      <span class="doc-jump-label">本页 · 六维</span>
+      ${jumps}
+    </nav>${sections}`;
+}
+
+const raf = (callback) =>
+  typeof window.requestAnimationFrame === 'function' ? window.requestAnimationFrame(callback) : window.setTimeout(callback, 0);
+
+/** 滚到某个板块，并把地址栏换成可分享的深链接（不触发 hashchange 重渲染）。 */
+function focusDimension(dim, { smooth = true, updateHash = true } = {}) {
+  const target = document.getElementById(`dim-${dim}`);
+  if (!target) return;
+  if (typeof target.scrollIntoView === 'function') {
+    target.scrollIntoView({ behavior: smooth ? 'smooth' : 'instant', block: 'start' });
+  }
+  for (const button of document.querySelectorAll('[data-jump]')) {
+    const on = button.dataset.jump === dim;
+    button.classList.toggle('is-on', on);
+    button.setAttribute('aria-current', on ? 'true' : 'false');
+  }
+  if (updateHash && state.route.name === 'artist') {
+    state.route = { ...state.route, anchor: dim };
+    const href = artistHref(state.route.id, 'dimensions', state.route.period, dim);
+    if (location.hash !== href) replaceHash(href);
+  }
+}
+
+/** 改地址栏但不触发重渲染。单文件离线版在 file:// 下可能禁止改历史记录，失败就算了。 */
+function replaceHash(href) {
+  try {
+    history.replaceState(null, '', href);
+  } catch {
+    /* 滚到位置就够了 */
+  }
+}
+
+/** 旧链接（#/artist/<id>/<dim>）落地后把地址栏换成新的深链接，分享出去不再带旧格式。 */
+function canonicalizeRoute() {
+  if (state.route.name !== 'artist') return;
+  const href = artistHref(state.route.id, state.route.tab, state.route.period, state.route.anchor || null);
+  if (location.hash !== href) replaceHash(href);
+}
+
+/** 深链接进来时，等一帧再滚：这时样式与字体已经排好，不会滚偏。 */
+function settlePendingAnchor() {
+  const anchor = state.pendingAnchor;
+  state.pendingAnchor = null;
+  if (!anchor) return;
+  raf(() => {
+    if (state.route.anchor === anchor) focusDimension(anchor, { smooth: false, updateHash: false });
+  });
+}
+
+function renderSources(ids, { filterLabel = '', emptyNote = '' } = {}) {
+  const pool = ids ? DATA.sources.filter((s) => ids.includes(s.id)) : DATA.sources;
+  const scope = filterLabel ? ` · ${filterLabel}` : '';
+  const heading = ids ? `来源登记 · 本页引用 ${pool.length} 条${scope}` : `来源登记 · ${pool.length} 条`;
+  if (!pool.length) {
+    return `<p class="section-title">${esc(heading)}</p><p class="filter-note">${esc(
+      emptyNote || '这份档案还没有引用任何来源。',
+    )}</p>`;
+  }
+  const sorted = [...pool].sort((a, b) => String(a.grade).localeCompare(String(b.grade)));
+  return `<p class="section-title">${esc(heading)}</p>
+    <div class="claims">${sorted
+      .map(
+        (s) => `<article class="claim" data-grade="${esc(s.grade)}">
+        <p class="statement">${esc(s.citation)}</p>
+        <div class="chips">
+          <span class="chip grade-${esc(s.grade)}">${esc(s.grade)} 级</span>
+          ${s.class ? `<span class="chip chip-class">${esc(s.class)} 类</span>` : ''}
+          <span class="chip">${esc(KIND_LABELS[s.kind] ?? s.kind)}</span>
+          <span class="chip">${esc(LANG_LABELS[s.lang] ?? s.lang)}</span>
+        </div>
+        ${s.note_zh ? `<p class="note">${esc(s.note_zh)}</p>` : ''}
+        ${s.url ? `<a class="src-link" href="${esc(s.url)}" target="_blank" rel="noopener">来源页 ↗</a>` : ''}
+      </article>`,
+      )
+      .join('')}</div>`;
+}
+
+/* --------------------------------------------------------------- navigation */
+
+function renderTabsFor(route) {
+  if (!route || route.name !== 'artist') {
+    tabsEl.hidden = true;
+    return;
+  }
+  const dossier = currentDossier(route);
+  const sourceCount = dossier
+    ? state.media.size
+      ? (sourceIdsForSelection(dossier) ?? []).length
+      : (dossier.sourceIds ?? []).length
+    : null;
+  const items = [
+    { key: 'overview', label: TAB_LABELS.overview, count: null },
+    { key: 'dimensions', label: TAB_LABELS.dimensions, count: dossier ? countCategory(dossier) : null },
+    { key: 'sources', label: TAB_LABELS.sources, count: sourceCount },
+  ];
+  tabsEl.innerHTML = items
+    .map(
+      (item) =>
+        `<button type="button" data-tab="${item.key}" aria-selected="${item.key === route.tab}">${esc(item.label)}${
+          item.count !== null ? ` <span class="count">${item.count}</span>` : ''
+        }</button>`,
+    )
+    .join('');
+  tabsEl.hidden = false;
+}
+
+function renderMediaBarFor(route) {
+  const dossier = route?.name === 'artist' ? currentDossier(route) : null;
+  if (!dossier) {
+    mediaRow.hidden = true;
+    mediaBar.innerHTML = '';
+    return;
+  }
+  const items = mediaList(dossier);
+  const allPressed = state.media.size === 0;
+  mediaBar.innerHTML =
+    `<button type="button" data-media="__all" aria-pressed="${allPressed}">全部</button>` +
+    items
+      .map((medium) => {
+        const n = mediaCount(dossier, medium);
+        const blank = n === 0;
+        return `<button type="button" class="media-chip${blank ? ' is-blank' : ''}" data-media="${esc(medium)}" aria-pressed="${state.media.has(medium)}"${
+          blank ? ' title="此时期没有这类画种的技法描述，选中后各维为空白"' : ''
+        }>${esc(MEDIA_LABELS[medium] ?? medium)} <span class="n">${blank ? BLANK : n}</span></button>`;
+      })
+      .join('');
+  mediaRow.hidden = false;
+}
+
+/* ------------------------------------------------------------------ AI 检索 */
+
+const STOPWORDS = new Set(['什么', '怎么', '为什么', '如何', '哪些', '哪个', '是否', '以及', '还有', '一个', '这个', '那个', '我们', '他们']);
+/** 画家名每一条都带，不能作为区分度；年份相同也不等于在讲同一个技法。 */
+const ARTIST_TOKENS = new Set(['席勒', 'schiele']);
+const LINE_QUERY = /线|轮廓|笔|描|断|裂/;
+
+/** 中文问题里的同义扩展：不补充事实，只是让「断线/线条/轮廓」能互相召回。 */
+const QUERY_EXPANSIONS = [
+  {
+    test: /断|裂|中断|不连续/,
+    terms: ['断线', '断裂', '中断', '不连续', '复线', '叠线', '续线', '错误留在画面'],
+  },
+  {
+    test: /线|轮廓|笔|描/,
+    terms: ['线条', '轮廓', '用线', '一笔', '重描', '描线', '边缘', '笔法', '线描'],
+  },
+  {
+    test: /1912/,
+    terms: ['1912', '1911–1912', '1911-1912'],
+  },
+  // 中文问题要能命中库里的英文/德文引文与候选池原文（excerpt 基本是外文），
+  // 否则「爬虫抓到的英文材料」永远不会出现在中文提问的上下文里。
+  {
+    test: /线|轮廓|笔|描/,
+    terms: ['line', 'linear', 'contour', 'stroke', 'drawing', 'pencil', 'graphite'],
+  },
+  {
+    test: /色|颜色|水彩|水粉|颜料/,
+    terms: ['colour', 'color', 'watercolour', 'watercolor', 'gouache', 'palette', 'oil'],
+  },
+  {
+    test: /构图|取景|画幅|裁切/,
+    terms: ['composition', 'framing', 'crop', 'format'],
+  },
+  {
+    test: /身体|人体|裸|姿态/,
+    terms: ['body', 'nude', 'figure', 'pose'],
+  },
+  {
+    test: /影响|师承|克林姆|老师/,
+    terms: ['influence', 'klimt', 'academy', 'teacher'],
+  },
+  {
+    test: /版画|印|蚀刻/,
+    terms: ['print', 'lithograph', 'etching'],
+  },
+];
+
+function queryTerms(query) {
+  const lower = query.toLowerCase();
+  const cleaned = lower.replace(/[\s，。、；：？！,.;:?!「」『』（）()《》〈〉…—\-_"'’“”]/g, '');
+  const direct = new Set();
+  for (let i = 0; i < cleaned.length - 1; i += 1) {
+    const bigram = cleaned.slice(i, i + 2);
+    if (/\d/.test(bigram) || STOPWORDS.has(bigram) || ARTIST_TOKENS.has(bigram)) continue;
+    direct.add(bigram);
+  }
+  for (const latin of lower.match(/[a-z]{3,}/g) ?? []) {
+    if (!ARTIST_TOKENS.has(latin)) direct.add(latin);
+  }
+  const years = [...new Set(lower.match(/(?:19|20)\d{2}/g) ?? [])];
+  const aliases = new Set();
+  for (const rule of QUERY_EXPANSIONS) {
+    if (!rule.test.test(lower)) continue;
+    for (const term of rule.terms) aliases.add(term);
+  }
+  return { direct: [...direct], aliases: [...aliases].filter((term) => !direct.has(term) && !years.includes(term)), years };
+}
+
+function countToken(haystack, token) {
+  let count = 0;
+  let at = haystack.indexOf(token);
+  while (at !== -1) {
+    count += 1;
+    at = haystack.indexOf(token, at + token.length);
+  }
+  return count;
+}
+
+/**
+ * Lexical retrieval over every retrievable claim.
+ *
+ * 六维 claim 只是库里的一半事实：分期锚点（哪年发生了什么）和「尚未回答的问题」同样
+ * 写在 YAML 里、页面上能读到。旧版只遍历 dimensions，所以问「1912 年新伦巴赫发生了什么」
+ * 时，库里明明有「4 月 13 日被捕、关押二十四天」这条锚点，模型却收到「条目没有交代经过」，
+ * 于是只能回答「现有条目不足以回答」。这里把三类条目放进同一个排序池，让模型看到的
+ * 上下文与页面上能读到的内容一致。
+ */
+function retrieve(query, limit = 18) {
+  const { direct, aliases, years } = queryTerms(query);
+  if (!direct.length && !aliases.length && !years.length) return [];
+
+  const rows = [];
+  const haystackOf = (...parts) => parts.filter(Boolean).join(' ').toLowerCase();
+  const evidenceText = (evidence) =>
+    (evidence ?? []).map((e) => `${e.quote ?? ''} ${e.translation_zh ?? ''} ${e.citation ?? ''}`).join(' ');
+
+  const lexical = (haystack) => {
+    let score = 0;
+    for (const token of direct) score += countToken(haystack, token) * 3;
+    for (const token of aliases) score += countToken(haystack, token) * 1.5;
+    for (const year of years) score += countToken(haystack, year) * 2;
+    return score;
+  };
+
+  for (const dossier of DATA.dossiers) {
+    const start = Number(dossier.period.start_year);
+    const end = Number(dossier.period.end_year);
+
+    // 1912 这类年份是范围线索：命中所在分期加高分，相邻分期保留一点上下文。
+    let yearBias = 0;
+    for (const year of years) {
+      const value = Number(year);
+      if (!Number.isFinite(value) || !Number.isFinite(start) || !Number.isFinite(end)) continue;
+      if (value >= start && value <= end) yearBias += 6;
+      else if (Math.min(Math.abs(value - start), Math.abs(value - end)) <= 1) yearBias += 2;
+    }
+
+    const dimBias = (dim) => {
+      if (!LINE_QUERY.test(query)) return 0;
+      if (dim === 'composition') return 2;
+      if (dim === 'material') return 1;
+      if (dim === 'lineage') return 1;
+      return 0;
+    };
+
+    for (const dim of DATA.dims) {
+      for (const claim of flatten(dossier, dim)) {
+        if (claim.not_applicable) continue;
+        const haystack = haystackOf(
+          claim.statement_zh,
+          claim.note_zh,
+          evidenceText(claim.evidence),
+          DIM_LABELS[dim].zh,
+          ...claim.medium.map((m) => MEDIA_LABELS[m] ?? m),
+        );
+        // 问题点了年份、条目却不在那一期：保留但降权，免得拿晚期对照条目冒充本期依据。
+        const offPeriod = years.length && yearBias === 0 ? 0.7 : 1;
+        const score = (lexical(haystack) + yearBias + dimBias(dim)) * offPeriod;
+        if (score > 0) rows.push({ dossier, dim, claim, score, kind: 'claim', label: DIM_LABELS[dim].zh });
+      }
+    }
+
+    // 分期锚点：问「发生了什么 / 为什么会变」时，事件时间线才是直接答案。
+    for (const anchor of dossier.period.anchors ?? []) {
+      const stamp = anchor.month_day ? `${anchor.year}-${anchor.month_day}` : String(anchor.year);
+      const haystack = haystackOf(anchor.event_zh, evidenceText(anchor.evidence), dossier.period.label?.zh, stamp);
+      const score = lexical(haystack) + Math.round(yearBias * 1.5) + 2;
+      if (score > 2) {
+        rows.push({
+          dossier,
+          dim: 'period',
+          kind: 'anchor',
+          label: `时期锚点 ${stamp}`,
+          score,
+          claim: {
+            statement_zh: anchor.event_zh,
+            note_zh: null,
+            evidence: anchor.evidence ?? [],
+            medium: ['period_level'],
+            grades: [...new Set((anchor.evidence ?? []).map((e) => e.grade))],
+            confidence: 'medium',
+            status: 'draft',
+          },
+        });
+      }
+    }
+
+    // 「尚未回答的问题」：让模型能说清这一问缺什么，而不是笼统说条目不够。
+    for (const open of dossier.open_questions ?? []) {
+      const haystack = haystackOf(open.question_zh, open.why_open_zh);
+      const score = Math.round(lexical(haystack) * 0.9);
+      if (score >= 6) {
+        rows.push({
+          dossier,
+          dim: 'period',
+          kind: 'open',
+          label: '尚未回答的问题',
+          score,
+          claim: {
+            statement_zh: open.question_zh,
+            note_zh: open.why_open_zh,
+            evidence: [],
+            medium: ['period_level'],
+            grades: [],
+            confidence: null,
+            status: 'draft',
+          },
+        });
+      }
+    }
+  }
+
+  // 候选池：每周抓取 + 初筛通过的原文材料。还不是 claim，但「抓到了却答不出」正是要修的病。
+  for (const row of DATA.inbox ?? []) {
+    const text = haystackOf(row.title, row.excerpt, row.publisher, row.published, row.kind);
+    const score = Math.round(lexical(text) * 0.8);
+    if (score >= 6) {
+      rows.push({
+        dossier: { id: 'inbox', artist: { id: 'inbox', zh: '候选池' }, period: {} },
+        dim: 'period',
+        kind: 'inbox',
+        label: [row.kind ?? '原文', row.class ? `${row.class} 级` : '', row.published].filter(Boolean).join(' · '),
+        score,
+        claim: {
+          statement_zh: `${row.title}${row.excerpt ? `：${String(row.excerpt).slice(0, 260)}` : ''}`,
+          note_zh: row.reason_zh ? `初筛理由：${row.reason_zh}` : null,
+          evidence: [{ quote: row.excerpt ?? '', citation: [row.publisher, row.published].filter(Boolean).join(' · '), url: row.url, grade: row.class, unverified: false }],
+          medium: [],
+          grades: row.class ? [row.class] : [],
+          confidence: 'low',
+          status: 'candidate',
+          url: row.url,
+        },
+      });
+    }
+  }
+
+  rows.sort((a, b) => b.score - a.score);
+  const top = rows[0]?.score ?? 0;
+  const floor = Math.max(3, top * 0.18);
+  const quotas = { anchor: 4, open: 1, inbox: 2 };
+  const perBucket = new Map();
+  const picked = [];
+  for (const row of rows) {
+    if (row.score < floor) break; // 已按分数降序，后面的只会更弱
+    const key = `${row.kind}:${row.dossier.id}:${row.dim}`;
+    const used = perBucket.get(key) ?? 0;
+    if (used >= (quotas[row.kind] ?? 2)) continue;
+    perBucket.set(key, used + 1);
+    picked.push(row);
+    if (picked.length >= limit) break;
+  }
+  return picked.map((row, index) => ({ ...row, ref: `S${index + 1}` }));
+}
+
+function buildMessages(query, hits) {
+  const roster = artists()
+    .map((a) => `${a.zh}（${a.en}，${a.birth_year ?? '?'}–${a.death_year ?? '?'}）`)
+    .join('；');
+  const lines = hits.map((hit) => {
+    const claim = hit.claim;
+    const media = (claim.medium ?? []).map((m) => MEDIA_LABELS[m] ?? m).join('/');
+    const flags = [
+      claim.grades?.length ? `${claim.grades.join('')} 级证据` : '',
+      claim.confidence ? `置信${CONF_LABELS[claim.confidence] ?? claim.confidence}` : '',
+      claim.evidence.some((e) => e.unverified) ? '出处待核验' : '',
+      claim.status === 'signed' ? '已签字' : '',
+    ]
+      .filter(Boolean)
+      .join(' · ');
+    // 关键细节常只存在于证据引文里（例如「1911–1912 用极硬铅笔，几乎看不见」），
+    // 只给 statement 会让模型误以为条目没写原因。这里带上 1–2 条短引文。
+    // 候选池条目的 statement 本身就是原文摘录，不再重复一遍，只补链接。
+    const evidence =
+      hit.kind === 'inbox'
+        ? ''
+        : claim.evidence
+            .filter((e) => e.quote || e.translation_zh)
+            .slice(0, 2)
+            .map((e) => String(e.translation_zh || e.quote || '').slice(0, 180))
+            .filter(Boolean)
+            .join('；');
+    const link = claim.url ? `\n    链接：${claim.url}` : '';
+    const head = [`[${hit.ref}]`, hit.dossier.artist.zh, hit.label ?? DIM_LABELS[hit.dim].zh, media, flags]
+      .filter(Boolean)
+      .join(' · ');
+    return `${head}：${claim.statement_zh}${claim.note_zh ? `（注：${claim.note_zh}）` : ''}${
+      evidence ? `\n    证据：${evidence}` : ''
+    }${link}`;
+  });
+
+  const system = [
+    '你在检索一个「画家技法知识库」。下面给出的条目是唯一可用的事实来源。',
+    '规则：',
+    '1. 只能使用条目里的内容，不得补充外部知识，不得编造页码、引文、年份或作品名。',
+    '2. 先正面回答「为什么」：第一句就是结论。即使条目没有一句直接因果句，也要把同一时期、同一画种、同一技法维度的多条条目组合起来，用「推断：」开头给出结论；不许把「现有条目不足以回答」放在开头。',
+    '3. 只有在结论之后，才可以说哪一部分缺证据，并说明缺什么；条目里若有「尚未回答的问题」，直接把它作为缺口说出来。',
+    '4. 标注「时期锚点」的是事件条目（哪年发生了什么），可以直接用来回答「发生了什么」「为什么会变」；标注「尚未回答的问题」的是库里还没解决的问题。',
+    '5. 标注「候选池」的是每周抓取、AI 初筛判过可靠性的原文摘录，还没写成条目：可以用它说明「库里还没有结论，但候选池已有这篇材料这样说」，并给出链接；不要把它当成已核对过的技法结论。',
+    '6. 如果问题里的前提和条目冲突（例如把叠线当成断线），先用一句话纠正前提，再给推断。',
+    '7. 条目里标注「出处待核验」的，回答末尾用一句话提醒读者它尚未核验。',
+    '8. 引用只写 [S1] 这样单独的编号，不要在方括号里夹任何文字；「出处待核验」的提醒不要塞进编号里。',
+    '9. 年份相同不等于相关；优先同一时期、同一画种、同一技法维度的条目。',
+    '10. 推断只能组合条目，不能写成条目直述；每条依据仍要标 [S#]。',
+    '11. 用中文回答，控制在 320 字内，先给结论（直述或推断），再给要点，不要复述问题。',
+    '',
+    `知识库里的画家：${roster || '（暂无）'}`,
+    '',
+    '可选条目：',
+    ...lines,
+  ].join('\n');
+
+  return [
+    { role: 'system', content: system },
+    {
+      role: 'user',
+      content: `${query}\n\n请先给出结论；如果只能从条目推断，请以「推断：」开头，不要只罗列资料。`,
+    },
+  ];
+}
+
+/**
+ * 静态托管（GitHub Pages）对 POST /api/ai 的典型拒绝：404 没有这个路径、
+ * 405 不允许多数方法、501 不支持、403 被网关拦。遇到这些说明「这里没有本地代理」，
+ * 应该退回浏览器直连，而不是把它当成代理报错。
+ */
+const NO_PROXY_STATUS = new Set([403, 404, 405, 501]);
+
+async function callDeepSeek(messages) {
+  // 1) 本地预览服务器的代理：密钥留在服务端，浏览器看不到。
+  let proxySaidNoKey = false;
+  try {
+    const response = await fetch('./api/ai', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ messages }),
+    });
+    let payload = null;
+    try {
+      payload = await response.json();
+    } catch {
+      payload = null;
+    }
+    if (response.ok && payload?.ok && payload.content) {
+      return { content: payload.content, via: 'proxy', model: payload.model ?? 'deepseek-chat' };
+    }
+    if (payload?.error === 'no-key') proxySaidNoKey = true;
+    else if (response.ok) throw { code: 'EMPTY' };
+    else if (!NO_PROXY_STATUS.has(response.status)) {
+      // 把代理带上来的原因原样透出：502 多半是上游 DeepSeek 这次没答上来。
+      const detail = payload?.detail ?? payload?.error ?? (payload ? '' : '代理返回的不是 JSON');
+      throw { code: 'PROXY_ERROR', status: response.status, detail: typeof detail === 'string' ? detail : JSON.stringify(detail) };
+    }
+    // 其余（404/405/501/403）= 这里没有本地代理，继续走直连
+  } catch (error) {
+    if (error?.code === 'PROXY_ERROR' || error?.code === 'EMPTY') throw error;
+    // fetch 本身失败：在本机访问说明代理没起或被断开；静态托管上则继续尝试直连。
+    const host = String(location.hostname || '');
+    const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
+    if (isLocal) {
+      throw { code: 'PROXY_ERROR', status: 0, detail: `连不上本地预览服务（${host}:${location.port || '?'}）：serve.mjs 没在跑，或刚重启过。` };
+    }
+  }
+
+  // 2) 浏览器直连读者自己的端点：Key/base/model 都在 localStorage 里。
+  const settings = llmSettings();
+  if (!settings.key) throw { code: 'NO_KEY', viaProxy: proxySaidNoKey };
+
+  let response;
+  try {
+    response = await fetch(llmEndpoint(settings), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${settings.key}` },
+      body: JSON.stringify({ model: settings.model, messages, temperature: 0.2, max_tokens: 900 }),
+    });
+  } catch (error) {
+    throw { code: 'DIRECT_FAILED', baseUrl: settings.baseUrl, detail: String(error?.message ?? error) };
+  }
+  if (!response.ok) {
+    const detail = await response.text().catch(() => '');
+    throw { code: 'HTTP', status: response.status, detail: detail.slice(0, 200), baseUrl: settings.baseUrl };
+  }
+  const payload = await response.json();
+  const content = payload?.choices?.[0]?.message?.content ?? '';
+  if (!content) throw { code: 'EMPTY' };
+  return { content, via: 'direct', model: payload?.model ?? settings.model };
+}
+
+function errorText(error) {
+  const asText = (value) => {
+    if (value === undefined || value === null) return '';
+    if (typeof value === 'string') return value;
+    try {
+      return JSON.stringify(value);
+    } catch {
+      return String(value);
+    }
+  };
+  switch (error?.code) {
+    case 'NO_KEY':
+      return error?.viaProxy
+        ? '本地预览服务没有读到 DEEPSEEK_KEY，浏览器里也还没存过 Key。点右上「设置 Key」填一个也行。'
+        : '这个页面没有服务端代理（线上静态托管就是这样）：点右上「设置 Key」粘贴一次你自己的 Key 就能提问，Key 只存这台浏览器。';
+    case 'HTTP': {
+      let who = '模型端点';
+      try {
+        if (error.baseUrl) who = new URL(error.baseUrl).host;
+      } catch {
+        /* baseUrl 不是合法 URL 就用默认名字 */
+      }
+      return `${who} 返回 HTTP ${error.status}${error.detail ? `：${asText(error.detail)}` : ''}`;
+    }
+    case 'DIRECT_FAILED':
+      return `连不上 ${error.baseUrl ?? '自定端点'}：${asText(error.detail).slice(0, 200)}。检查 Base URL、网络，或该端点是否允许浏览器直连（CORS）。`;
+    case 'EMPTY':
+      return '模型返回了空回答（这次没吐内容，重试一次通常就好）。';
+    case 'PROXY_ERROR': {
+      const where = error.status ? `HTTP ${error.status}` : '网络中断';
+      const detail = asText(error.detail).slice(0, 240);
+      const hint =
+        error.status === 502
+          ? '上游 DeepSeek 这次没答上来（超时 / 限流 / 网络抖动），点下面「重试」一般就好。'
+          : error.status === 0
+            ? '本地预览服务这会儿没响应。'
+            : '';
+      return [`本地代理请求失败（${where}）`, detail ? `：${detail}` : '', hint ? ` ${hint}` : ''].join('');
+    }
+    default:
+      return `请求失败：${asText(error?.message) || asText(error?.code) || '未知错误'}（可重试）`;
+  }
+}
+
+async function ask(query) {
+  const question = query.trim();
+  if (!question) return;
+  if (!DATA) return;
+
+  if (window.__TK_OFFLINE__) {
+    state.ai = { query: question, status: 'error', answer: '', hits: [], error: '离线单文件版没有网络代理，AI 检索不可用。请双击 preview.cmd 启动本地服务后访问 http://localhost:4321。', via: '', model: '' };
+    render();
+    return;
+  }
+
+  const hits = retrieve(question);
+  state.ai = { query: question, status: 'loading', answer: '', hits, error: '', via: '', model: '' };
+  render();
+
+  if (!hits.length) {
+    state.ai.status = 'empty';
+    render();
+    return;
+  }
+
+  try {
+    const result = await callDeepSeek(buildMessages(question, hits));
+    state.ai.status = 'done';
+    state.ai.answer = result.content;
+    state.ai.via = result.via;
+    state.ai.model = result.model;
+  } catch (error) {
+    state.ai.status = error?.code === 'NO_KEY' ? 'need-key' : 'error';
+    state.ai.error = errorText(error);
+  }
+  render();
+}
+
+/* ---------------------------------------------------------------- AI render */
+
+const AI_STATUS = {
+  idle: '',
+  loading: '正在检索条目并请 DeepSeek 回答…',
+  done: '',
+  empty: '没有命中任何条目',
+  'need-key': '需要一次 API Key 配置',
+  error: '检索失败',
+};
+
+function aiCite(hit) {
+  if (!hit) return '<span class="cite">?</span>';
+  // 候选池条目不是页面上的条目，只能指向原文链接。
+  if (hit.kind === 'inbox') {
+    return `<a class="cite" href="${esc(hit.claim.url ?? '#/')}" target="_blank" rel="noopener" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
+  }
+  // 事件锚点与开放问题不在六维页里，落到该期的概览页（那里正好列出这两块）。
+  const tab = hit.kind === 'claim' ? 'dimensions' : 'overview';
+  const anchor = hit.kind === 'claim' ? hit.dim : null;
+  return `<a class="cite" href="${artistHref(hit.dossier.artist.id, tab, periodSlug(hit.dossier), anchor)}" title="${esc(hit.claim.statement_zh ?? '')}">${esc(hit.ref)}</a>`;
+}
+
+function aiInline(text) {
+  let html = esc(text);
+  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+  // 模型有时把提醒塞进编号里（[S4，出处待核验]），这种也要变成可点链接，附注单独显示。
+  html = html.replace(/[\[【]\s*(S\d+)\s*([^\]]*?)\s*[\]】]/g, (match, ref, trail) => {
+    const hit = state.ai.hits.find((item) => item.ref === ref);
+    const cite = aiCite(hit);
+    const note = String(trail ?? '').replace(/^[，,、·|/／\s]+/, '').trim();
+    return note ? `${cite}<span class="cite-note">${esc(note)}</span>` : cite;
+  });
+  return html;
+}
+
+function aiAnswerHtml(text) {
+  return text
+    .split(/\n{2,}/)
+    .map((paragraph) => {
+      const lines = paragraph.split('\n').filter(Boolean);
+      if (lines.length && lines.every((line) => /^[-*·]\s+/.test(line))) {
+        return `<ul>${lines.map((line) => `<li>${aiInline(line.replace(/^[-*·]\s+/, ''))}</li>`).join('')}</ul>`;
+      }
+      if (lines.length && lines.every((line) => /^\d+[.、]\s+/.test(line))) {
+        return `<ol>${lines.map((line) => `<li>${aiInline(line.replace(/^\d+[.、]\s+/, ''))}</li>`).join('')}</ol>`;
+      }
+      return `<p>${lines.map(aiInline).join('<br />')}</p>`;
+    })
+    .join('');
+}
+
+function renderAiPanel() {
+  const ai = state.ai;
+  const hits = ai.hits ?? [];
+
+  const hitsHtml = hits.length
+    ? `<p class="section-title">作为依据的条目 · ${hits.length}</p>
+      <div class="hits">${hits
+        .map((hit) => {
+          const fromInbox = hit.kind === 'inbox';
+          const href = fromInbox
+            ? esc(hit.claim.url ?? '#/')
+            : artistHref(
+                hit.dossier.artist.id,
+                hit.kind === 'claim' ? 'dimensions' : 'overview',
+                periodSlug(hit.dossier),
+                hit.kind === 'claim' ? hit.dim : null,
+              );
+          const extra = fromInbox ? ' target="_blank" rel="noopener"' : '';
+          return `<a class="hit" href="${href}"${extra}>
+            <span class="hit-ref">${esc(hit.ref)}</span>
+            <span class="hit-dim">${esc(hit.dossier.artist.zh)} · ${esc(hit.label ?? DIM_LABELS[hit.dim].zh)}</span>
+            <span class="hit-text">${esc(hit.claim.statement_zh ?? hit.claim.reason_zh ?? '')}</span>
+            <span class="hit-grades">${esc((hit.claim.grades ?? []).join('') || '—')}</span>
+          </a>`;
+        })
+        .join('')}</div>`
+    : '';
+
+  if (ai.status === 'loading') {
+    return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+      <section class="ai-panel">
+        <p class="ai-q">问题：${esc(ai.query)}</p>
+        <p class="ai-status"><span class="pulse"></span>${esc(AI_STATUS.loading)}</p>
+      </section>${hitsHtml}`;
+  }
+
+  if (ai.status === 'empty') {
+    return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+      <section class="ai-panel">
+        <p class="ai-q">问题：${esc(ai.query)}</p>
+        <p class="ai-status">这个库里没有能对上这句话的条目。它目前只有 ${DATA.counts.claims} 条 claim，
+          「查不到」也是回答——可以换个说法，或者先补数据。</p>
+      </section>`;
+  }
+
+  if (ai.status === 'need-key' || ai.status === 'error') {
+    const keyForm =
+      ai.status === 'need-key'
+        ? `<form id="keyform" class="keyform">
+             <input id="keyinput" type="password" placeholder="sk-…（DeepSeek API Key）" autocomplete="off" />
+             <button type="submit">保存并重试</button>
+           </form>
+           <p class="filter-note">Key 只写进本机 localStorage，不会提交给这个站点。本地预览服务器已配置密钥时无需填写。</p>`
+        : '';
+    return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+      <section class="ai-panel">
+        <p class="ai-q">问题：${esc(ai.query)}</p>
+        <p class="ai-error">${esc(ai.error || AI_STATUS[ai.status])}</p>
+        ${ai.status === 'error' ? '<p class="ai-actions"><button type="button" class="retry" data-retry>重试这个问题</button></p>' : ''}
+        ${keyForm}
+      </section>`;
+  }
+
+  const meta = [ai.via === 'proxy' ? '本地代理' : '浏览器直连', ai.model, 'DeepSeek'].filter(Boolean).join(' · ');
+  const kinds = new Set(hits.map((hit) => hit.kind));
+  const scope = [
+    '六维条目',
+    kinds.has('anchor') ? '分期锚点' : '',
+    kinds.has('open') ? '待解问题' : '',
+    kinds.has('inbox') ? '候选池原文' : '',
+  ]
+    .filter(Boolean)
+    .join(' + ');
+  return `<nav class="crumb"><a href="#/" data-back>← 返回索引</a></nav>
+    <section class="ai-panel">
+      <p class="ai-q">问题：${esc(ai.query)}</p>
+      <div class="ai-answer">${aiAnswerHtml(ai.answer)}</div>
+      <p class="ai-meta">${esc(meta)} · 回答基于下面 ${hits.length} 条${esc(scope)}，引用编号可点</p>
+    </section>
+    ${hitsHtml}
+    <p class="ai-disclaimer">AI 只是把已入库的条目读给你听；它说的每句话都该用 [S1] 这样的链接回到条目上核对。</p>`;
+}
+
+/* ------------------------------------------------------------------ AI 翻译 */
+
+/** 把一份档案里所有 *_zh 字段收集起来：这就是「文档正文」。 */
+function collectTexts(value, out = new Set(), depth = 0) {
+  if (depth > 14 || out.size > 600 || !value || typeof value !== 'object') return out;
+  if (Array.isArray(value)) {
+    value.forEach((item) => collectTexts(item, out, depth + 1));
+    return out;
+  }
+  for (const [key, item] of Object.entries(value)) {
+    if (typeof item === 'string' && /_zh$/.test(key) && item.trim().length > 2) out.add(item.trim());
+    else if (item && typeof item === 'object') collectTexts(item, out, depth + 1);
+  }
+  return out;
+}
+
+async function runTranslate() {
+  if (state.translate.status === 'loading' || window.__TK_OFFLINE__) return;
+  const dossier = currentDossier(state.route);
+  if (!dossier) return;
+
+  const all = [...collectTexts(dossier)];
+  const missing = all.filter((text) => !trLookup(text));
+  if (!missing.length) {
+    state.translate = { ...state.translate, status: 'done', message: `这一页 ${all.length} 条都译过了` };
+    render();
+    return;
+  }
+
+  const batch = missing.slice(0, 16);
+  state.translate = { ...state.translate, status: 'loading', message: `翻译中 · 0/${batch.length}` };
+  render();
+
+  try {
+    const response = await fetch('./api/translate', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ target: state.translate.target, items: batch.map((text, i) => ({ key: String(i), text })) }),
+    });
+    const payload = await response.json().catch(() => null);
+    if (!response.ok || !payload?.ok) throw new Error(payload?.error ?? `HTTP ${response.status}`);
+
+    let got = 0;
+    for (const item of payload.items ?? []) {
+      const text = batch[Number(item.key)];
+      if (!text) continue;
+      trCache[trKey(state.translate.target, text)] = item.text;
+      got += 1;
+    }
+    trSave();
+
+    const left = missing.length - got;
+    state.translate = {
+      ...state.translate,
+      status: 'done',
+      message: left > 0 ? `已译 ${got} 条，还剩 ${left} 条，再点一次继续` : `已译 ${got} 条 · ${payload.model ?? ''}`.trim(),
+    };
+    render();
+  } catch (error) {
+    state.translate = { ...state.translate, status: 'error', message: `翻译失败：${error?.message ?? error}` };
+    render();
+  }
+}
+
+/* -------------------------------------------------------------------- render */
+
+function render() {
+  if (!DATA) return;
+  const route = state.route;
+  const onHome = route.name === 'home';
+
+  searchBox.hidden = !onHome;
+  qs('.search-hint').hidden = !onHome;
+  renderTabsFor(route);
+  renderMediaBarFor(route);
+
+  if (onHome) {
+    hint.textContent = state.ai.status === 'loading' ? '检索中…' : 'AI 检索 · DeepSeek';
+    view.innerHTML = state.ai.query ? renderAiPanel() : renderIndex();
+    return;
+  }
+
+  state.ai = { query: '', status: 'idle', answer: '', hits: [], error: '', via: '', model: '' };
+  input.value = '';
+
+  if (route.name === 'sources') {
+    view.innerHTML = `<nav class="crumb"><a href="#/">← 画家索引</a></nav>${renderSources(null)}`;
+    return;
+  }
+
+  const artist = artistById(route.id);
+  if (!artist) {
+    view.innerHTML = `<nav class="crumb"><a href="#/">← 画家索引</a></nav>
+      <section class="empty-card"><h3>没有这位画家</h3><p>索引里没有 <code>${esc(route.id)}</code>。可能是链接过期了。</p></section>`;
+    return;
+  }
+
+  const dossier = currentDossier(route);
+  if (!dossier) {
+    state.pendingAnchor = null;
+    view.innerHTML = route.tab === 'overview' ? renderPending(artist) : renderPendingDimension(artist, route.tab);
+    return;
+  }
+
+  const head = renderArtistHero(artist, dossier, route);
+  if (route.tab === 'overview') {
+    view.innerHTML = `${head}${renderOverview(dossier)}`;
+    return;
+  }
+  if (route.tab === 'sources') {
+    const filterLabel = selectedMediaLabel();
+    const ids = state.media.size ? sourceIdsForSelection(dossier) : (dossier.sourceIds ?? []);
+    const emptyNote = filterLabel
+      ? `此时期没有${filterLabel}的技法描述，因此没有对应来源（${BLANK}）。`
+      : '';
+    view.innerHTML = `${head}${renderSources(ids, { filterLabel, emptyNote })}`;
+    return;
+  }
+  view.innerHTML = `${head}${renderDimensions(dossier, route.anchor)}`;
+  settlePendingAnchor();
+}
+
+/* ---------------------------------------------------------------------- wire */
+
+/* The review desk only exists when preview.cmd (or another local serve.mjs) is running;
+   a published site and the offline single file should not advertise a dead link. */
+function revealLocalTools() {
+  const host = location.hostname;
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  if (!isLocal || window.__TK_OFFLINE__) return;
+  const link = qs('#examine-link');
+  if (link) link.hidden = false;
+}
+
+/**
+ * 问答的可用性在三种环境里不一样，先把话说清楚，省得读者点了才发现：
+ *   本机（preview.cmd）→ 密钥在服务端，直接用；
+ *   线上静态托管       → 没有 /api/ai（POST 会被回 405），要读者自己粘一次 Key；
+ *   离线单文件         → 没有网络代理，但可以直连读者自己的端点（DeepSeek 对 null origin 也回 CORS）。
+ */
+function markAiAvailability() {
+  if (!hint) return;
+  const settings = llmSettings();
+  const own = settings.key ? `自备 Key ${maskKey(settings.key)}` : '';
+  if (window.__TK_OFFLINE__) {
+    hint.textContent = own ? `离线版 · ${own}` : '离线版 · 点「设置 Key」自备密钥';
+    return;
+  }
+  const host = location.hostname;
+  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
+  if (isLocal) {
+    hint.textContent = own ? `AI 检索 · 本地代理 + ${own}` : 'AI 检索 · 本地代理';
+    return;
+  }
+  let who = '直连';
+  try {
+    who = new URL(settings.baseUrl).host;
+  } catch {
+    /* 保留默认 */
+  }
+  hint.textContent = own ? `AI 检索 · ${who}（${own}）` : 'AI 检索 · 点「设置 Key」自备密钥';
+}
+
+function markSettingsButton() {
+  const button = qs('#ai-settings-toggle');
+  if (!button) return;
+  const { key } = llmSettings();
+  button.textContent = key ? `Key ${maskKey(key)}` : '设置 Key';
+  button.classList.toggle('is-set', Boolean(key));
+}
+
+/** 设置面板：填一次 Key，之后所有提问都走读者自己的端点。 */
+function renderAiSettings() {
+  const box = qs('#ai-settings');
+  if (!box) return;
+  const settings = llmSettings();
+  box.innerHTML = `
+    <form id="llmform" class="llm-form" autocomplete="off">
+      <div class="llm-row">
+        <label>API Key<input id="llm-key" type="password" placeholder="${settings.key ? '已存 ' + esc(maskKey(settings.key)) + '，留空＝不改' : 'sk-…（你的 Key）'}" /></label>
+        <label>Base URL<input id="llm-base" type="text" value="${esc(settings.baseUrl)}" placeholder="${DEFAULT_LLM_BASE}" /></label>
+        <label>模型<input id="llm-model" type="text" value="${esc(settings.model)}" placeholder="${DEFAULT_LLM_MODEL}" /></label>
+      </div>
+      <div class="llm-row llm-actions">
+        <button type="submit">保存</button>
+        <button type="button" data-llm-test>测试连接</button>
+        <button type="button" data-llm-clear>清除</button>
+        <span id="llm-msg" class="llm-msg"></span>
+      </div>
+      <p class="llm-note">Key 只写进<b>这台浏览器的 localStorage</b>，不会上传到任何服务器；清浏览器数据就没了。
+        换 DeepSeek / OpenAI / Ollama / vLLM 等 OpenAI 兼容端点，改 Base URL 与模型名即可。</p>
+      <p class="llm-note"${window.__TK_OFFLINE__ ? ' hidden' : ''}>想整站离线跑？<a href="./download/artlibrary-offline.html" download>下载单文件版</a>（约 220 KB，双击就能看）；
+        要 Key 能存住，用本地 http 服务打开（例如 <code>python -m http.server</code>）。</p>
+    </form>`;
+}
+
+function load() {
+  view.innerHTML = `<p class="loading">正在载入索引…</p>`;
+  fetch('./data/index.json')
+    .then((response) => {
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    })
+    .then((payload) => {
+      DATA = payload;
+
+      const examples = DATA.dossiers.filter((d) => d.meta.example);
+      if (examples.length) {
+        const banner = qs('#banner');
+        banner.hidden = false;
+        banner.innerHTML = `<strong>示例数据。</strong>引文中标注「出处待核验」的位置尚未核对，原文引句为结构示意，
+          不可作为引用依据。真实条目须由人签字后才算数。`;
+      }
+
+      state.route = parseRoute();
+      state.pendingAnchor = state.route.anchor || null;
+      canonicalizeRoute();
+      revealLocalTools();
+      markAiAvailability();
+      markSettingsButton();
+      renderAiSettings();
+      render();
+    })
+    .catch((error) => {
+      view.innerHTML = `<p class="summary-zh">索引载入失败：${esc(error.message)}。<br />
+        若在本地打开，请先运行 <code>node scripts/build-site.mjs</code> 生成 site/data/index.json。</p>`;
+    });
+}
+
+/* ---------------------------------------------------------- LLM 设置面板 */
+
+const settingsToggle = qs('#ai-settings-toggle');
+const settingsBox = qs('#ai-settings');
+
+function openSettings(open) {
+  if (!settingsBox || !settingsToggle) return;
+  const next = typeof open === 'boolean' ? open : settingsBox.hidden;
+  settingsBox.hidden = !next;
+  settingsToggle.setAttribute('aria-expanded', String(next));
+  if (next) {
+    renderAiSettings();
+    qs('#llm-key')?.focus();
+  }
+}
+
+settingsToggle?.addEventListener('click', () => openSettings());
+
+settingsBox?.addEventListener('submit', (event) => {
+  const form = event.target.closest('#llmform');
+  if (!form) return;
+  event.preventDefault();
+  const keyInput = qs('#llm-key');
+  const typedKey = keyInput?.value?.trim() ?? '';
+  saveLlmSettings({
+    key: typedKey || llmSettings().key,
+    baseUrl: qs('#llm-base')?.value ?? '',
+    model: qs('#llm-model')?.value ?? '',
+  });
+  const saved = llmSettings();
+  const msg = qs('#llm-msg');
+  if (msg) msg.textContent = `已保存：${saved.model} @ ${saved.baseUrl}${saved.key ? `，Key ${maskKey(saved.key)}` : ''}`;
+  if (keyInput) keyInput.value = '';
+  // 刚才是因为没 Key 才失败的，保存后自动重来一次，别让人再点一遍「问」。
+  if (state.ai.query && (state.ai.status === 'need-key' || state.ai.status === 'error')) ask(state.ai.query);
+});
+
+settingsBox?.addEventListener('click', async (event) => {
+  const msg = qs('#llm-msg');
+
+  if (event.target.closest('[data-llm-clear]')) {
+    saveLlmSettings({});
+    renderAiSettings();
+    const note = qs('#llm-msg');
+    if (note) note.textContent = '已清除本机保存的 Key 与端点设置。';
+    render();
+    return;
+  }
+
+  if (!event.target.closest('[data-llm-test]')) return;
+  const key = (qs('#llm-key')?.value ?? '').trim() || llmSettings().key;
+  const baseUrl = ((qs('#llm-base')?.value ?? '').trim() || DEFAULT_LLM_BASE).replace(/\/+$/, '');
+  const model = (qs('#llm-model')?.value ?? '').trim() || DEFAULT_LLM_MODEL;
+  if (!key) {
+    if (msg) msg.textContent = '先填 Key 再测试。';
+    return;
+  }
+  if (msg) msg.textContent = '测试中…';
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: 'ping' }], max_tokens: 8 }),
+    });
+    if (res.ok) {
+      const payload = await res.json().catch(() => null);
+      if (msg) msg.textContent = `通了：${payload?.model ?? model}（HTTP 200）。记得点「保存」。`;
+    } else {
+      const detail = (await res.text().catch(() => '')).slice(0, 120);
+      if (msg) msg.textContent = `失败 HTTP ${res.status}${detail ? `：${detail}` : ''}`;
+    }
+  } catch (error) {
+    if (msg) msg.textContent = `连不上：${error.message}（多半是 Base URL 写错，或该端点不允许浏览器直连）`;
+  }
+});
+
+tabsEl.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-tab]');
+  if (!button || state.route.name !== 'artist') return;
+  go(artistHref(state.route.id, button.dataset.tab, state.route.period));
+});
+
+mediaBar.addEventListener('click', (event) => {
+  const button = event.target.closest('button[data-media]');
+  if (!button) return;
+  const key = button.dataset.media;
+  if (key === '__all') state.media.clear();
+  else if (state.media.has(key)) state.media.delete(key);
+  else state.media.add(key);
+  renderMediaBarFor(state.route);
+  renderTabsFor(state.route);
+  render();
+});
+
+view.addEventListener('change', (event) => {
+  const select = event.target.closest('.tr-lang');
+  if (!select) return;
+  state.translate = { ...state.translate, target: select.value, status: 'idle', message: '' };
+  store.setItem('tk.translate.target', select.value);
+  render();
+});
+
+view.addEventListener('click', (event) => {
+  const retry = event.target.closest('[data-retry]');
+  if (retry) {
+    event.preventDefault();
+    if (state.ai.query) ask(state.ai.query);
+    return;
+  }
+  const back = event.target.closest('[data-back]');
+  if (back) {
+    event.preventDefault();
+    state.ai = { query: '', status: 'idle', answer: '', hits: [], error: '', via: '', model: '' };
+    input.value = '';
+    go('#/');
+    return;
+  }
+
+  const sample = event.target.closest('[data-ask]');
+  if (sample) {
+    input.value = sample.dataset.ask;
+    ask(sample.dataset.ask);
+    return;
+  }
+
+  /* 站内链接（画家卡、分期条、面包屑、AI 引用…）全部走 go()。
+     这样不依赖浏览器的 hash 跳转：预览 iframe / file:// 里点了也有反应。
+     Ctrl / Cmd / Shift 点击仍交给浏览器（新标签页等）。 */
+  const internal = event.target.closest('a[href^="#/"]');
+  if (
+    internal &&
+    !internal.target &&
+    !internal.hasAttribute('download') &&
+    !event.metaKey &&
+    !event.ctrlKey &&
+    !event.shiftKey &&
+    !event.altKey
+  ) {
+    event.preventDefault();
+    go(internal.getAttribute('href'));
+    return;
+  }
+
+  if (event.target.closest('[data-tr-run]')) {
+    runTranslate();
+    return;
+  }
+
+  const jump = event.target.closest('[data-jump]');
+  if (jump) {
+    focusDimension(jump.dataset.jump);
+    return;
+  }
+
+  const cell = event.target.closest('[data-goto]');
+  if (!cell) return;
+  state.media.clear();
+  if (cell.dataset.medium) state.media.add(cell.dataset.medium);
+  go(artistHref(state.route.id, 'dimensions', state.route.period, cell.dataset.anchor || null));
+});
+
+view.addEventListener('submit', (event) => {
+  const form = event.target.closest('#keyform');
+  if (!form) return;
+  event.preventDefault();
+  const value = qs('#keyinput').value.trim();
+  if (!value) return;
+  saveLlmSettings({ ...llmSettings(), key: value });
+  markSettingsButton();
+  ask(state.ai.query);
+});
+
+function submitQuestion() {
+  const question = input.value.trim();
+  if (!question) return;
+  if (state.route.name !== 'home') go('#/');
+  ask(question);
+}
+
+askButton.addEventListener('click', submitQuestion);
+input.addEventListener('keydown', (event) => {
+  if (event.key === 'Enter') {
+    event.preventDefault();
+    submitQuestion();
+  }
+});
+
+/** 地址栏变化（手输、前进/后退、没被拦截的链接）统一从这里同步页面。 */
+function syncFromLocation() {
+  state.route = parseRoute();
+  const anchor = state.route.name === 'artist' ? state.route.anchor || null : null;
+  state.pendingAnchor = anchor;
+  canonicalizeRoute();
+  if (state.route.name !== 'home') {
+    state.ai = { query: '', status: 'idle', answer: '', hits: [], error: '', via: '', model: '' };
+  }
+  render();
+  if (!anchor) window.scrollTo({ top: 0 });
+}
+
+window.addEventListener('hashchange', syncFromLocation);
+window.addEventListener('popstate', syncFromLocation);
+
+load();
+
+</script>
+</body>
+</html>

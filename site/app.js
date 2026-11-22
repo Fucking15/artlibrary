@@ -141,8 +141,11 @@ const KIND_LABELS = {
 };
 
 const LANG_LABELS = { zh: '中文', en: '英文', de: '德文', fr: '法文', it: '意大利文' };
-const DEEPSEEK_URL = 'https://api.deepseek.com/chat/completions';
+const DEFAULT_LLM_BASE = 'https://api.deepseek.com';
+const DEFAULT_LLM_MODEL = 'deepseek-chat';
+/** 兼容旧版本：早期只存一个 DeepSeek Key，没有 base/model。 */
 const KEY_STORE = 'tk_deepseek_key';
+const LLM_STORE = 'tk_llm_settings';
 
 /* file:// 打开的单文件版是 opaque origin，碰 localStorage 会抛 SecurityError，
    所以统一走这层：能存就存，不能存就退回内存。 */
@@ -165,6 +168,45 @@ const store = (() => {
 const qs = (sel, root = document) => root.querySelector(sel);
 const esc = (value) =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ------------------------------------------------------ 读者自己的 LLM 设置 */
+
+/**
+ * BYOK（bring your own key）：问答用的密钥只写进这台浏览器的 localStorage。
+ * 线上是 GitHub Pages，没有 /api/ai 这种服务端转发，所以直连是唯一通道；
+ * 本机跑 preview.cmd 时代理优先（密钥在服务端，浏览器里可以什么都不填）。
+ * base/model 都可改，于是 DeepSeek、OpenAI、Ollama、vLLM 这些 OpenAI 兼容端点都能用。
+ */
+function llmSettings() {
+  let saved = {};
+  try {
+    saved = JSON.parse(store.getItem(LLM_STORE) || '{}') || {};
+  } catch {
+    saved = {};
+  }
+  return {
+    baseUrl: String(saved.baseUrl || DEFAULT_LLM_BASE).trim().replace(/\/+$/, '') || DEFAULT_LLM_BASE,
+    model: String(saved.model || DEFAULT_LLM_MODEL).trim() || DEFAULT_LLM_MODEL,
+    key: String(store.getItem(KEY_STORE) || '').trim(),
+  };
+}
+
+function saveLlmSettings(next) {
+  store.setItem(
+    LLM_STORE,
+    JSON.stringify({ baseUrl: next.baseUrl?.trim() || DEFAULT_LLM_BASE, model: next.model?.trim() || DEFAULT_LLM_MODEL }),
+  );
+  if (next.key?.trim()) store.setItem(KEY_STORE, next.key.trim());
+  else store.removeItem(KEY_STORE);
+  markAiAvailability();
+  markSettingsButton();
+}
+
+function llmEndpoint(settings = llmSettings()) {
+  return `${settings.baseUrl}/chat/completions`;
+}
+
+const maskKey = (key) => (!key ? '' : key.length <= 8 ? '已存' : `${key.slice(0, 3)}…${key.slice(-4)}`);
 
 /* --------------------------------------------------------------- 译文缓存 */
 
@@ -1297,23 +1339,28 @@ async function callDeepSeek(messages) {
     }
   }
 
-  // 2) 浏览器直连：密钥由用户自己粘贴，只存本机 localStorage。
-  const key = store.getItem(KEY_STORE);
-  if (!key) throw { code: 'NO_KEY', viaProxy: proxySaidNoKey };
+  // 2) 浏览器直连读者自己的端点：Key/base/model 都在 localStorage 里。
+  const settings = llmSettings();
+  if (!settings.key) throw { code: 'NO_KEY', viaProxy: proxySaidNoKey };
 
-  const response = await fetch(DEEPSEEK_URL, {
-    method: 'POST',
-    headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-    body: JSON.stringify({ model: 'deepseek-chat', messages, temperature: 0.2, max_tokens: 900 }),
-  });
+  let response;
+  try {
+    response = await fetch(llmEndpoint(settings), {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${settings.key}` },
+      body: JSON.stringify({ model: settings.model, messages, temperature: 0.2, max_tokens: 900 }),
+    });
+  } catch (error) {
+    throw { code: 'DIRECT_FAILED', baseUrl: settings.baseUrl, detail: String(error?.message ?? error) };
+  }
   if (!response.ok) {
     const detail = await response.text().catch(() => '');
-    throw { code: 'HTTP', status: response.status, detail: detail.slice(0, 200) };
+    throw { code: 'HTTP', status: response.status, detail: detail.slice(0, 200), baseUrl: settings.baseUrl };
   }
   const payload = await response.json();
   const content = payload?.choices?.[0]?.message?.content ?? '';
   if (!content) throw { code: 'EMPTY' };
-  return { content, via: 'direct', model: payload?.model ?? 'deepseek-chat' };
+  return { content, via: 'direct', model: payload?.model ?? settings.model };
 }
 
 function errorText(error) {
@@ -1329,12 +1376,21 @@ function errorText(error) {
   switch (error?.code) {
     case 'NO_KEY':
       return error?.viaProxy
-        ? '本地预览服务没有读到 DEEPSEEK_KEY，浏览器里也还没存过 Key。'
-        : '这个页面没有服务端代理（线上静态托管就是这样）：粘贴一次你自己的 DeepSeek Key 就能提问，Key 只存这台浏览器。';
-    case 'HTTP':
-      return `DeepSeek 返回 HTTP ${error.status}${error.detail ? `：${asText(error.detail)}` : ''}`;
+        ? '本地预览服务没有读到 DEEPSEEK_KEY，浏览器里也还没存过 Key。点右上「设置 Key」填一个也行。'
+        : '这个页面没有服务端代理（线上静态托管就是这样）：点右上「设置 Key」粘贴一次你自己的 Key 就能提问，Key 只存这台浏览器。';
+    case 'HTTP': {
+      let who = '模型端点';
+      try {
+        if (error.baseUrl) who = new URL(error.baseUrl).host;
+      } catch {
+        /* baseUrl 不是合法 URL 就用默认名字 */
+      }
+      return `${who} 返回 HTTP ${error.status}${error.detail ? `：${asText(error.detail)}` : ''}`;
+    }
+    case 'DIRECT_FAILED':
+      return `连不上 ${error.baseUrl ?? '自定端点'}：${asText(error.detail).slice(0, 200)}。检查 Base URL、网络，或该端点是否允许浏览器直连（CORS）。`;
     case 'EMPTY':
-      return 'DeepSeek 返回了空回答（这次没吐内容，重试一次通常就好）。';
+      return '模型返回了空回答（这次没吐内容，重试一次通常就好）。';
     case 'PROXY_ERROR': {
       const where = error.status ? `HTTP ${error.status}` : '网络中断';
       const detail = asText(error.detail).slice(0, 240);
@@ -1658,21 +1714,62 @@ function revealLocalTools() {
  * 问答的可用性在三种环境里不一样，先把话说清楚，省得读者点了才发现：
  *   本机（preview.cmd）→ 密钥在服务端，直接用；
  *   线上静态托管       → 没有 /api/ai（POST 会被回 405），要读者自己粘一次 Key；
- *   离线单文件         → 完全没有网络代理。
+ *   离线单文件         → 没有网络代理，但可以直连读者自己的端点（DeepSeek 对 null origin 也回 CORS）。
  */
 function markAiAvailability() {
   if (!hint) return;
+  const settings = llmSettings();
+  const own = settings.key ? `自备 Key ${maskKey(settings.key)}` : '';
   if (window.__TK_OFFLINE__) {
-    hint.textContent = '离线版 · AI 检索不可用';
+    hint.textContent = own ? `离线版 · ${own}` : '离线版 · 点「设置 Key」自备密钥';
     return;
   }
   const host = location.hostname;
   const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
   if (isLocal) {
-    hint.textContent = 'AI 检索 · DeepSeek';
+    hint.textContent = own ? `AI 检索 · 本地代理 + ${own}` : 'AI 检索 · 本地代理';
     return;
   }
-  hint.textContent = store.getItem(KEY_STORE) ? 'AI 检索 · 浏览器直连（已备 Key）' : 'AI 检索 · 本页无代理，需自备 Key';
+  let who = '直连';
+  try {
+    who = new URL(settings.baseUrl).host;
+  } catch {
+    /* 保留默认 */
+  }
+  hint.textContent = own ? `AI 检索 · ${who}（${own}）` : 'AI 检索 · 点「设置 Key」自备密钥';
+}
+
+function markSettingsButton() {
+  const button = qs('#ai-settings-toggle');
+  if (!button) return;
+  const { key } = llmSettings();
+  button.textContent = key ? `Key ${maskKey(key)}` : '设置 Key';
+  button.classList.toggle('is-set', Boolean(key));
+}
+
+/** 设置面板：填一次 Key，之后所有提问都走读者自己的端点。 */
+function renderAiSettings() {
+  const box = qs('#ai-settings');
+  if (!box) return;
+  const settings = llmSettings();
+  box.innerHTML = `
+    <form id="llmform" class="llm-form" autocomplete="off">
+      <div class="llm-row">
+        <label>API Key<input id="llm-key" type="password" placeholder="${settings.key ? '已存 ' + esc(maskKey(settings.key)) + '，留空＝不改' : 'sk-…（你的 Key）'}" /></label>
+        <label>Base URL<input id="llm-base" type="text" value="${esc(settings.baseUrl)}" placeholder="${DEFAULT_LLM_BASE}" /></label>
+        <label>模型<input id="llm-model" type="text" value="${esc(settings.model)}" placeholder="${DEFAULT_LLM_MODEL}" /></label>
+      </div>
+      <div class="llm-row llm-actions">
+        <button type="submit">保存</button>
+        <button type="button" data-llm-test>测试连接</button>
+        <button type="button" data-llm-clear>清除</button>
+        <span id="llm-msg" class="llm-msg"></span>
+      </div>
+      <p class="llm-note">Key 只写进<b>这台浏览器的 localStorage</b>，不会上传到任何服务器；清浏览器数据就没了。
+        换 DeepSeek / OpenAI / Ollama / vLLM 等 OpenAI 兼容端点，改 Base URL 与模型名即可。</p>
+      <p class="llm-note"${window.__TK_OFFLINE__ ? ' hidden' : ''}>想整站离线跑？<a href="./download/artlibrary-offline.html" download>下载单文件版</a>（约 220 KB，双击就能看）；
+        要 Key 能存住，用本地 http 服务打开（例如 <code>python -m http.server</code>）。</p>
+    </form>`;
 }
 
 function load() {
@@ -1698,6 +1795,8 @@ function load() {
       canonicalizeRoute();
       revealLocalTools();
       markAiAvailability();
+      markSettingsButton();
+      renderAiSettings();
       render();
     })
     .catch((error) => {
@@ -1705,6 +1804,82 @@ function load() {
         若在本地打开，请先运行 <code>node scripts/build-site.mjs</code> 生成 site/data/index.json。</p>`;
     });
 }
+
+/* ---------------------------------------------------------- LLM 设置面板 */
+
+const settingsToggle = qs('#ai-settings-toggle');
+const settingsBox = qs('#ai-settings');
+
+function openSettings(open) {
+  if (!settingsBox || !settingsToggle) return;
+  const next = typeof open === 'boolean' ? open : settingsBox.hidden;
+  settingsBox.hidden = !next;
+  settingsToggle.setAttribute('aria-expanded', String(next));
+  if (next) {
+    renderAiSettings();
+    qs('#llm-key')?.focus();
+  }
+}
+
+settingsToggle?.addEventListener('click', () => openSettings());
+
+settingsBox?.addEventListener('submit', (event) => {
+  const form = event.target.closest('#llmform');
+  if (!form) return;
+  event.preventDefault();
+  const keyInput = qs('#llm-key');
+  const typedKey = keyInput?.value?.trim() ?? '';
+  saveLlmSettings({
+    key: typedKey || llmSettings().key,
+    baseUrl: qs('#llm-base')?.value ?? '',
+    model: qs('#llm-model')?.value ?? '',
+  });
+  const saved = llmSettings();
+  const msg = qs('#llm-msg');
+  if (msg) msg.textContent = `已保存：${saved.model} @ ${saved.baseUrl}${saved.key ? `，Key ${maskKey(saved.key)}` : ''}`;
+  if (keyInput) keyInput.value = '';
+  // 刚才是因为没 Key 才失败的，保存后自动重来一次，别让人再点一遍「问」。
+  if (state.ai.query && (state.ai.status === 'need-key' || state.ai.status === 'error')) ask(state.ai.query);
+});
+
+settingsBox?.addEventListener('click', async (event) => {
+  const msg = qs('#llm-msg');
+
+  if (event.target.closest('[data-llm-clear]')) {
+    saveLlmSettings({});
+    renderAiSettings();
+    const note = qs('#llm-msg');
+    if (note) note.textContent = '已清除本机保存的 Key 与端点设置。';
+    render();
+    return;
+  }
+
+  if (!event.target.closest('[data-llm-test]')) return;
+  const key = (qs('#llm-key')?.value ?? '').trim() || llmSettings().key;
+  const baseUrl = ((qs('#llm-base')?.value ?? '').trim() || DEFAULT_LLM_BASE).replace(/\/+$/, '');
+  const model = (qs('#llm-model')?.value ?? '').trim() || DEFAULT_LLM_MODEL;
+  if (!key) {
+    if (msg) msg.textContent = '先填 Key 再测试。';
+    return;
+  }
+  if (msg) msg.textContent = '测试中…';
+  try {
+    const res = await fetch(`${baseUrl}/chat/completions`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
+      body: JSON.stringify({ model, messages: [{ role: 'user', content: 'ping' }], max_tokens: 8 }),
+    });
+    if (res.ok) {
+      const payload = await res.json().catch(() => null);
+      if (msg) msg.textContent = `通了：${payload?.model ?? model}（HTTP 200）。记得点「保存」。`;
+    } else {
+      const detail = (await res.text().catch(() => '')).slice(0, 120);
+      if (msg) msg.textContent = `失败 HTTP ${res.status}${detail ? `：${detail}` : ''}`;
+    }
+  } catch (error) {
+    if (msg) msg.textContent = `连不上：${error.message}（多半是 Base URL 写错，或该端点不允许浏览器直连）`;
+  }
+});
 
 tabsEl.addEventListener('click', (event) => {
   const button = event.target.closest('button[data-tab]');
@@ -1797,7 +1972,8 @@ view.addEventListener('submit', (event) => {
   event.preventDefault();
   const value = qs('#keyinput').value.trim();
   if (!value) return;
-  store.setItem(KEY_STORE, value);
+  saveLlmSettings({ ...llmSettings(), key: value });
+  markSettingsButton();
   ask(state.ai.query);
 });
 

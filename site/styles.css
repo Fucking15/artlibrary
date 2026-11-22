@@ -167,6 +167,95 @@ h1 {
   white-space: nowrap;
 }
 
+/* 读者自己的 LLM 设置：一个按钮 + 一条可折叠的表单，不挡阅读。
+   注意这一块在深绿外壳里，文字色要用 --ink（近白），不能用 --paper（这里是外壳底色）。 */
+.settings-toggle {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  padding: 5px 10px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.settings-toggle:hover { border-color: var(--ink-2); color: var(--accent); }
+.settings-toggle.is-set { border-color: var(--ink-2); background: var(--accent-soft); color: var(--accent); }
+
+.ai-settings {
+  max-width: 960px;
+  margin: 4px auto 0;
+  padding: 14px 24px 16px;
+  border-top: 1px solid var(--rule);
+}
+
+.llm-form { display: flex; flex-direction: column; gap: 10px; }
+
+.llm-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 14px;
+  align-items: flex-end;
+}
+
+.llm-row label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: .06em;
+  color: var(--ink-3);
+}
+
+.llm-row input {
+  min-width: 200px;
+  padding: 7px 9px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: rgba(0, 0, 0, .22);
+  color: var(--ink);
+  font-family: var(--mono);
+  font-size: 12px;
+}
+
+.llm-row input::placeholder { color: var(--ink-3); }
+
+.llm-actions button {
+  font-family: var(--sans);
+  font-size: 12px;
+  padding: 7px 14px;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.llm-actions button[type="submit"] { background: var(--ink); color: var(--paper); border-color: var(--ink); }
+.llm-actions button:hover { border-color: var(--ink-2); color: var(--accent); }
+.llm-actions button[type="submit"]:hover { color: var(--paper); }
+
+.llm-msg {
+  font-family: var(--mono);
+  font-size: 10px;
+  color: var(--ink-2);
+}
+
+.ai-settings .llm-note {
+  margin: 0;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--ink-3);
+}
+
+.ai-settings .llm-note b { color: var(--ink); }
+.ai-settings .llm-note a { color: var(--accent); text-decoration: underline; }
+.ai-settings .llm-note code { font-family: var(--mono); font-size: 10px; color: var(--ink-2); }
+
 .tabs { display: flex; flex-wrap: wrap; gap: 4px; }
 
 .tabs button {
