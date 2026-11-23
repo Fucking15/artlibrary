@@ -209,6 +209,23 @@ function llmEndpoint(settings = llmSettings()) {
 
 const maskKey = (key) => (!key ? '' : key.length <= 8 ? '已存' : `${key.slice(0, 3)}…${key.slice(-4)}`);
 
+/**
+ * 两种「本地」口径别混用：
+ *   loopback —— 只有这台机器自己（审查台 API 只接受它）；
+ *   私有网段 —— localhost / 192.168.x / 10.x / 172.16-31.x：手机连同一个 WiFi 也算，
+ *              这时 /api/ai 仍由本机 serve.mjs 转发，读者不需要自己填 Key。
+ */
+const LOOPBACK_HOSTS = new Set(['localhost', '127.0.0.1', '::1', '[::1]']);
+
+function isLoopbackHost() {
+  return LOOPBACK_HOSTS.has(String(location.hostname || ''));
+}
+
+function isPrivateHost() {
+  if (isLoopbackHost()) return true;
+  return /^(?:10\.|192\.168\.|172\.(?:1[6-9]|2\d|3[01])\.)/.test(String(location.hostname || ''));
+}
+
 /* --------------------------------------------------------------- 译文缓存 */
 
 /* 文档页的「AI 翻译」：把页面上每条中文结论翻成英文/德文，或把英文条目翻回中文。
@@ -1489,10 +1506,9 @@ async function callDeepSeek(messages) {
     // 其余（404/405/501/403）= 这里没有本地代理，继续走直连
   } catch (error) {
     if (error?.code === 'PROXY_ERROR' || error?.code === 'EMPTY') throw error;
-    // fetch 本身失败：在本机访问说明代理没起或被断开；静态托管上则继续尝试直连。
+    // fetch 本身失败：在局域网/本机访问说明代理没起或被断开；静态托管上则继续尝试直连。
     const host = String(location.hostname || '');
-    const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]';
-    if (isLocal) {
+    if (isPrivateHost()) {
       throw { code: 'PROXY_ERROR', status: 0, detail: `连不上本地预览服务（${host}:${location.port || '?'}）：serve.mjs 没在跑，或刚重启过。` };
     }
   }
@@ -1872,9 +1888,8 @@ function render() {
 /* The review desk only exists when preview.cmd (or another local serve.mjs) is running;
    a published site and the offline single file should not advertise a dead link. */
 function revealLocalTools() {
-  const host = location.hostname;
-  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-  if (!isLocal || window.__TK_OFFLINE__) return;
+  // 审查台的后端只接受 loopback 请求（手机通过局域网 IP 打开会被拒），所以这里仍用严格口径。
+  if (!isLoopbackHost() || window.__TK_OFFLINE__) return;
   const link = qs('#examine-link');
   if (link) link.hidden = false;
 }
@@ -1894,8 +1909,7 @@ function markAiAvailability() {
     return;
   }
   const host = location.hostname;
-  const isLocal = host === 'localhost' || host === '127.0.0.1' || host === '::1';
-  if (isLocal) {
+  if (isPrivateHost()) {
     hint.textContent = own ? `AI 检索 · 本地代理 + ${own}` : 'AI 检索 · 本地代理';
     return;
   }
